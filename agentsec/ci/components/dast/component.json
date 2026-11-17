@@ -1,0 +1,14 @@
+{
+  "id": "dast",
+  "title": "DAST — OWASP ZAP baseline (agentsec live)",
+  "summary": "Scheduled/manual dynamic scan: OWASP ZAP baseline DAST against a running deployment via agentsec live.",
+  "category": "dast",
+  "applies_when": ["fastapi"],
+  "requires_secrets": [],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "FAIL_ON": {"default": "high"}
+  },
+  "depends_on": [],
+  "notes": "Wraps `agentsec live --target-url`, which runs OWASP ZAP DAST via the official Docker image and merges results into the unified report. The scan target is NOT embedded: set it as a repo variable `DAST_TARGET_URL` (Settings → Secrets and variables → Actions → Variables) or pass `target_url` when dispatching manually; the workflow skips with a notice if neither is set. DEFAULT: an unauthenticated passive baseline (secret-free, runs against any reachable target). ADVANCED (opt-in): configure the optional `DAST_SUPABASE_URL` / `DAST_SUPABASE_ANON_KEY` / `DAST_TEST_USER_EMAIL` / `DAST_TEST_USER_PASSWORD` secrets and the run upgrades to an AUTHENTICATED ACTIVE scan — agentsec mints a bearer token via the Supabase password grant (`--supabase-login`) and runs the active API scan (`--zap-active`), passing `--allow-remote-target` (a deployed target is remote from the runner). This mirrors ai-agent-mastery's seeded-test-user DAST: point it at a NON-PROD, disposable deployment seeded with a throwaway user. Schemathesis fuzzing + jwt_tool can be added on the same authenticated pattern via `agentsec live` flags."
+}

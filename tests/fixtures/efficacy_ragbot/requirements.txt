@@ -1,0 +1,6 @@
+fastapi==0.115.0
+pydantic-ai==1.99.0
+langchain-core==0.3.90
+transformers==4.46.0
+requests==2.32.0
+torch==2.5.0

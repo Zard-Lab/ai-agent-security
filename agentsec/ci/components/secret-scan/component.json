@@ -1,0 +1,14 @@
+{
+  "id": "secret-scan",
+  "title": "Secret scan (gitleaks)",
+  "summary": "Scans full git history for committed secrets with a pinned gitleaks binary and a generic allowlist.",
+  "category": "security",
+  "applies_when": [],
+  "requires_secrets": [],
+  "params": {
+    "GITLEAKS_VERSION": {"default": "8.30.1"},
+    "GITLEAKS_SHA256": {"default": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"}
+  },
+  "depends_on": [],
+  "notes": "Ships non-blocking (gitleaks --exit-code 0) so the first run is a clean signal, not a wall. After the first clean report, flip the scan step to blocking by removing --exit-code 0. The gitleaks binary is version- + sha256-pinned; bump both together from the gitleaks releases page."
+}

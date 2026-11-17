@@ -1,0 +1,14 @@
+{
+  "id": "db-lint",
+  "title": "Database lint — Supabase Splinter (agentsec live)",
+  "summary": "Scheduled/manual Supabase Splinter DB lint against a live Postgres via agentsec live.",
+  "category": "db",
+  "applies_when": ["supabase"],
+  "requires_secrets": ["DATABASE_URL"],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "FAIL_ON": {"default": "high"}
+  },
+  "depends_on": [],
+  "notes": "Wraps `agentsec live --db-url ... --allow-remote-db`, which runs the pinned Supabase Splinter lint query against a live Postgres (via psql) and merges results into the unified report. The connection string is a real secret: set the `DATABASE_URL` repo secret (a Postgres DSN). The job skips with a notice if it is not set. A CI DSN is remote from the runner, so `--allow-remote-db` is passed to satisfy agentsec's locality guard — you are explicitly opting into a remote scan, so use a read-only / least-privilege role and a NON-PROD database. This is the CI counterpart of the production weekly Splinter scan, without vendoring project-specific scripts or a hardcoded DSN."
+}

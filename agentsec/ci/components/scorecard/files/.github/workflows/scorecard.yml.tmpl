@@ -1,0 +1,78 @@
+name: OpenSSF Scorecard
+
+# Installed by `agentsec ci add scorecard`. Runs OpenSSF Scorecard against this
+# repo and gates on a minimum aggregate score. Repo mode — scores this repo's own
+# supply-chain posture (branch protection, signed releases, token permissions,
+# dangerous workflows, maintenance), the API-only signals a CVE scanner can't see.
+on:
+  schedule:
+    # Weekly, Monday 03:00 UTC. Adjust to taste.
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+# Least-privilege at the top level; the analysis job widens only what it needs.
+permissions:
+  contents: read
+
+jobs:
+  scorecard:
+    name: OpenSSF Scorecard
+    runs-on: @@RUNNER@@
+    permissions:
+      # Read the repo to run the checks. `security-events`/`id-token` are
+      # intentionally NOT granted: results are uploaded as an artifact (below),
+      # not to code-scanning, so no GitHub Advanced Security is required.
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+
+    - name: Run OpenSSF Scorecard
+      uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a  # v2.4.3
+      with:
+        results_file: scorecard-results.json
+        results_format: json
+        # The automatic token covers most checks. For full Branch-Protection
+        # coverage, create a fine-grained PAT, store it as the SCORECARD_TOKEN
+        # secret, and change this to ${{ secrets.SCORECARD_TOKEN }}.
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        # Publishing (OpenSSF badge) is public-repo only and needs id-token:write.
+        publish_results: false
+
+    - name: Gate on minimum score
+      env:
+        MIN_SCORE: "@@SCORECARD_MIN_SCORE@@"
+      run: |
+        if [ ! -f scorecard-results.json ]; then
+          echo "::warning::no scorecard-results.json produced — skipping gate."
+          exit 0
+        fi
+        SCORE=$(jq -r '.score // -1' scorecard-results.json)
+        echo "OpenSSF Scorecard aggregate score: ${SCORE} (minimum: ${MIN_SCORE})"
+        echo "::group::Failing checks (score < 7)"
+        jq -r '.checks[]? | select(.score >= 0 and .score < 7) | "\(.score)/10  \(.name) — \(.reason)"' \
+          scorecard-results.json | sort -n | head -50
+        echo "::endgroup::"
+        if [ "${SCORE}" = "-1" ]; then
+          echo "::warning::aggregate score is -1 (could not compute) — not gating."
+          exit 0
+        fi
+        # Float compare via awk (bash can't).
+        if awk -v s="${SCORE}" -v m="${MIN_SCORE}" 'BEGIN { exit (s + 0 < m + 0) ? 1 : 0 }'; then
+          echo "::notice::Scorecard ${SCORE} >= ${MIN_SCORE}"
+        else
+          echo "::error::Scorecard ${SCORE} is below the minimum ${MIN_SCORE} — see the scorecard-results artifact"
+          exit 1
+        fi
+
+    - name: Upload Scorecard results
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      if: always()
+      with:
+        name: scorecard-results
+        path: scorecard-results.json
+        retention-days: 30

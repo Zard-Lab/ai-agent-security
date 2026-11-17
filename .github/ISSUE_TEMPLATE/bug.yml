@@ -1,0 +1,83 @@
+name: Bug
+description: agentsec itself crashed, hung, or behaved wrongly
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is for defects in the **tool** — a crash, a hang, a wrong exit code, a malformed
+        report. If a *guard* got a detection wrong, use the false-positive or missed-detection
+        form instead; those feed a different pipeline.
+
+  - type: input
+    id: version
+    attributes:
+      label: agentsec version
+      placeholder: 0.21.13
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: The command you ran
+      placeholder: agentsec audit . --guards-only --format sarif --out findings.sarif
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what happened instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Output / traceback
+      description: >
+        The full traceback if it crashed. If it exited 0 but wrote nothing, or wrote a partial
+        artifact, say so explicitly — a silent wrong-success is a more serious bug here than a
+        crash, and it is easy to under-report.
+      render: text
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      description: agentsec runs on Linux and Windows and is tested on both, so this matters.
+      options:
+        - Linux
+        - macOS
+        - "Windows (native)"
+        - "Windows (WSL)"
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.4"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of agentsec
+      description: >
+        Your best guess is fine — triage applies the matching `area:` label, which a form cannot do
+        conditionally. Pick by where you think the FIX lands, not by what the symptom looks like.
+      options:
+        - "guard — a specific check's detection logic"
+        - "runner — an external scanner (bandit/semgrep/trivy/...) or its output parsing"
+        - "pipeline — detect / registry / findings / audit / report / exceptions"
+        - "docs — docs, wiki, checklist prose"
+        - "infra — CI, scripts, packaging, release, setup"
+        - "Not sure"
+    validations:
+      required: false

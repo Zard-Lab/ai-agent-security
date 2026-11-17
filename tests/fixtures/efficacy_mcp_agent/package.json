@@ -1,0 +1,7 @@
+{
+  "name": "mcp-agent-tools",
+  "private": true,
+  "dependencies": {
+    "mcp-remote": "0.0.9"
+  }
+}

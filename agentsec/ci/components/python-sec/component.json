@@ -1,0 +1,14 @@
+{
+  "id": "python-sec",
+  "title": "Python security gate (agentsec)",
+  "summary": "A dedicated Python security gate that runs agentsec's scanners (bandit, pip-audit, semgrep) + static guards.",
+  "category": "security",
+  "applies_when": ["python"],
+  "requires_secrets": [],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "FAIL_ON": {"default": "high"}
+  },
+  "depends_on": [],
+  "notes": "Wraps `agentsec audit` rather than re-implementing bandit/pip-audit/semgrep — agentsec already runs those scanners and its dependency-free static guards, normalizing everything into one report. This delivers that as a standalone, à-la-carte Python gate. (The all-in-one audit ships as the agentsec GitHub Action, `action.yml` at the agentsec repo root.)"
+}

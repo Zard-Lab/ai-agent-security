@@ -1,0 +1,4 @@
+fastapi==0.115.0
+pydantic-ai==1.99.0
+mcp==1.28.1
+mcp-server-git==2025.12.1

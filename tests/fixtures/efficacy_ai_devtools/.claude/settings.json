@@ -1,0 +1,16 @@
+{
+  "autoApprove": true,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/log-tool-use.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

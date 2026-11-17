@@ -1,0 +1,72 @@
+name: Guard idea
+description: Propose a new check for agentsec to detect
+title: "[GUARD] "
+labels: ["guard-idea", "enhancement", "area:guard"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Proposals that answer the four questions below tend to become guards; ones that do not
+        tend to stall. If you want to build it yourself, see
+        [`CONTRIBUTING-GUARDS.md`](../blob/main/CONTRIBUTING-GUARDS.md) — the `/guard-factory`
+        skill runs the whole 6-file recipe for you.
+
+  - type: textarea
+    id: threat
+    attributes:
+      label: The threat
+      description: >
+        What goes wrong in a real application, and what does an attacker get? agentsec ranks by
+        exploitability, so "this is bad practice" is weaker than "this is how it is exploited".
+    validations:
+      required: true
+
+  - type: input
+    id: reference
+    attributes:
+      label: Real-world reference
+      description: >
+        A CVE, advisory, writeup, or incident. Not a formality — it is what separates a real
+        threat from a plausible-sounding one, and it goes in the guard's design doc.
+      placeholder: CVE-2024-3094 / an advisory or writeup URL
+    validations:
+      required: true
+
+  - type: textarea
+    id: pattern
+    attributes:
+      label: What the vulnerable code looks like
+      description: A snippet the guard would need to fire on.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: fp_bait
+    attributes:
+      label: What it must NOT flag
+      description: >
+        The nearest *safe* code that looks similar. This is the question most proposals skip and
+        the one that decides whether a guard is usable — every widening in this project ships with
+        an FP-bait test, so thinking about it now saves a round later.
+      render: python
+    validations:
+      required: true
+
+  - type: input
+    id: applies
+    attributes:
+      label: Which stack does it apply to?
+      description: >
+        agentsec only runs checks that apply to the detected stack, so a guard needs a gate —
+        e.g. `python` + `fastapi`, `llm`, `supabase`, `payments`.
+      placeholder: llm, rag
+    validations:
+      required: true
+
+  - type: input
+    id: standards
+    attributes:
+      label: Standards mapping (optional)
+      description: OWASP Top 10, OWASP LLM Top 10, CWE, CIS — if you know one that fits.
+      placeholder: OWASP-LLM:LLM01

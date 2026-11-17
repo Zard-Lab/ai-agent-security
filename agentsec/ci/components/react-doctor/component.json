@@ -1,0 +1,16 @@
+{
+  "id": "react-doctor",
+  "title": "Frontend health gate (react-doctor)",
+  "summary": "Fails CI if the React app's react-doctor score drops below a threshold.",
+  "category": "quality",
+  "applies_when": ["frontend"],
+  "requires_secrets": [],
+  "params": {
+    "FRONTEND_DIR": {"from": "profile.frontend_dir", "default": "frontend"},
+    "NODE_VERSION": {"default": "22"},
+    "MIN_SCORE": {"default": "75"},
+    "REACT_DOCTOR_VERSION": {"default": "0.9.11"}
+  },
+  "depends_on": [],
+  "notes": "react-doctor pinned to 0.5.6 (the flagship-vetted version; 0.5.x runs an oxlint-based engine and emits a flat schemaVersion-1 --json report parsed with jq). Run via `npx` (npm's resolver) rather than `pnpm dlx`, which pnpm 11 blocks as ERR_PNPM_TRUST_DOWNGRADE on a fresh resolve (a package-takeover defense). --no-telemetry disables the bundled Sentry client AND the aggregate 0-100 score (0.5.x derives the score from that path). So the gate is deterministic and error-severity-based: it fails on ANY error-severity finding; MIN_SCORE only applies if a numeric score is present (null under --no-telemetry) and a missing score is never coerced to 0."
+}

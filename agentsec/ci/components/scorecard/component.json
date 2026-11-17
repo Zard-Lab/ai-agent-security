@@ -1,0 +1,13 @@
+{
+  "id": "scorecard",
+  "title": "OpenSSF Scorecard (supply-chain health)",
+  "summary": "Scheduled OpenSSF Scorecard run scoring this repo's supply-chain posture (branch protection, signed releases, token permissions, dangerous workflows, maintenance) and gating on a minimum aggregate score.",
+  "category": "supply-chain",
+  "applies_when": [],
+  "requires_secrets": [],
+  "params": {
+    "SCORECARD_MIN_SCORE": {"default": "5.0"}
+  },
+  "depends_on": [],
+  "notes": "Runs the pinned ossf/scorecard-action against THIS repo (repo mode) and fails when the aggregate score drops below SCORECARD_MIN_SCORE (0-10). Complementary to `agentsec audit`'s ScorecardRunner (same tool, run locally at `--network tier1`) and to the static `actions-sha-pin`/`actions-script-injection`/`ci-secret-env-unscoped` guards: the value here is the API-only health signals (Branch-Protection, Maintained, Signed-Releases, Fuzzing) that CVE scanners and static guards can't see. Uses the automatic `${{ secrets.GITHUB_TOKEN }}`; for full Branch-Protection coverage on some repos, supply a fine-grained PAT as a `SCORECARD_TOKEN` secret and swap it into the `repo_token:` line. Results are uploaded as a build artifact only (no code-scanning/SARIF upload), so no GitHub Advanced Security is required. `publish_results` is off by default; enable it (public repos only, needs `id-token: write`) to earn the OpenSSF badge."
+}

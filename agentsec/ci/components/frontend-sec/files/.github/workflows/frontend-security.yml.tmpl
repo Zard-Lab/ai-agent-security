@@ -1,0 +1,40 @@
+name: Frontend Security (eslint + audit)
+
+# Installed by `agentsec ci add frontend-sec`. Adapted to your detected package
+# manager. No secrets or project-specific values are embedded.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-security:
+    name: Frontend Security (eslint + audit)
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+@@PM_SETUP_BLOCK@@
+
+    - name: Install dependencies
+      run: |
+        cd @@FRONTEND_DIR@@
+        @@PM_INSTALL@@
+
+    # Primary gate. Fails on ESLint errors. For security-specific rules, add
+    # `eslint-plugin-security` to your config — this runs your project's ESLint.
+    - name: ESLint
+      run: |
+        cd @@FRONTEND_DIR@@
+        @@PM_EXEC@@ eslint .
+
+    # Convenience dependency audit (informational; non-blocking). `agentsec
+    # audit` can run node-audit too (it needs `--network tier1`), so drop this if
+    # your agentsec CI run already does. Bun ignores --audit-level.
+    - name: Dependency audit
+      run: |
+        cd @@FRONTEND_DIR@@
+        @@PM@@ audit --audit-level=moderate || true

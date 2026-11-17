@@ -1,0 +1,16 @@
+{
+  "id": "self-audit",
+  "title": "agentsec self-audit — security gate + checklist score card",
+  "summary": "Runs agentsec's stack-aware static audit (CI gate on high+ findings) and publishes the checklist coverage score card to the run summary.",
+  "category": "security",
+  "applies_when": [],
+  "requires_secrets": [],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "FAIL_ON": {"default": "high"},
+    "TOP": {"default": "50"},
+    "ADVISORY": {"default": "false"}
+  },
+  "depends_on": [],
+  "notes": "The one-command way to put agentsec in your own CI. The workflow calls agentsec's own GitHub Action, which runs `agentsec audit` ONCE from the action's checkout (no install step; the dependency-free static guards — RLS, lethal-trifecta, supply-chain, Stripe, JWT, service-role-key, …; static scanners run too if present). That single pass writes the findings report to the GitHub step summary (the TOP most-severe findings, default 50) with the `agentsec coverage` score card, capped inline PR annotations, the agentsec-sarif artifact, and the gate: the build fails on FAIL_ON+ findings (default high). Advisory mode (`agentsec ci add self-audit --advisory`) renders the action's `mode: advisory`, so a rollout reports every finding without blocking merges; a scan that did not complete still fails, in every mode. No secrets and no project-specific values are embedded. The action is pinned to the commit SHA of the release tag (`v<version>`) of the agentsec that rendered the workflow, never a moving ref: `ci add` looks that SHA up once with `git ls-remote` (your own git credentials), or takes it from `--action-sha`; re-render with `--force` to upgrade. For a private agentsec repo add `--install-secret NAME`: the workflow checks the action out at that commit with the token (not persisted) and runs it as a local action. To also run the live DAST / DB-lint scanners that need a running target, add the `dast` / `db-lint` components."
+}

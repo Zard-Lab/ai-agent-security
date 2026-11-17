@@ -1,0 +1,65 @@
+name: Database Lint (Supabase Splinter)
+
+# Installed by `agentsec ci add db-lint`. Runs the Supabase Splinter DB lint
+# (via agentsec live) against a live Postgres. The connection string is read
+# from the DATABASE_URL secret — no DSN is embedded. Prefer a least-privilege
+# role and a non-prod database.
+on:
+  schedule:
+    # Weekly, Monday 08:00 UTC. Adjust to taste.
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  db-lint:
+    name: Database Lint (Supabase Splinter)
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+    - name: Ensure psql is available
+      run: |
+        command -v psql >/dev/null || { sudo apt-get update && sudo apt-get install -y postgresql-client; }
+        psql --version
+
+@@AGENTSEC_INSTALL_STEP@@
+
+    - name: Check DATABASE_URL is configured
+      id: target
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: |
+        if [ -z "${DATABASE_URL}" ]; then
+          echo "::notice::DATABASE_URL secret not set — skipping Splinter DB lint."
+          echo "skip=1" >> "$GITHUB_OUTPUT"
+        fi
+
+    # Single run: writes the SARIF artifact AND gates on exit code. The Splinter
+    # lint SQL is fetched pinned by `agentsec live`. `--allow-remote-db` is required
+    # because a CI DATABASE_URL is remote from the runner; agentsec otherwise refuses
+    # a remote DB (the locality guard). Point it at a NON-PROD, least-privilege DB —
+    # Splinter is read-only, but you are explicitly opting into a remote scan here.
+    - name: Run Splinter DB lint (agentsec live)
+      if: steps.target.outputs.skip != '1'
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: |
+        agentsec live . --db-url "$DATABASE_URL" --allow-remote-db \
+          --format sarif --out splinter.sarif --fail-on @@FAIL_ON@@
+
+    - name: Upload SARIF
+      if: always() && steps.target.outputs.skip != '1'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: splinter-sarif
+        path: splinter.sarif
+        retention-days: 30

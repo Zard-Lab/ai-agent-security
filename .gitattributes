@@ -1,0 +1,12 @@
+# Normalize all text to LF in the repo and on checkout, so the Windows CI runner
+# (and Windows dev checkouts) don't introduce CRLF that breaks exact-string drift
+# tests (e.g. test_coverage.py::test_tracker_block_matches). Binary assets are
+# left untouched.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.whl binary

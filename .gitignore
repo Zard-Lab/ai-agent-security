@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.testmondata
+
+# Tooling / local
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# scripts/validate-checklist.py's guard-emission cache (derived from the guard sources;
+# regenerates itself in ~80s whenever a guard changes).
+.checklist-validator-cache.json
+
+# Audit outputs (generated)
+*.sarif
+audit-reports/
+/tmp/
+# corpus-scan output is a regenerable artifact, never repository state
+corpus-out/
+# The private corpus list (`corpus-scan --no-seeds --repos-file private-repos.txt`). CLAUDE.md tells
+# contributors to curate private app repos here, so committing it would publish the paths/names of
+# repos that are private by definition. The name is bound to the documented one by
+# tests/test_corpus.py::test_documented_private_repos_file_is_gitignored.
+private-repos.txt
+
+# uv lock — agentsec is zero-runtime-dep; the dev env resolves from pyproject.
+# A committed lock is an accidental artifact (drifts, 115KB). Keep it out (per CLAUDE.md).
+uv.lock
+
+# Local isolated-worktree scratch (Agent tool `isolation: "worktree"`, parallel builds) — each is
+# its own git checkout, so a bare `git add -A` stages them as embedded-repo gitlinks, not content.
+.claude/worktrees/
+# Per-developer Claude Code permissions/settings. Untracked by design: the allowlist stores
+# the LITERAL text of every approved command, so any secret ever passed inline on a command
+# line is persisted here verbatim (this bit us: two entries held a live ghp_ token).
+.claude/settings.local.json
+
+# The Q8 soft-launch approach packet (infographic PNGs + repro guide + report), zipped
+# for sending to an outside reviewer. A regenerable bundle of
+# files already tracked individually — never repository state.
+docs/*-packet.zip
+# The trajectory-review changes packet sent back upstream (workflow template + patch +
+# pinning test + CHANGES.md). Same shape as the packet above: a regenerable bundle of files
+# already tracked individually — never repository state.
+docs/trajectory-review-for-*.zip
+
+# Plaintext private identifiers for the privacy sweep (#600). The tracked artifact is
+# tests/privacy_terms.json (digests only); this file must never be committed.
+.privacy-terms

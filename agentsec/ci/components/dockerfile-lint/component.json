@@ -1,0 +1,11 @@
+{
+  "id": "dockerfile-lint",
+  "title": "Dockerfile lint (hadolint)",
+  "summary": "Lints all Dockerfiles with hadolint; promotes pin/tag hygiene rules to errors.",
+  "category": "security",
+  "applies_when": ["docker"],
+  "requires_secrets": [],
+  "params": {},
+  "depends_on": [],
+  "notes": "Promotes DL3007 (no floating tags like :latest/:alpine), DL3008 (pin apt packages), and friends to error — these are the supply-chain / drift bug-classes a container-CVE monitor exists to prevent. Other rules stay at hadolint's default until they prove their value."
+}

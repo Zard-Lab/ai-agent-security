@@ -1,0 +1,590 @@
+{
+  "note": "Curated dependency version floors for known high-severity CVEs affecting the FastAPI/React/Supabase/LLM stack. The slow-clock /threat-intake appends an entry here when it proposes a version-floor item (CVE + fixed-in version); the dependency-version-floor guard enforces it deterministically. fixed_in lists one patched version per affected release line (backports). Seeds are web-verified. An entry with ecosystem \"packageManager\" floors the package.json `packageManager` toolchain pin (pnpm/npm/yarn via Corepack) — enforced by the js-supply-chain guard, not dependency-version-floor; it may carry a `cves` list (vs the single `cve`) when one toolchain version closes several advisories. An entry with ecosystem \"go\" names the full Go module path exactly as go.sum spells it (a `/vN` major-version path is a separate module and needs its own entry) and is checked against go.sum's highest content-hash version for that module. An entry with ecosystem \"docker\" names the bare Dockerfile base-image name (`php`, `node`, ...) and is checked against `StackProfile.docker_base_images` — only a Dockerfile `FROM` tag that fully commits to an exact major.minor.patch counts (a floating tag like `php:8.3` is left alone, same as an open pip/npm range). An npm/pip/go/docker entry whose fix closes several CVEs at once names the primary CVE in `cve` (it drives the finding title + NVD link) and lists the co-fixed CVEs in `name`. Invariant: the primary `cve` must be the one whose OWN fix version equals this entry's `fixed_in`, so the generated `vulnerable to {cve}; patched in {fixed}` message stays truthful for every version in the vulnerable range; earlier co-fixed CVEs (fixed on a lower line) go in `name` only (#338).",
+  "floors": [
+    {
+      "package": "php",
+      "ecosystem": "docker",
+      "fixed_in": [
+        "8.5.12",
+        "8.4.27",
+        "8.3.36",
+        "8.2.35"
+      ],
+      "severity": "critical",
+      "name": "PHP interpreter — unauthenticated RCE pair, both CVSS 9.2: out-of-memory corruption (CVE-2026-109618) + stale global state (CVE-2026-109619, same fixed-in set). PHP 8.1 and older get no fixed release (EOL; the PHP team published source-only backports for 7.4/8.0/8.1, so no official image tag carries the fix); 8.2.x itself reaches EOL 2026-12-31.",
+      "cve": "CVE-2026-109618",
+      "affected_from": "5.4.0"
+    },
+    {
+      "package": "python",
+      "ecosystem": "docker",
+      "fixed_in": [
+        "3.14.8",
+        "3.13.16",
+        "3.12.15",
+        "3.11.17",
+        "3.10.22"
+      ],
+      "severity": "critical",
+      "name": "CPython `ssl` module — use-after-free when a server's `sni_callback` swaps `SSLSocket.context` and nothing else holds a reference to the original `SSLContext` (CVSS 9.2) + a related hostname-validation gap in `SSLContext.wrap_bio()` (CVE-2026-19553, CVSS 7.6, same fixed-in set). CVE-2026-19445 affects only a TLS server that uses `sni_callback` to switch contexts; CVE-2026-19553 affects TLS clients that call `wrap_bio()` without `server_hostname`. Python 3.9 and older reached EOL (2025-10) and receive no fix.",
+      "cve": "CVE-2026-19445"
+    },
+    {
+      "package": "node",
+      "ecosystem": "docker",
+      "fixed_in": [
+        "26.12.1",
+        "24.22.1",
+        "22.23.4"
+      ],
+      "severity": "high",
+      "name": "Node.js runtime — October 2026 security release, High-severity batch, all three fixed on the same release per line: a Brotli decoder out-of-bounds write via `node:zlib` on malformed input (CVE-2026-111497, can crash, leak memory, or execute code) + a `dns.resolve*()`/`dns.reverse()` hostname NUL-byte-truncation bug (CVE-2026-105482) + a leading-zero IPv4 octal/decimal confusion letting a certificate get checked against the wrong address (CVE-2026-106069). Node 20.x and older reached EOL (2026-04-30) and receive no fix.",
+      "cve": "CVE-2026-111497"
+    },
+    {
+      "package": "pnpm",
+      "ecosystem": "packageManager",
+      "fixed_in": [
+        "11.9.0"
+      ],
+      "cves": [
+        "CVE-2026-50014",
+        "CVE-2026-50015",
+        "CVE-2026-50016",
+        "CVE-2026-50017",
+        "CVE-2026-50021"
+      ],
+      "severity": "critical",
+      "name": "pnpm 11.1.x toolchain — git-fetch arg injection, malicious-patch path traversal, alias-symlink path override, npm-credential registry binding, lockfile integrity bypass (all fixed in 11.9.0)"
+    },
+    {
+      "package": "langchain-core",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.3.81"
+      ],
+      "cve": "CVE-2025-68664",
+      "severity": "critical",
+      "name": "LangGrinch — langchain-core serialization injection (secret exfiltration / RCE)"
+    },
+    {
+      "package": "langchain",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.2.5"
+      ],
+      "cve": "CVE-2025-68664",
+      "severity": "critical",
+      "name": "LangGrinch — langchain serialization injection (secret exfiltration / RCE)"
+    },
+    {
+      "package": "starlette",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.46.2",
+        "1.0.1"
+      ],
+      "cve": "CVE-2026-48710",
+      "severity": "critical",
+      "name": "BadHost — Host-header URL reconstruction bypasses route auth"
+    },
+    {
+      "package": "starlette",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.3.1"
+      ],
+      "cve": "CVE-2026-54283",
+      "severity": "high",
+      "name": "request.form() limits (max_fields/max_part_size) enforced for multipart but silently ignored for application/x-www-form-urlencoded — a single crafted request blocks the event loop or forces unbounded memory allocation (CWE-770, CVSS 7.5). A separate entry from CVE-2026-48710 (BadHost) above: this fix landed only on the 1.3.x line, not backported to 0.46.x/1.0.x, so it cannot be folded into that entry's fixed_in without breaking the per-line same-CVE match"
+    },
+    {
+      "package": "pydantic-ai",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.99.0"
+      ],
+      "cve": "CVE-2026-25580",
+      "severity": "high",
+      "name": "SSRF in URL-download handling (CVE-2026-25580); its initial fix was incomplete and bypassable via IPv4-mapped IPv6 addresses (CVE-2026-46678), closed in the same 1.99.0 floor"
+    },
+    {
+      "package": "ormar",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.23.1"
+      ],
+      "cve": "CVE-2026-27953",
+      "severity": "high",
+      "name": "Model-constructor Pydantic validation bypass — injecting `__pk_only__`/`__excluded__` into a JSON request body skips all field validation (e.g. nulling `role`/`email`) before the value is persisted; the canonical FastAPI-integration pattern in ormar's own docs is the vulnerable path"
+    },
+    {
+      "package": "@modelcontextprotocol/sdk",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "1.26.0"
+      ],
+      "cve": "CVE-2026-25536",
+      "severity": "high",
+      "name": "MCP TypeScript SDK — UriTemplate ReDoS (pre-auth, CVE-2026-0621) + cross-client response leak on reused Server/transport instances (CVE-2026-25536), both fixed in 1.26.0"
+    },
+    {
+      "package": "@modelcontextprotocol/inspector",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "0.14.1"
+      ],
+      "cve": "CVE-2025-49596",
+      "severity": "critical",
+      "name": "MCP Inspector — unauthenticated RCE via DNS rebinding against the client-proxy bridge (CVSS 9.4)"
+    },
+    {
+      "package": "@modelcontextprotocol/server-filesystem",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "0.6.4",
+        "2025.7.1"
+      ],
+      "cve": "CVE-2025-53109",
+      "severity": "high",
+      "name": "Filesystem MCP Server — symlink validation bypass (CVSS 8.4) + directory-containment prefix-match bypass (CVSS 7.3), patched on each release line: 0.6.4 and 2025.7.1"
+    },
+    {
+      "package": "@mastra/mcp-docs-server",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "0.17.0"
+      ],
+      "cve": "CVE-2025-61685",
+      "severity": "medium",
+      "name": "Mastra Docs MCP Server — path-traversal check on file-content reads is bypassed by the directory-suggestion fallback logic, exposing a directory listing of arbitrary filesystem paths (CVSS 6.5)"
+    },
+    {
+      "package": "vite",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "6.4.2",
+        "7.3.2",
+        "8.0.5"
+      ],
+      "cve": "CVE-2026-39363",
+      "severity": "high",
+      "name": "Dev-server WebSocket `fetchModule` RPC does not enforce the `server.fs` allow-list — a `vite:invoke` call with a `file://` path reads any file on the host when the dev server is network-exposed (--host / server.host) with WebSocket enabled"
+    },
+    {
+      "package": "@cyanheads/git-mcp-server",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "2.1.5"
+      ],
+      "cve": "CVE-2025-53107",
+      "severity": "high",
+      "name": "git-mcp-server — command injection via unsanitized args to child_process.exec, reachable through indirect prompt injection"
+    },
+    {
+      "package": "mcp",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.28.1"
+      ],
+      "severity": "high",
+      "name": "MCP Python SDK — FastMCP malformed-request DoS (CVE-2025-53366, fixed 1.9.4) + DNS rebinding protection off by default on localhost HTTP/SSE servers (CVE-2025-66416, fixed 1.23.0) + SSE/Streamable-HTTP session hijack via missing authenticated-principal check on session lookup (CVE-2026-52869, CVSS 7.1, fixed 1.27.2) + experimental task handlers letting any client access/cancel another client's task, same missing-principal-check root cause (CVE-2026-52870, CVSS 7.6, fixed 1.27.2) + the deprecated WebSocket transport shipping with no Host/Origin validation at all, a second DNS-rebinding path distinct from the HTTP/SSE one above (CVE-2026-59950, fixed 1.28.1) — 1.28.1 closes all five",
+      "cve": "CVE-2026-59950"
+    },
+    {
+      "package": "fastmcp",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "2.14.2"
+      ],
+      "severity": "high",
+      "name": "FastMCP (jlowin/fastmcp) OAuth Proxy — issues tokens bound to the proxy's own base_url instead of the client's requested `resource` parameter (RFC 8707 audience binding ignored), so a token obtained via one MCP server behind the proxy is accepted by every other MCP server behind the same proxy (CVE-2025-69196, CVSS 7.4, fixed 2.14.2)",
+      "cve": "CVE-2025-69196"
+    },
+    {
+      "package": "mcp-server-git",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "2025.12.18"
+      ],
+      "severity": "critical",
+      "name": "Git MCP Server RCE chain — unrestricted git_init onto sensitive paths (CVE-2025-68143), argument injection in git_diff/git_checkout (CVE-2025-68144), and a --repository path-traversal bypass (CVE-2025-68145); chainable into full RCE via prompt injection, git_init removed and the rest fixed in 2025.12.18",
+      "cve": "CVE-2025-68145"
+    },
+    {
+      "package": "github.com/modelcontextprotocol/go-sdk",
+      "ecosystem": "go",
+      "fixed_in": [
+        "1.4.1"
+      ],
+      "severity": "high",
+      "name": "MCP Go SDK — DNS-rebinding protection disabled by default on localhost HTTP/SSE servers (CVE-2026-34742, CVSS 8.1, GHSA-xw59-hvm2-8pj6, fixed 1.4.0) + case-insensitive JSON-RPC parsing violating spec (CVE-2026-27896, CVSS 7.5, GHSA-wvj2-96wp-fq3f, fixed 1.3.1) + missing Origin validation on Streamable HTTP POSTs enabling cross-site tool execution (CVE-2026-33252, CVSS 7.1, GHSA-89xv-2j6f-qhc8, fixed 1.4.1) — 1.4.1 closes all three",
+      "cve": "CVE-2026-33252"
+    },
+    {
+      "package": "io.modelcontextprotocol.sdk:mcp-core",
+      "ecosystem": "maven",
+      "fixed_in": [
+        "1.0.1",
+        "1.1.1"
+      ],
+      "severity": "medium",
+      "name": "MCP Java SDK — DNS rebinding vulnerability (CVE-2026-35568, CVSS 5.7, GHSA-8jxr-pr72-r468, fixed 1.0.0) + hardcoded wildcard CORS Access-Control-Allow-Origin: * (CVE-2026-34237, CVSS 6.1, GHSA-hv2w-8mjj-jw22, affects <1.0.1 and 1.1.0, fixed 1.0.1/1.1.1) — 1.0.1 (0.x/1.0.x line) or 1.1.1 (1.1.x line) closes both",
+      "cve": "CVE-2026-34237"
+    },
+    {
+      "package": "rmcp",
+      "ecosystem": "cargo",
+      "fixed_in": [
+        "1.4.0"
+      ],
+      "severity": "high",
+      "name": "MCP Rust SDK (official, github.com/modelcontextprotocol/rust-sdk) — Streamable HTTP server transport DNS rebinding, no Host-header validation (CVE-2026-42559, CVSS 8.8, GHSA-89vp-x53w-74fx); stdio and child-process transports are not affected",
+      "cve": "CVE-2026-42559"
+    },
+    {
+      "package": "apollo-mcp-server",
+      "ecosystem": "cargo",
+      "fixed_in": [
+        "1.7.0"
+      ],
+      "severity": "high",
+      "name": "Apollo MCP Server — Streamable HTTP transport missing Host-header validation, DNS rebinding (CVE-2026-35577, CVSS 8.1 NVD / 6.8 GitHub CNA, GHSA-wqrj-vp8w-f8vh)",
+      "cve": "CVE-2026-35577"
+    },
+    {
+      "package": "litellm",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.83.7"
+      ],
+      "cve": "CVE-2026-30623",
+      "severity": "critical",
+      "name": "litellm — MCP stdio transport command injection: the server-add `command` field ran as a subprocess on the proxy host; fixed via an allowlisted-launcher check in 1.83.7"
+    },
+    {
+      "package": "langflow",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.10.1"
+      ],
+      "cve": "CVE-2026-9198",
+      "severity": "critical",
+      "name": "Missing-authentication unauth RCE (CVE-2025-3248, CISA KEV since May 2025, fixed 1.3.0) — the CVE JADEPUFFER's agentic ransomware campaign actually exploited for initial access. A second, independent unauth-RCE (CVE-2026-33017: the public flow build endpoint accepts attacker-controlled code straight into exec() with zero sandboxing, no auth dependency at all) was fixed at 1.9.0. A third, independent unauth-RCE (CVE-2026-9198, CVSS 9.8, CISA KEV since 2026-08-04, actively exploited): chaining `/api/v1/auto_login` (mints a superuser token for any network caller in default config) with `/api/v1/validate/code` (execs arbitrary Python with that token) was fixed only at 1.10.1 — set as the floor here since it fully subsumes both earlier fixes and closes all three in one upgrade"
+    },
+    {
+      "package": "mlflow",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "3.10.0"
+      ],
+      "cve": "CVE-2026-2652",
+      "severity": "high",
+      "name": "Unauthenticated access to FastAPI routes when served via uvicorn with basic-auth enabled — the permission middleware only enforces auth on `/gateway/` routes, leaving the Job API (`/ajax-api/3.0/jobs/*`) and OpenTelemetry trace ingestion (`/v1/traces`) unauthenticated, letting a remote caller submit/cancel jobs, read job results, and inject arbitrary trace data"
+    },
+    {
+      "package": "pyjwt",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "2.13.0"
+      ],
+      "cve": "CVE-2026-48526",
+      "severity": "high",
+      "name": "PyJWT — public-key JWK accepted as HMAC secret, enables forged HS256 tokens when mixed algorithm families are allowed"
+    },
+    {
+      "package": "pyjwt",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "2.14.0"
+      ],
+      "cve": "CVE-2026-102268",
+      "severity": "critical",
+      "name": "PyJWT — asymmetric-PEM detection bypass: a whitespace/line-ending-mutated public key skips the HMAC/asymmetric confusion guard, so a mixed algorithm allow-list accepts a forged HS256 token (GHSA-ffc3-869f-jxw9, a maintainer repository advisory published 2026-09-11, 18 days before GitHub's global database carried it). Co-fixed in 2.14.0: public keys accepted as HMAC secrets in DER form (CVE-2026-102271), as a JWK container (CVE-2026-102273) and BOM-prefixed (CVE-2026-102272); empty HMAC keys through PyJWK (CVE-2026-102266) and an oct JWK (GHSA-pxh4-856f-4h89, no CVE assigned); PyJWKClient following JWKS redirects (CVE-2026-102267); and the medium CVE-2026-102269, CVE-2026-102270, CVE-2026-102265, CVE-2026-101917 and CVE-2026-102274"
+    },
+    {
+      "package": "pyjwt",
+      "ecosystem": "pip",
+      "affected_from": "2.0a1",
+      "fixed_in": [
+        "2.15.0"
+      ],
+      "cve": "CVE-2026-101918",
+      "severity": "medium",
+      "name": "PyJWT — an unauthenticated RecursionError DoS in the pre-verification payload parse through PyJWKClient.get_signing_key_from_jwt or verify_signature=False (GHSA-42vr-xj54-vc7v, affects 2.0.0a1 through 2.14.0). Co-fixed in 2.15.0: an OKP JWK whose public x does not match its private d is accepted, causing public/private key identity confusion (CVE-2026-102275, GHSA-x33g-cr3x-6449, affects 2.1.0 through 2.14.0)"
+    },
+    {
+      "package": "python-jose",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "3.4.0"
+      ],
+      "cve": "CVE-2024-33663",
+      "severity": "critical",
+      "name": "python-jose — algorithm confusion with OpenSSH ECDSA keys enables signature forgery"
+    },
+    {
+      "package": "sqlalchemy",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.3.0"
+      ],
+      "severity": "critical",
+      "name": "SQLAlchemy — SQL injection via order_by and group_by parameters (pre-1.3)",
+      "cve": "CVE-2019-7164"
+    },
+    {
+      "package": "uvicorn",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.11.7"
+      ],
+      "severity": "high",
+      "name": "uvicorn — HTTP response splitting and log injection",
+      "cve": "CVE-2020-7695"
+    },
+    {
+      "package": "httpx",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.23.0"
+      ],
+      "cve": "CVE-2021-41945",
+      "severity": "critical",
+      "name": "httpx — improper input validation"
+    },
+    {
+      "package": "fastapi",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.65.2"
+      ],
+      "cve": "CVE-2021-32677",
+      "severity": "high",
+      "name": "FastAPI — Cross-Site Request Forgery (CSRF)"
+    },
+    {
+      "package": "llama-index",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.13.0"
+      ],
+      "cve": "CVE-2025-7707",
+      "severity": "high",
+      "name": "llama-index — insecure temporary file"
+    },
+    {
+      "package": "langsmith",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "0.8.18"
+      ],
+      "cve": "GHSA-f4xh-w4cj-qxq8",
+      "severity": "high",
+      "name": "LangSmith SDK TracingMiddleware — arbitrary server-side file read (no CVE assigned yet, GHSA id used)"
+    },
+    {
+      "package": "anthropic",
+      "ecosystem": "pip",
+      "affected_from": "0.86.0",
+      "fixed_in": [
+        "0.87.0"
+      ],
+      "severity": "medium",
+      "name": "Claude SDK for Python (anthropic pip package) — memory-tool path validation race condition (sandbox escape) + insecure default file permissions on local filesystem memory tool",
+      "cve": "CVE-2026-34452"
+    },
+    {
+      "package": "litellm",
+      "ecosystem": "pip",
+      "affected_from": "1.82.7",
+      "fixed_in": [
+        "1.83.0"
+      ],
+      "cve": "GHSA-5mg7-485q-xm76",
+      "severity": "critical",
+      "name": "TeamPCP PyPI supply-chain compromise (2026-03-24): a maintainer credential exposed through the compromised Trivy CI dependency was used to publish litellm 1.82.7 and 1.82.8 with a malicious litellm_init.pth that harvested SSH keys, cloud credentials and Kubernetes secrets on every Python process start; not a code defect in litellm itself, these two releases were never legitimate and were pulled within ~40 minutes. No CVE assigned. 1.82.6 and earlier predate the compromise; 1.83.0 (the rebuilt CI/CD pipeline release) is the first confirmed-clean release after it"
+    },
+    {
+      "package": "@tanstack/react-router",
+      "ecosystem": "npm",
+      "affected_from": "1.169.5",
+      "fixed_in": [
+        "1.169.9"
+      ],
+      "cve": "CVE-2026-45321",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud mass npm/PyPI worm (2026-05-11): a chained GitHub Actions pull_request_target + cache-poisoning + OIDC-token-extraction attack published credential-stealing, self-propagating malware as @tanstack/react-router 1.169.5 and 1.169.8, exfiltrating over a typosquat domain, the decentralized Session network, and GitHub dead-drop repos"
+    },
+    {
+      "package": "@tanstack/router-core",
+      "ecosystem": "npm",
+      "affected_from": "1.169.5",
+      "fixed_in": [
+        "1.169.9"
+      ],
+      "cve": "CVE-2026-45321",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud mass npm/PyPI worm (2026-05-11) — same GHSA-g7cv-rxg3-hmpx compromise as @tanstack/react-router; router-core 1.169.5/1.169.8 carried the same credential-stealing payload"
+    },
+    {
+      "package": "@tanstack/vue-router",
+      "ecosystem": "npm",
+      "affected_from": "1.169.5",
+      "fixed_in": [
+        "1.169.9"
+      ],
+      "cve": "CVE-2026-45321",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud mass npm/PyPI worm (2026-05-11) — same GHSA-g7cv-rxg3-hmpx compromise as @tanstack/react-router; vue-router 1.169.5/1.169.8 carried the same credential-stealing payload"
+    },
+    {
+      "package": "@tanstack/solid-router",
+      "ecosystem": "npm",
+      "affected_from": "1.169.5",
+      "fixed_in": [
+        "1.169.9"
+      ],
+      "cve": "CVE-2026-45321",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud mass npm/PyPI worm (2026-05-11) — same GHSA-g7cv-rxg3-hmpx compromise as @tanstack/react-router; solid-router 1.169.5/1.169.8 carried the same credential-stealing payload"
+    },
+    {
+      "package": "mistralai",
+      "ecosystem": "pip",
+      "affected_from": "2.4.6",
+      "fixed_in": [
+        "2.5.0"
+      ],
+      "cve": "GHSA-wx9m-wx4f-4cmg",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud PyPI arm (2026-05-11/12): mistralai 2.4.6 was published to PyPI outside the project's normal Trusted-Publishing release workflow (no matching tag/commit/release run) with a backdoor in client/__init__.py that downloads and runs a second-stage payload on import on Linux, including a geofenced destructive rm -rf branch. 2.4.5 and earlier predate it; 2.5.0 is the first confirmed-clean PyPI release after the quarantine"
+    },
+    {
+      "package": "@mistralai/mistralai",
+      "ecosystem": "npm",
+      "affected_from": "2.2.2",
+      "fixed_in": [
+        "2.2.5"
+      ],
+      "cve": "GHSA-jgg6-4rpr-wfh7",
+      "severity": "low",
+      "name": "Mini Shai-Hulud npm arm (2026-05-11): @mistralai/mistralai 2.2.2-2.2.4 shipped from a compromised developer device carrying the same TanStack-campaign dropper, but GitHub's own advisory rates it Low — a filename mismatch (tanstack_runner.js referenced, router_init.js shipped) made the payload fail to execute. Still a genuine unauthorized publish, not a code vulnerability; both versions were pulled from npm"
+    },
+    {
+      "package": "@mistralai/mistralai-azure",
+      "ecosystem": "npm",
+      "affected_from": "1.7.1",
+      "fixed_in": [
+        "2.0.0"
+      ],
+      "cve": "GHSA-jgg6-4rpr-wfh7",
+      "severity": "low",
+      "name": "Mini Shai-Hulud npm arm (2026-05-11) — same GHSA-jgg6-4rpr-wfh7 broken-dropper compromise as @mistralai/mistralai; mistralai-azure 1.7.1-1.7.3 carried the same non-functional payload"
+    },
+    {
+      "package": "@mistralai/mistralai-gcp",
+      "ecosystem": "npm",
+      "affected_from": "1.7.1",
+      "fixed_in": [
+        "2.0.0"
+      ],
+      "cve": "GHSA-jgg6-4rpr-wfh7",
+      "severity": "low",
+      "name": "Mini Shai-Hulud npm arm (2026-05-11) — same GHSA-jgg6-4rpr-wfh7 broken-dropper compromise as @mistralai/mistralai; mistralai-gcp 1.7.1-1.7.3 carried the same non-functional payload"
+    },
+    {
+      "package": "guardrails-ai",
+      "ecosystem": "pip",
+      "affected_from": "0.10.1",
+      "fixed_in": [
+        "0.10.2"
+      ],
+      "cve": "CVE-2026-45758",
+      "severity": "critical",
+      "name": "Mini Shai-Hulud PyPI arm (2026-05-11): guardrails-ai 0.10.1 shipped malicious code injected into guardrails/__init__.py that downloads and executes a remote payload on import on Linux; detected and PyPI-quarantined within roughly two hours of publication. 0.10.0 predates it; 0.10.2 is the first confirmed-clean release after the quarantine"
+    },
+    {
+      "package": "@mastra/core",
+      "ecosystem": "npm",
+      "affected_from": "1.42.1",
+      "fixed_in": [
+        "1.43.0"
+      ],
+      "cve": "GHSA-pp62-grrw-hvfp",
+      "severity": "critical",
+      "name": "Mastra npm scope takeover (2026-06-17): a hijacked npm maintainer account (ehindero, attributed by Microsoft to the North Korean Sapphire Sleet/BlueNoroff group) republished @mastra/core 1.42.1 depending on easy-day-js, a dayjs typosquat whose postinstall dropper ran a cross-platform cryptocurrency-wallet stealer and RAT with persistence, across roughly 140 @mastra/* packages in under 20 minutes"
+    },
+    {
+      "package": "create-mastra",
+      "ecosystem": "npm",
+      "affected_from": "1.13.1",
+      "fixed_in": [
+        "1.14.0"
+      ],
+      "cve": "GHSA-jgwq-x2m5-mxhm",
+      "severity": "critical",
+      "name": "Mastra npm scope takeover (2026-06-17) — same ehindero account compromise as @mastra/core (GHSA-pp62-grrw-hvfp); create-mastra 1.13.1 was republished with the same easy-day-js typosquat dropper"
+    },
+    {
+      "package": "langchain-text-splitters",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.1.2"
+      ],
+      "cve": "CVE-2026-41481",
+      "severity": "medium",
+      "name": "langchain-text-splitters — HTMLHeaderTextSplitter.split_text_from_url() SSRF redirect bypass (GHSA-fv5p-p927-qmxr); allow-list check does not disable redirects on the fetch it guards, fixed in 1.1.2"
+    },
+    {
+      "package": "langchain-openai",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.1.14"
+      ],
+      "cve": "CVE-2026-41488",
+      "severity": "low",
+      "name": "langchain-openai — image token-counting SSRF protection bypassed via DNS rebinding between validation and fetch (GHSA-r7w7-9xr2-qq2r), fixed in 1.1.14"
+    },
+    {
+      "package": "mcp-contextforge-gateway",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.0.3"
+      ],
+      "cve": "CVE-2026-53708",
+      "severity": "medium",
+      "name": "ContextForge — DNS TOCTOU race condition causes SSRF protection bypass on /admin/gateways/test (GHSA-9hgc-g3w5-67cm), fixed in 1.0.3"
+    },
+    {
+      "package": "mcp-framework",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "0.2.22"
+      ],
+      "cve": "CVE-2026-39313",
+      "severity": "medium",
+      "name": "mcp-framework — unbounded HTTP request body accumulation allows a single request to exhaust server memory (DoS); fixed by a body-size cap in 0.2.22"
+    },
+    {
+      "package": "@mcpjam/inspector",
+      "ecosystem": "npm",
+      "fixed_in": [
+        "1.4.3"
+      ],
+      "cve": "CVE-2026-23744",
+      "severity": "critical",
+      "name": "MCPJam Inspector — remote code execution via its own HTTP endpoint exposure (GHSA-232v-j27c-5pp6); fixed in 1.4.3"
+    },
+    {
+      "package": "litellm",
+      "ecosystem": "pip",
+      "fixed_in": [
+        "1.84.0"
+      ],
+      "cve": "CVE-2026-59822",
+      "severity": "high",
+      "name": "LiteLLM — MCP authentication bypass via OAuth2 passthrough fallback (GHSA-7488-6r32-c95q), fixed in 1.84.0; also closes the lower-line CVE-2026-59820 (arbitrary file write via path traversal in Skills archive extraction, GHSA-5jmr-gcrj-2c9q, fixed in 1.83.7) — a separate defect from this package's existing CVE-2026-30623/1.83.7 entry (MCP stdio command injection)"
+    }
+  ]
+}

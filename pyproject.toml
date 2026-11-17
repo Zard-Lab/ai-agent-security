@@ -1,0 +1,186 @@
+[build-system]
+# 1.27 is the first hatchling that writes core metadata 2.4, where PEP 639's SPDX `license` string
+# and `license-files` become `License-Expression` / `License-File` (what PyPI shows as the licence).
+# The floor has no ceiling, and current hatchling writes 2.5 (1.33.0, measured 2026-11-12). Whether
+# the index accepts the version a release resolves is first proven on TestPyPI (the runbook's Known
+# limits).
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-agent-security"
+dynamic = ["version"]
+description = "Stack-aware security audit tool for FastAPI + React + Postgres + LLM/RAG apps"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+# Matches the copyright line in LICENSE (rfc-soft-launch-readiness.md, Q8 closed 2026-09-10).
+authors = [{ name = "Dean Prichard" }, { name = "Marconi Sim" }]
+keywords = ["security", "audit", "fastapi", "llm", "rag", "owasp", "sast"]
+# No `License ::` classifier: PEP 639 tooling rejects one alongside an SPDX `license` expression.
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+# The public repo (pypi-release plan, D1). It does not exist until the plan's setup step S.1, so
+# these 404 until then; nobody reads the PyPI page before the first release.
+[project.urls]
+Homepage = "https://github.com/Zard-Lab/ai-agent-security"
+Documentation = "https://github.com/Zard-Lab/ai-agent-security/blob/main/docs/user-guide.md"
+Issues = "https://github.com/Zard-Lab/ai-agent-security/issues"
+Changelog = "https://github.com/Zard-Lab/ai-agent-security/blob/main/CHANGELOG.md"
+Source = "https://github.com/Zard-Lab/ai-agent-security"
+
+[project.optional-dependencies]
+# `bandit` is here for a gate, not for linting: it makes tests/test_self_audit.py's scanner-channel
+# check EXECUTE in CI rather than skip. CI installs [dev] before pytest and only installs the
+# scanners for the dogfood step long after, so [dev] membership is what makes that test real (#501).
+# `hatchling>=1.27`: tests/test_packaging.py builds the sdist and wheel in-process, so it needs no network
+# and never skips. Same floor as [build-system].
+# `mypy>=2.2` / `pyright>=1.1.411`: the first releases whose bundled typeshed lets
+# `multiprocessing.connection.wait()` accept a Windows `PipeConnection` (typed as `_ConnectionBase`).
+# Older checkers report two false errors in guard_worker.py on win32 only, which CI's Linux type-check
+# leg cannot see (#934). There is no committed lock, so the floor is what keeps a stale local
+# environment from resolving them.
+dev = ["pytest>=9.0.3", "pytest-xdist>=3.6", "pytest-testmon>=2.1", "pytest-timeout>=2.3", "ruff>=0.6", "mypy>=2.2", "pyright>=1.1.411", "pyyaml>=6", "types-PyYAML", "bandit>=1.9", "hatchling>=1.27"]
+
+[project.scripts]
+agentsec = "agentsec.cli:main"
+
+# The package version IS the checklist registry version — one source of truth, so a
+# wheel/pip cache (keyed on version) is busted whenever the shipped checklist changes,
+# and `agentsec --version` matches the report's "Checklist registry" stamp. (For a
+# pure-code change that needs a fresh wheel, bump the checklist version or `pip install -e .`.)
+[tool.hatch.version]
+path = "agentsec/checklist/checklist.json"
+pattern = '"version":\s*"(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentsec"]
+artifacts = [
+    "agentsec/ai/semgrep-rules/*.yaml",
+    # The machine-readable checklist registry (the `agentsec coverage` score card data).
+    "agentsec/checklist/*.json",
+    # Curated CVE version floors consumed by the dependency-version-floor guard.
+    "agentsec/guards/*.json",
+    # CI component data: manifests, workflow templates, and config files
+    # (incl. dotfiles like .gitleaks.toml / .hadolint.yaml and the .github tree).
+    "agentsec/ci/components/**/*",
+    "agentsec/ci/components/**/.*",
+]
+
+# The sdist is an ALLOWLIST. Hatchling's default sdist takes every file git does not ignore, which in
+# this repo is the whole private tree (.claude/, docs/knowledge/, CLAUDE.md, the self-audit baseline):
+# measured 14.6 MB on 2026-11-10. `tests/` is left out too; the public repo is where tests run.
+# Gated by tests/test_packaging.py.
+[tool.hatch.build.targets.sdist]
+only-include = ["agentsec", "LICENSE", "README.md", "CHANGELOG.md", "pyproject.toml"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = [
+    "tests/fixtures",                        # intentionally-vulnerable sample code
+    "docs/archive/canary-plant-migration",   # frozen #617 migration scripts — a historical record, never "fixed"
+    # Vendored verbatim from dynamous-community/workshops at pinned rev 71582250, and recorded in
+    # docs/knowledge/skill-provenance-audit.md as `content-identical` against it. Linting it here
+    # would only ever ask us to EDIT it (it trips B904 twice), and editing is precisely what the
+    # provenance row measures the absence of: a fix would flip that row to `modified` and retire
+    # the byte-equality evidence, to satisfy a lint rule about code we do not own and do not ship.
+    # Same category as the two entries above, not ours to "fix". Re-vendor from upstream instead.
+    ".claude/skills/pr-trajectory-audit",
+]
+
+[tool.ruff.lint]
+# "W" carries W605 (invalid escape sequence in a non-raw string), which CPython already emits as a
+# SyntaxWarning and is on the path to a hard SyntaxError. Without it the linter was silent on a
+# `"""...\path..."""` docstring and the only signal was a line in pytest's warnings summary that a
+# human had to notice (#477 review, L1). Catch the class in the gate, not the instance in a review.
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "W"]
+ignore = ["E501"]  # long lines tolerated in messages/regex like the donor guards
+
+[tool.ruff.lint.per-file-ignores]
+# Per-guard test files share one preamble (imports + fixtures) via a star import
+# from tests/guards/_common.py — F403/F405 are inherent to that pattern and intended.
+"tests/guards/*" = ["F403", "F405"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+exclude = ["tests/fixtures/", "agentsec/ci/components/.*/files/"]  # vuln fixtures + shipped scaffolds (run via uv in the target repo, not agentsec source)
+
+# Second type-checker alongside mypy --strict (security project: two independent
+# checkers catch what either alone misses — pyright found 7 str→Severity Literal
+# bugs mypy tolerated). Mode is "standard", not "strict": mypy already owns
+# strictness; pyright-strict's reportUnknown* rules only flood the JSON-parsing
+# edges (external scanner output) without catching real bugs.
+[tool.pyright]
+include = ["agentsec"]
+exclude = ["tests/fixtures", "**/__pycache__", "agentsec/ci/components/*/files"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Per-test wall-clock cap (pytest-timeout). This kills a single runaway test on the spot instead of
+# letting it burn the whole job — e.g. a corpus test that hit the real clone cache and ran ~27min of
+# real audits. Complements the ci.yml job-level `timeout-minutes` backstop.
+#
+# 120s is the DEFAULT, not a universal budget. Nearly every test finishes in a fraction of a second;
+# a handful of `slow`-marked ones run a few seconds. The few that do not fit carry their own
+# `@pytest.mark.timeout`, each with a comment saying why (grep for it rather than trusting a count
+# here); the largest is `test_self_audit_surfaces_nothing_high_or_critical`, which runs the real audit
+# over the whole shipping package and so scales with the guard registry.
+#
+# NO HARD NUMBERS HERE ON PURPOSE. An earlier version of this comment asserted "no legit test exceeds
+# ~15s". That was true when written, stopped being true as guards were added, and nothing was
+# watching it: `scripts/doc_counts.py` only scans README / CONTRIBUTING / docs / wiki, so a count in
+# this file (or in any code comment) has no drift net at all. The live figures behind the reasoning
+# below live in the #596 review report, which is dated; anything restated here would rot the same
+# silent way. The one number that stays is the timeout itself, because it is the contract.
+#
+# TWO caveats, and the second one only bites Windows contributors:
+#
+# 1. The `signal` method (used where SIGALRM exists, i.e. Linux) only fires between Python bytecodes
+#    on the main thread, so it CANNOT preempt a tight C-level loop (e.g. catastrophic regex
+#    backtracking). For that hang class the ci.yml job-level `timeout-minutes` is the only backstop —
+#    for TEST code. The audit pipeline itself no longer relies on it: `agentsec/guard_worker.py`
+#    (#677) kills a guard over its per-guard budget in a child process, which is real preemption.
+#
+# 2. On Windows there is no SIGALRM, so pytest-timeout falls back to `os._exit(1)` (its own module
+#    docstring: "If the platform supports SIGALRM this is used to raise an exception in the test,
+#    otherwise os._exit(1) is used"). That kills the ENTIRE pytest process — no summary, no
+#    remaining tests, no report. And the fallback arms a timer THREAD, so it cannot preempt a
+#    single long C call either: the timer's Python callback needs the GIL, which e.g. `re` holds
+#    for an entire match — such a hang outlives the per-test timeout entirely and only the
+#    job-level cap ends it (seen live: the #677 guard-worker fallback wedge, 2026-09-07; the
+#    GIL mechanism itself verified by local reproduction, not Windows-side instrumentation).
+#    So on Windows a single over-budget test does not fail loudly as one
+#    test; it presents as "the suite will not complete", which reads like environmental instability
+#    rather than one test being over its budget. The pytest step runs roughly 2-3x slower on
+#    windows-latest than on the Linux runner, so any test tuned to the Linux clock has well under
+#    half the headroom it appears to have on a Windows dev box.
+#
+# A per-test timeout is also COUPLED to the job-level `timeout-minutes` in ci.yml, and raising one
+# without checking the other makes it decorative: a marker larger than what the job has left after
+# the rest of the suite can never fire, because the job cap kills the run first and says only that
+# the job ran too long. See the windows leg's own comment in ci.yml, where the arithmetic lives.
+timeout = 120
+markers = [
+    "slow: tests that dominate wall-clock time. Two sources so far, and the marker is keyed on the COST, not the kind: broad scan-everything runs (full audit()/canary/registry-wide drift checks, which testmon also pulls into almost any guard change), and fixed-deadline confirmations whose cost IS the timeout they must wait out to prove a hang (the regex-ReDoS stage-2 tests -- now only those whose pattern is EXPONENTIAL, which yields too few usable growth ratios to classify, so the deadline is the only thing left that can prove it; the polynomial ones are decided from growth long before any deadline and are cheap). Membership moves, so it is deliberately not enumerated here - run `pytest -m slow --collect-only` for the live list. Excluded from the fast dev-loop tier (-m 'not slow'); always included in the full gate. See docs/knowledge/dev-workflow.md's Fast vs Full loop section.",
+    "run_first: a single test long enough to set a parallel run's wall-clock by itself when it starts late (today only the self-audit test). Under `--dist worksteal` (the Windows CI leg) tests/conftest.py moves these to the front of the collection so they overlap the rest of the suite; under any other scheduler the order is untouched. Keyed on measured cost, like `slow`: mark a test only from a --durations reading, and not a timing-sensitive one, since the front of the run is its most contended moment.",
+]

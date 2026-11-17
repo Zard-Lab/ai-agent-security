@@ -1,0 +1,16 @@
+# Every issue goes through a form: the required fields (guard id, version, a runnable snippet)
+# are what make a report actionable, and a blank issue skips all of them.
+blank_issues_enabled: false
+contact_links:
+  - name: Not sure if it is a false positive?
+    url: https://github.com/Zard-Lab/ai-agent-security/discussions/categories/q-a
+    about: >
+      Ask in Q&A. "Is this a real finding or am I holding it wrong" is the expected question,
+      not a nuisance one — and a thread that turns out to be a genuine FP converts to an issue
+      in one click, so nothing is retyped.
+  - name: Share an audit result
+    url: https://github.com/Zard-Lab/ai-agent-security/discussions/categories/show-and-tell
+    about: What agentsec found on your repo, good or bad. The most useful signal we get.
+  - name: Reporting a vulnerability IN agentsec
+    url: https://github.com/Zard-Lab/ai-agent-security/blob/main/SECURITY.md
+    about: Do not open a public issue. See SECURITY.md for private disclosure.

@@ -1,0 +1,96 @@
+rules:
+  - id: agentsec-jwt-unverified-decode
+    languages: [python]
+    severity: ERROR
+    message: >
+      JWT decoded with signature verification disabled. An attacker can forge a
+      token and impersonate any user. Verify the signature with the expected
+      algorithm; only read claims unverified for non-security metadata (and
+      document why).
+    metadata:
+      category: security
+      cwe: "CWE-347: Improper Verification of Cryptographic Signature"
+      owasp: ["A07:2021"]
+      references:
+        - https://portswigger.net/web-security/jwt
+    patterns:
+      - pattern-either:
+          - pattern: 'jwt.decode(..., options={..., "verify_signature": False, ...}, ...)'
+          - pattern: jwt.decode(..., verify=False, ...)
+
+  - id: agentsec-sql-string-built
+    languages: [python]
+    severity: ERROR
+    message: >
+      SQL query built by string formatting/concatenation and executed directly.
+      With LLM- or user-supplied input this is SQL injection. Use parameterized
+      queries (bind parameters) instead of f-strings / % / +.
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: ["A03:2021"]
+    patterns:
+      - pattern-either:
+          - pattern: $C.execute(f"...", ...)
+          - pattern: $C.execute("..." % ..., ...)
+          - pattern: $C.execute("..." + ..., ...)
+          - pattern: $C.executemany(f"...", ...)
+
+  - id: agentsec-langchain-unsafe-chain
+    languages: [python]
+    severity: ERROR
+    message: >
+      Unsafe LangChain construct that can execute arbitrary code (PAL / math-eval
+      / Python or Bash REPL tools). If any part of the prompt is influenced by
+      untrusted content, this is remote code execution. Remove it or sandbox the
+      executor; never expose a code/shell tool to an internet-facing agent.
+    metadata:
+      category: security
+      owasp-llm: ["LLM06"]  # excessive agency
+      cwe: "CWE-94: Code Injection"
+    patterns:
+      - pattern-either:
+          - pattern: PALChain(...)
+          - pattern: PALChain.from_math_prompt(...)
+          - pattern: PALChain.from_colored_object_prompt(...)
+          - pattern: LLMMathChain(...)
+          - pattern: LLMMathChain.from_llm(...)
+          - pattern: PythonREPLTool(...)
+          - pattern: PythonAstREPLTool(...)
+          - pattern: PythonREPL(...)
+          - pattern: load_tools([..., "python_repl", ...], ...)
+          - pattern: load_tools([..., "terminal", ...], ...)
+
+  - id: agentsec-tls-verification-disabled
+    languages: [python]
+    severity: ERROR
+    message: >
+      TLS certificate verification disabled on an outbound request. This enables
+      man-in-the-middle interception of secrets/tokens — especially serious for
+      an agent's external-communication leg. Remove verify=False / ssl=False.
+    metadata:
+      category: security
+      cwe: "CWE-295: Improper Certificate Validation"
+      owasp: ["A02:2021"]
+    patterns:
+      - pattern-either:
+          - pattern: requests.$M(..., verify=False, ...)
+          - pattern: httpx.Client(..., verify=False, ...)
+          - pattern: httpx.AsyncClient(..., verify=False, ...)
+          - pattern: aiohttp.TCPConnector(..., ssl=False, ...)
+
+  - id: agentsec-dynamic-exec-eval
+    languages: [python]
+    severity: WARNING
+    message: >
+      Dynamic exec()/eval() — dangerous when fed model output or user input
+      (prompt-injection -> code execution). Avoid; if unavoidable, restrict to a
+      hardened sandbox and never pass LLM/user-controlled strings.
+    metadata:
+      category: security
+      owasp-llm: ["LLM05"]  # improper output handling
+      cwe: "CWE-95: Eval Injection"
+    patterns:
+      - pattern-either:
+          - pattern: exec(...)
+          - pattern: eval(...)

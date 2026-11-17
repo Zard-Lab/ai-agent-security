@@ -1,0 +1,14 @@
+{
+  "id": "frontend-sec",
+  "title": "Frontend security gate (eslint-security + audit)",
+  "summary": "Runs eslint (with the security plugin if present) and a dependency audit against the frontend.",
+  "category": "security",
+  "applies_when": ["frontend"],
+  "requires_secrets": [],
+  "params": {
+    "FRONTEND_DIR": {"from": "profile.frontend_dir", "default": "frontend"},
+    "NODE_VERSION": {"default": "22"}
+  },
+  "depends_on": [],
+  "notes": "Primary value is the eslint-security gate (net-new vs agentsec). The dependency-audit step is a convenience: `agentsec audit` already runs node-audit (npm/pnpm) via its node_audit runner, so if your agentsec CI run already runs it (node-audit needs `--network tier1`) you can drop the audit step here. Adapts to your detected package manager (npm/pnpm/bun)."
+}

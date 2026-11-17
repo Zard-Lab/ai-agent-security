@@ -1,0 +1,15 @@
+{
+  "id": "promptfoo",
+  "title": "LLM red-team — promptfoo (agentsec live)",
+  "summary": "Scheduled/manual promptfoo eval/red-team suite run against the app's LLM via agentsec live.",
+  "category": "dast",
+  "applies_when": ["llm"],
+  "requires_secrets": ["LLM_API_KEY"],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "NODE_VERSION": {"default": "22"},
+    "FAIL_ON": {"default": "high"}
+  },
+  "depends_on": [],
+  "notes": "Wraps `agentsec live --promptfoo-config`, which runs promptfoo's declarative suite against the app's LLM and merges failed assertions into the unified report. Ships a starter `promptfooconfig.yaml` at the repo root: ~20 JUDGE-FREE canary-injection tests (deterministic, need no grader) — edit/extend it. The job skips with a notice if the config is removed. Real agents usually aren't a bare prompt->text REST API (auth, request body, streaming); a config-driven adapter scaffold `scripts/redteam-shim.py` is installed for that — configure it via SHIM_* env vars (see the file header / docs/knowledge/redteam-target-adapter.md), run it on localhost, and point the provider `url` at it. For richer SEMANTIC coverage (harmful content, PII leakage, prompt extraction), use `promptfoo redteam` (needs a promptfoo Cloud account) — beyond what `agentsec live` wraps. promptfoo calls a real model — set the provider key as the `LLM_API_KEY` repo secret. Point it at an owned, non-production model only."
+}

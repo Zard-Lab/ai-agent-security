@@ -1,0 +1,14 @@
+{
+  "id": "garak",
+  "title": "LLM red-team — garak (agentsec live)",
+  "summary": "Scheduled/manual dynamic LLM red-team: garak probes a running model endpoint via agentsec live.",
+  "category": "dast",
+  "applies_when": ["llm"],
+  "requires_secrets": ["LLM_API_KEY"],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "FAIL_ON": {"default": "high"}
+  },
+  "depends_on": [],
+  "notes": "Wraps `agentsec live --garak-target`, which runs garak (LLM vulnerability probing — jailbreaks, prompt injection, data leaks) against a running model REST endpoint and merges results into the unified report. The target is NOT embedded: set a repo variable `LLM_TARGET_URL` (Settings → Secrets and variables → Actions → Variables) or pass `target_url` when dispatching; the job skips with a notice if neither is set. garak sends real attack prompts — point it at an owned, non-production model endpoint only. Real agents usually aren't a bare prompt->text REST API (auth, request body, streaming); a config-driven adapter scaffold `scripts/redteam-shim.py` is installed for that — configure it via SHIM_* env vars (see the file header / docs/knowledge/redteam-target-adapter.md), run it on localhost, and point --garak-target at it. COST: garak answers each prompt with a full LLM turn and probe modules carry ~256 prompts each, so the template pins `--garak-probes promptinject --garak-generations 1` (~768 prompts; vs garak's default of the full set × 5 generations). Widen `--garak-probes` (e.g. add `latentinjection`) for deeper coverage at higher cost, and prefer a monthly (not weekly) cadence — it is heavier than promptfoo. If your endpoint needs an API key, set the `LLM_API_KEY` repo secret. This is the dynamic complement to the static LLM guards."
+}

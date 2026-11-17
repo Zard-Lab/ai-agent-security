@@ -1,0 +1,68 @@
+name: Missed detection
+description: Vulnerable code that agentsec did not flag
+title: "[MISS] "
+labels: ["missed-detection", "area:guard"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A missed detection is the direction nobody reports, and it is the more dangerous of the
+        two: a false positive is noisy, a miss is silent. If you found something a scanner should
+        have caught, this is the highest-value report there is.
+
+        **If the code is sensitive, do not paste it.** Reduce it to a synthetic snippet with the
+        same shape, or see [`SECURITY.md`](../blob/main/SECURITY.md) for private disclosure.
+
+  - type: input
+    id: version
+    attributes:
+      label: agentsec version
+      placeholder: 0.21.13
+    validations:
+      required: true
+
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Code that should have been flagged
+      description: A minimal, non-sensitive snippet with the same shape as the real code.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: threat
+    attributes:
+      label: What is the actual vulnerability?
+      description: >
+        What can an attacker do? Concrete beats abstract — inputs they control, what they reach.
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: Which guard did you expect to fire? (optional)
+      description: Leave blank if you do not know — that is a normal answer and not a problem.
+      placeholder: llm-output-to-sink
+
+  - type: dropdown
+    id: ran
+    attributes:
+      label: How did you run it?
+      options:
+        - "agentsec audit <repo>"
+        - "agentsec audit <repo> --guards-only"
+        - "In CI, via the generated workflow"
+        - "Other / not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reported
+    attributes:
+      label: What agentsec reported instead (optional)
+      description: >
+        Nothing at all? A lower severity than you expected? The stack summary is useful here too —
+        a guard that was reported N/A for your stack is a detection gap of a different kind.
+      render: text

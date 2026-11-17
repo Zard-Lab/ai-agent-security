@@ -1,0 +1,6 @@
+[project]
+name = "action-clean"
+version = "0.1.0"
+description = "A deliberately clean FastAPI app: the agentsec action self-test's passing arm."
+requires-python = ">=3.12"
+dependencies = []

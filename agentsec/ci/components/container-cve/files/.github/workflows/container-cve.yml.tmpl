@@ -1,0 +1,83 @@
+name: Container CVE Scan (Trivy)
+
+# Installed by `agentsec ci add container-cve`. Scans the container images listed
+# in .trivy-images.txt for OS-package CVEs + secrets. No images are embedded —
+# edit .trivy-images.txt to choose what gets scanned.
+on:
+  schedule:
+    # Daily, 02:00 UTC. Adjust to taste.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  container-cve:
+    name: Container CVE Scan (Trivy)
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Ensure Trivy is installed (pinned)
+      env:
+        TRIVY_VERSION: "@@TRIVY_VERSION@@"
+        # sha256 of trivy_${VERSION}_Linux-64bit.tar.gz from the release's
+        # checksums.txt. Bump VERSION + SHA256 together from
+        # https://github.com/aquasecurity/trivy/releases.
+        TRIVY_SHA256: "@@TRIVY_SHA256@@"
+      run: |
+        if ! command -v trivy >/dev/null; then
+          echo "::warning::trivy not installed on runner — installing v${TRIVY_VERSION}"
+          curl -fsSL -o /tmp/trivy.tar.gz \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          if [ -n "${TRIVY_SHA256}" ]; then
+            echo "${TRIVY_SHA256}  /tmp/trivy.tar.gz" | sha256sum -c -
+          fi
+          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
+          sudo install /tmp/trivy /usr/local/bin/trivy
+          rm -f /tmp/trivy.tar.gz /tmp/trivy
+        fi
+        trivy --version
+
+    - name: Scan images for HIGH/CRITICAL CVEs
+      run: |
+        if [ ! -f .trivy-images.txt ]; then
+          echo "::notice::.trivy-images.txt not found — nothing to scan."
+          exit 0
+        fi
+        # Strip comments + blank lines.
+        IMAGES=$(grep -vE '^\s*(#|$)' .trivy-images.txt || true)
+        if [ -z "${IMAGES}" ]; then
+          echo "::notice::.trivy-images.txt lists no images — skipping Trivy scan."
+          exit 0
+        fi
+
+        FAIL=0
+        while IFS= read -r img; do
+          [ -z "${img}" ] && continue
+          safe=$(echo "${img}" | tr '/:@ ' '____')
+          # --ignore-unfixed: only actionable (fixable) CVEs gate the build.
+          trivy image --quiet --format json --output "trivy-${safe}.json" \
+            --severity HIGH,CRITICAL --ignore-unfixed --scanners vuln,secret "${img}" || true
+          COUNT=$(jq '[.Results[]?.Vulnerabilities? // [] | .[]] | length' "trivy-${safe}.json" 2>/dev/null || echo 0)
+          echo "::group::${img} — ${COUNT} fixable HIGH/CRITICAL vuln(s)"
+          jq -r '.Results[]?.Vulnerabilities? // [] | .[] | "\(.VulnerabilityID) \(.PkgName) \(.InstalledVersion) -> \(.FixedVersion // "no fix")"' \
+            "trivy-${safe}.json" 2>/dev/null | head -50
+          echo "::endgroup::"
+          [ "${COUNT}" -gt 0 ] && FAIL=1
+        done <<< "${IMAGES}"
+
+        if [ "${FAIL}" -ne 0 ]; then
+          echo "::error::Trivy found fixable HIGH/CRITICAL CVEs — see the container-cve-results artifact"
+        fi
+        exit "${FAIL}"
+
+    - name: Upload Trivy reports
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      if: always()
+      with:
+        name: container-cve-results
+        path: trivy-*.json
+        retention-days: 30

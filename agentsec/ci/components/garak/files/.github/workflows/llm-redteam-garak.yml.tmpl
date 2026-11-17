@@ -1,0 +1,79 @@
+name: LLM red-team (garak)
+
+# Installed by `agentsec ci add garak`. Runs garak LLM red-team (via agentsec live)
+# against a running model endpoint. The target is NOT embedded: set a repo variable
+# LLM_TARGET_URL, or pass `target_url` when dispatching. No secrets or project-
+# specific values are embedded. garak sends real attack prompts — owned/non-prod only.
+on:
+  schedule:
+    # Weekly, Monday 05:00 UTC. Adjust to taste.
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "LLM REST endpoint to probe (overrides the LLM_TARGET_URL repo variable)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  garak:
+    name: LLM red-team (garak)
+    runs-on: @@RUNNER@@
+    timeout-minutes: 45
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+@@AGENTSEC_INSTALL_STEP@@
+
+    - name: Install garak
+      run: pip install garak
+
+    - name: Resolve scan target
+      id: target
+      env:
+        # Manual dispatch input wins; otherwise fall back to the repo variable.
+        TARGET_URL: ${{ github.event.inputs.target_url || vars.LLM_TARGET_URL }}
+      run: |
+        if [ -z "${TARGET_URL}" ]; then
+          echo "::notice::No LLM target set (workflow input or LLM_TARGET_URL repo variable) — skipping garak."
+          echo "skip=1" >> "$GITHUB_OUTPUT"
+        else
+          echo "url=${TARGET_URL}" >> "$GITHUB_OUTPUT"
+        fi
+
+    # Single garak run: writes the SARIF artifact AND gates on exit code.
+    #
+    # COST: garak answers each prompt with a full (paid, slow) LLM turn and probe
+    # modules carry ~256 prompts each. The bounded defaults below keep a run small:
+    #   --garak-generations 1           (vs garak's default of 5)
+    #   --garak-probes promptinject     (~768 prompts; direct-hijack module only)
+    # For DEEPER coverage at higher cost, widen the probe set — e.g.
+    #   --garak-probes promptinject,latentinjection   (adds indirect/latent injection)
+    # — and/or raise --garak-generations. garak is heavier than promptfoo; a monthly
+    # cadence is usually the right call (see the cron above).
+    - name: Run garak LLM red-team (agentsec live)
+      if: steps.target.outputs.skip != '1'
+      env:
+        # Exposed for garak's REST config to reference if the endpoint needs auth.
+        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      run: |
+        agentsec live . --garak-target "${{ steps.target.outputs.url }}" \
+          --garak-probes promptinject --garak-generations 1 \
+          --format sarif --out garak.sarif --fail-on @@FAIL_ON@@
+
+    - name: Upload SARIF
+      if: always() && steps.target.outputs.skip != '1'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: garak-sarif
+        path: garak.sarif
+        retention-days: 30

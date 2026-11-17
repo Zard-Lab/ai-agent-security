@@ -1,0 +1,2191 @@
+{
+  "expects": {
+    "acp-vulnerabilities": [
+      "acp-vulnerabilities/hot-reload-no-token-invalidation",
+      "acp-vulnerabilities/minja-memory-injection",
+      "acp-vulnerabilities/org-scoped-token",
+      "acp-vulnerabilities/unclamped-sampling-params"
+    ],
+    "actions-script-injection": [
+      "actions-script-injection/untrusted-run-interpolation"
+    ],
+    "actions-sha-pin": [
+      "actions-sha-pin/unpinned-action"
+    ],
+    "agent-headless-trust-surface": [
+      "agent-headless-trust-surface/headless-agent-on-untrusted-trigger"
+    ],
+    "agent-iam-control-plane-exposure": [
+      "agent-iam-control-plane-exposure/bedrock-control-plane",
+      "agent-iam-control-plane-exposure/sagemaker-control-plane"
+    ],
+    "agent-iam-killchain-combination": [
+      "agent-iam-killchain-combination/full-chain",
+      "agent-iam-killchain-combination/harvest-plus-lateral",
+      "agent-iam-killchain-combination/harvest-plus-metadata"
+    ],
+    "agent-iam-tool-resource-unscoped": [
+      "agent-iam-tool-resource-unscoped/bedrock-model-unscoped",
+      "agent-iam-tool-resource-unscoped/database-unscoped",
+      "agent-iam-tool-resource-unscoped/s3-write-unscoped",
+      "agent-iam-tool-resource-unscoped/tool-execution-unscoped"
+    ],
+    "agent-loop-circuit-breaker": [
+      "agent-loop-circuit-breaker/custom-loop-no-iteration-cap",
+      "agent-loop-circuit-breaker/langchain-no-iteration-limit",
+      "agent-loop-circuit-breaker/langchain-no-time-limit",
+      "agent-loop-circuit-breaker/recursive-no-depth-limit"
+    ],
+    "agent-memory-retention": [
+      "agent-memory-retention/persistent-memory-no-ttl"
+    ],
+    "agent-memory-security": [
+      "agent-memory/checkpoint-no-integrity",
+      "agent-memory/memory-to-system-prompt",
+      "agent-memory/redis-no-tls",
+      "agent-memory/unsanitized-user-write"
+    ],
+    "agent-memory-user-scope": [
+      "agent-memory-user-scope/hollow-scope-binding",
+      "agent-memory-user-scope/memory-write-without-user-scope"
+    ],
+    "agent-resume-unverified-trigger": [
+      "agent-resume-unverified-trigger/unverified-trigger-elevated-permission"
+    ],
+    "agent-tool-audit-log": [
+      "agent-tool-audit-log/missing-tool-log"
+    ],
+    "agent-tool-overpermission": [
+      "agent-tool-overpermission/allow-dangerous-requests",
+      "agent-tool-overpermission/dangerous-tool-imported",
+      "agent-tool-overpermission/subprocess-in-agent-tool",
+      "agent-tool-overpermission/unscoped-toolkit-load",
+      "agent-tool-overpermission/wildcard-tools-literal"
+    ],
+    "agent-tool-url-fetch-ssrf": [
+      "agent-tool-url-fetch-ssrf/http-client-dynamic-url",
+      "agent-tool-url-fetch-ssrf/webbaseloader-dynamic-url"
+    ],
+    "agentic-skills-ast": [
+      "agentic-skills-ast/unpinned-external-resource"
+    ],
+    "ai-docker": [
+      "ai-docker/mcp-port-exposed",
+      "ai-docker/ollama-network-exposed",
+      "ai-docker/writable-model-mount"
+    ],
+    "ai-instruction-poisoning": [
+      "ai-instruction-poisoning/auto-approve-enabled"
+    ],
+    "alb-listener-http-protocol": [
+      "alb-listener-http-protocol/plaintext-listener"
+    ],
+    "ansi-escape-llm-output": [
+      "ansi-escape-llm-output/unstripped-print"
+    ],
+    "ansible-debug-echoes-auth-variable": [
+      "ansible-debug-echoes-auth-variable/debug-prints-auth-magic-var"
+    ],
+    "ansible-host-key-checking-disabled": [
+      "ansible-host-key-checking-disabled/env-override"
+    ],
+    "ansible-ignore-errors-on-security-task": [
+      "ansible-ignore-errors-on-security-task/silent-failure"
+    ],
+    "ansible-no-log-disabled-on-secret-task": [
+      "ansible-no-log-disabled-on-secret-task/no-log-false-near-secret"
+    ],
+    "ansible-setuid-binary-creation": [
+      "ansible-setuid-binary-creation/setuid-bit-set"
+    ],
+    "ansible-sudo-nopasswd": [
+      "ansible-sudo-nopasswd/blanket-nopasswd-all"
+    ],
+    "ansible-unsafe-lookups-enabled": [
+      "ansible-unsafe-lookups-enabled/global-override"
+    ],
+    "api-docs-exposed": [
+      "api-docs-exposed/unconditional-docs-route"
+    ],
+    "approval-parser-shell-desync": [
+      "approval-parser-shell-desync/stop-parsing-token-unhandled"
+    ],
+    "argv-toctou": [
+      "argv-toctou/rebuild-after-approval-no-revalidation"
+    ],
+    "arm-aks-rbac-disabled": [
+      "arm-aks-rbac-disabled/rbac-disabled"
+    ],
+    "arm-apim-backend-unauthenticated": [
+      "arm-apim-backend-unauthenticated/http-no-auth"
+    ],
+    "arm-appservice-https-only-disabled": [
+      "arm-appservice-https-only-disabled/missing-or-disabled"
+    ],
+    "arm-redis-ssl-disabled": [
+      "arm-redis-ssl-disabled/non-ssl-port-enabled"
+    ],
+    "arm-sql-tde-disabled": [
+      "arm-sql-tde-disabled/tde-not-enabled"
+    ],
+    "async-blocking-io": [
+      "async-blocking-io/sync-call-in-async-def"
+    ],
+    "auth-dependency-not-applied": [
+      "auth-dependency-not-applied/no-auth-dependency"
+    ],
+    "auth-disabled-by-default": [
+      "auth-disabled-by-default/auth-toggle-literal-false"
+    ],
+    "auth-rate-limit-absent": [
+      "auth-rate-limit-absent/no-rate-limit"
+    ],
+    "auth-users-not-exposed-via-view": [
+      "auth-users-not-exposed-via-view/exposed-view"
+    ],
+    "auto-updates-absent": [
+      "auto-updates-absent/no-unattended-upgrades"
+    ],
+    "autostart-persistence-mechanism": [
+      "autostart-persistence-mechanism/shell-config-write"
+    ],
+    "aws-observability-hygiene": [
+      "aws-observability-hygiene/cloudwatch-log-retention-missing",
+      "aws-observability-hygiene/cloudwatch-log-retention-too-short",
+      "aws-observability-hygiene/s3-logging-missing",
+      "aws-observability-hygiene/s3-versioning-missing"
+    ],
+    "aws-weak-tls-policy": [
+      "aws-weak-tls-policy/apigateway-domain"
+    ],
+    "azure-keyvault-key-no-expiration": [
+      "azure-keyvault-key-no-expiration/missing-expiration-date"
+    ],
+    "azure-keyvault-purge-protection-disabled": [
+      "azure-keyvault-purge-protection-disabled/missing-purge-protection"
+    ],
+    "azure-mssql-publicly-accessible": [
+      "azure-mssql-publicly-accessible/missing-or-enabled"
+    ],
+    "azure-storage-account-https-only": [
+      "azure-storage-account-https-only/missing-or-disabled"
+    ],
+    "azure-storage-account-public-blob-access": [
+      "azure-storage-account-public-blob-access/missing-or-enabled"
+    ],
+    "background-tasks": [
+      "background-tasks/unguarded-create-task"
+    ],
+    "bicep-admin-username-literal": [
+      "bicep-admin-username-literal/hardcoded-literal"
+    ],
+    "bicep-commandtoexecute-plaintext-settings": [
+      "bicep-commandtoexecute-plaintext-settings/secret-in-plaintext-settings"
+    ],
+    "bicep-output-secret-not-secure": [
+      "bicep-output-secret-not-secure/unsecured-secret-output"
+    ],
+    "bicep-param-file-insecure-secret-value": [
+      "bicep-param-file-insecure-secret-value/local-literal"
+    ],
+    "bicep-secret-param-not-secure": [
+      "bicep-secret-param-not-secure/unmarked-secret-param"
+    ],
+    "bicep-secure-param-in-nested-deployment": [
+      "bicep-secure-param-in-nested-deployment/outer-scope-secure-leak"
+    ],
+    "bicep-secure-parameter-default": [
+      "bicep-secure-parameter-default/hardcoded-literal-default"
+    ],
+    "bola": [
+      "bola/unscoped-object-fetch"
+    ],
+    "browser-credential-store-access": [
+      "browser-credential-store-access/chromium-master-key"
+    ],
+    "build-secret": [
+      "build-secret/client-prefixed-secret",
+      "build-secret/secret-build-arg",
+      "build-secret/secret-env-ref"
+    ],
+    "bulk-env-var-harvesting": [
+      "bulk-env-var-harvesting/environment-enumeration"
+    ],
+    "cfn-authentication-password": [
+      "cfn-authentication-password/literal-password"
+    ],
+    "cfn-batch-privileged-container": [
+      "cfn-batch-privileged-container/privileged-true"
+    ],
+    "cfn-cognito-mfa-off": [
+      "cfn-cognito-mfa-off/mfa-disabled"
+    ],
+    "cfn-cognito-unauth-identities": [
+      "cfn-cognito-unauth-identities/allow-unauthenticated"
+    ],
+    "cfn-ec2-subnet-public-ip": [
+      "cfn-ec2-subnet-public-ip/map-public-ip-true"
+    ],
+    "cfn-ecr-scan-on-push": [
+      "cfn-ecr-scan-on-push/scan-on-push-disabled"
+    ],
+    "cfn-iam-escalation-action-no-condition": [
+      "cfn-iam-escalation-action-no-condition/allow-no-condition"
+    ],
+    "cfn-iam-notaction-with-allow": [
+      "cfn-iam-notaction-with-allow/allow-notaction"
+    ],
+    "cfn-iam-user-direct-policy": [
+      "cfn-iam-user-direct-policy/inline-policy-on-user"
+    ],
+    "cfn-kms-key-rotation-not-enabled": [
+      "cfn-kms-key-rotation-not-enabled/missing-rotation"
+    ],
+    "cfn-nacl-ineffective-deny": [
+      "cfn-nacl-ineffective-deny/narrow-cidr-deny"
+    ],
+    "cfn-rds-hardcoded-password-no-echo": [
+      "cfn-rds-hardcoded-password-no-echo/literal-password"
+    ],
+    "cfn-rds-publicly-accessible": [
+      "cfn-rds-publicly-accessible/publicly-accessible-true"
+    ],
+    "cfn-s3-public-access-canned-acl": [
+      "cfn-s3-public-access-canned-acl/public-read-write"
+    ],
+    "cfn-s3-versioning-missing": [
+      "cfn-s3-versioning-missing/no-versioning"
+    ],
+    "cfn-vpc-flow-log-missing": [
+      "cfn-vpc-flow-log-missing/no-flow-log"
+    ],
+    "cfn-waf-default-allow": [
+      "cfn-waf-default-allow/default-action-allow"
+    ],
+    "cfn-wildcard-principal": [
+      "cfn-wildcard-principal/allow-no-condition"
+    ],
+    "checkout-price-from-server": [
+      "checkout-price-from-server/client-set-amount"
+    ],
+    "ci-image-build-no-sbom-provenance": [
+      "ci-image-build-no-sbom-provenance/missing-sbom-and-provenance"
+    ],
+    "ci-secret-env-unscoped": [
+      "ci-secret-env-unscoped/no-environment-scope"
+    ],
+    "claude-code-compromise": [
+      "claude-code-compromise/reverse-shell"
+    ],
+    "claude-hook-rce": [
+      "claude-hook-rce/unquoted-variable-interpolation"
+    ],
+    "claude-routines-security": [
+      "claude-routines-security/no-audit-log-declaration",
+      "claude-routines-security/permission-surface-wider-than-interactive"
+    ],
+    "cleartext-secret-storage": [
+      "cleartext-secret-storage/cookie-value",
+      "cleartext-secret-storage/plaintext-file-write"
+    ],
+    "client-side-auth-decision": [
+      "client-side-auth-decision/hardcoded-password-compare",
+      "client-side-auth-decision/localstorage-auth-flag"
+    ],
+    "client-side-secret-literal": [
+      "client-side-secret-literal/google-key-not-public",
+      "client-side-secret-literal/hardcoded-api-key-literal",
+      "client-side-secret-literal/public-browser-key"
+    ],
+    "cloud-metadata-endpoint-literal": [
+      "cloud-metadata-endpoint-literal/hardcoded-reference"
+    ],
+    "cloudtrail-logging-disabled": [
+      "cloudtrail-logging-disabled/logging-disabled",
+      "cloudtrail-logging-disabled/single-region-trail"
+    ],
+    "cloudwatch-log-group-not-kms-encrypted": [
+      "cloudwatch-log-group-not-kms-encrypted/missing-kms-encryption"
+    ],
+    "code-injection-eval-exec": [
+      "code-injection-eval-exec/dynamic-content"
+    ],
+    "command-injection": [
+      "command-injection/argv-interpreter-untrusted",
+      "command-injection/shell-exec-untrusted"
+    ],
+    "compose-connection-string-credential": [
+      "compose-connection-string-credential/embedded-credential"
+    ],
+    "compose-credential-env-literal": [
+      "compose-credential-env-literal/literal-credential"
+    ],
+    "compose-db-port-exposed": [
+      "compose-db-port-exposed/admin-broker-port-published",
+      "compose-db-port-exposed/datastore-port-published"
+    ],
+    "compose-dns-bypass": [
+      "compose-dns-bypass/service-skips-resolver"
+    ],
+    "compose-image-digest-missing": [
+      "compose-image-digest-missing/tag-not-digest"
+    ],
+    "compose-logging-disabled": [
+      "compose-logging-disabled/driver-none"
+    ],
+    "compose-no-network-segmentation": [
+      "compose-no-network-segmentation/default-network-only"
+    ],
+    "compose-no-new-privileges": [
+      "compose-no-new-privileges/missing"
+    ],
+    "compose-resource-limits-absent": [
+      "compose-resource-limits-absent/no-limits"
+    ],
+    "compose-sensitive-host-mount": [
+      "compose-sensitive-host-mount/sensitive-path"
+    ],
+    "compose-shared-mount-propagation": [
+      "compose-shared-mount-propagation/shared-propagation"
+    ],
+    "compose-tmpfs-insecure-options": [
+      "compose-tmpfs-insecure-options/secure-default-removed"
+    ],
+    "compose-user-directive-missing": [
+      "compose-user-directive-missing/no-user-directive"
+    ],
+    "compose-writable-host-root-mount": [
+      "compose-writable-host-root-mount/host-root-equivalent"
+    ],
+    "compose-writable-root-filesystem": [
+      "compose-writable-root-filesystem/read-only-missing"
+    ],
+    "content-type-magic-bytes": [
+      "content-type-magic-bytes/header-only-check"
+    ],
+    "cors-wildcard": [
+      "cors-wildcard/allow-origins-star",
+      "cors-wildcard/origin-regex-catchall"
+    ],
+    "credential-file-path-reference": [
+      "credential-file-path-reference/known-credential-path",
+      "credential-file-path-reference/symlink-to-credential-target"
+    ],
+    "crewai-rce-chain": [
+      "crewai-rce-chain/unsafe-code-interpreter"
+    ],
+    "cron-systemd-persistence-write": [
+      "cron-systemd-persistence-write/user-level-persistence-write"
+    ],
+    "csv-injection": [
+      "csv-injection/unsafe-cell-write"
+    ],
+    "ctypes-load-downloaded-library": [
+      "ctypes-load-downloaded-library/ctypes-load-after-download"
+    ],
+    "curl-pipe-to-shell": [
+      "curl-pipe-to-shell/unverified-pipe"
+    ],
+    "dataset-injection": [
+      "dataset-injection/payload-marker"
+    ],
+    "datastore-auth-absent": [
+      "datastore-auth-absent/no-authentication"
+    ],
+    "db-role-privilege-excessive": [
+      "db-role-privilege-excessive/role-superuser"
+    ],
+    "debug-default-off": [
+      "debug-default-off/debug-enabled"
+    ],
+    "debug-route-exposed": [
+      "debug-route-exposed/debug-or-internal-path-segment"
+    ],
+    "default-service-credential": [
+      "default-service-credential/minio-default-credential"
+    ],
+    "definer-dynamic-sql": [
+      "definer-dynamic-sql/dynamic-execute"
+    ],
+    "definer-function-grants": [
+      "definer-function-grants/executable-by-public"
+    ],
+    "dependency-version-floor": [
+      "dependency-version-floor/below-patched-version"
+    ],
+    "destructive-filesystem-command": [
+      "destructive-filesystem-command/rm-root"
+    ],
+    "dns-egress-allowlist": [
+      "dns-egress-allowlist/no-default-deny"
+    ],
+    "dns-exfiltration-pattern": [
+      "dns-exfiltration-pattern/dynamic-hostname-dns"
+    ],
+    "docker-add-misuse": [
+      "docker-add-misuse/add-local-archive"
+    ],
+    "docker-apt-update-not-alone": [
+      "docker-apt-update-not-alone/update-without-install"
+    ],
+    "docker-expose-ssh": [
+      "docker-expose-ssh/ssh-port-exposed"
+    ],
+    "docker-latest-base-tag": [
+      "docker-latest-base-tag/unpinned-from"
+    ],
+    "docker-nonroot-user": [
+      "docker-nonroot-user/no-user-instruction"
+    ],
+    "docker-privileged-flags": [
+      "docker-privileged-flags/cap-drop-all-missing",
+      "docker-privileged-flags/privileged-or-host-namespace"
+    ],
+    "docker-run-sudo": [
+      "docker-run-sudo/sudo-invocation"
+    ],
+    "docker-socket-access": [
+      "docker-socket-access/socket-reference"
+    ],
+    "dockerfile-credential-in-instruction": [
+      "dockerfile-credential-in-instruction/healthcheck-credential",
+      "dockerfile-credential-in-instruction/registry-auth-exposure"
+    ],
+    "dockerfile-run-isolation-weakening": [
+      "dockerfile-run-isolation-weakening/dangerous-chmod",
+      "dockerfile-run-isolation-weakening/insecure-run-flag"
+    ],
+    "dockerfile-workdir-sensitive-path": [
+      "dockerfile-workdir-sensitive-path/sensitive-workdir"
+    ],
+    "dom-xss-sinks": [
+      "dom-xss-sinks/eval-sink",
+      "dom-xss-sinks/incomplete-sanitization",
+      "dom-xss-sinks/new-function-sink",
+      "dom-xss-sinks/unsafe-dom-write"
+    ],
+    "download-execute-chain": [
+      "download-execute-chain/shell-pipe-exec"
+    ],
+    "dynamic-import-non-literal": [
+      "dynamic-import-non-literal/attacker-influenced-name"
+    ],
+    "dynamodb-table-not-encrypted": [
+      "dynamodb-table-not-encrypted/missing-cmk-encryption"
+    ],
+    "ebs-volume-not-encrypted": [
+      "ebs-volume-not-encrypted/missing-encryption"
+    ],
+    "ecr-repository-hygiene": [
+      "ecr-repository-hygiene/mutable-tags",
+      "ecr-repository-hygiene/no-lifecycle-policy",
+      "ecr-repository-hygiene/scan-on-push-disabled"
+    ],
+    "ecr-repository-not-kms-encrypted": [
+      "ecr-repository-not-kms-encrypted/missing-kms-encryption"
+    ],
+    "ecs-efs-volume-transit-encryption-disabled": [
+      "ecs-efs-volume-transit-encryption-disabled/missing-encryption"
+    ],
+    "efs-file-system-not-encrypted": [
+      "efs-file-system-not-encrypted/missing-encryption"
+    ],
+    "elasticache-transit-encryption-disabled": [
+      "elasticache-transit-encryption-disabled/missing-encryption"
+    ],
+    "electron-security-misconfig": [
+      "electron-security-misconfig/allow-insecure-content",
+      "electron-security-misconfig/blink-features-enabled",
+      "electron-security-misconfig/contextisolation-disabled",
+      "electron-security-misconfig/experimental-features-enabled",
+      "electron-security-misconfig/nodeintegration-enabled",
+      "electron-security-misconfig/remote-module-enabled",
+      "electron-security-misconfig/sandbox-disabled",
+      "electron-security-misconfig/websecurity-disabled"
+    ],
+    "empty-password-in-config": [
+      "empty-password-in-config/empty-password"
+    ],
+    "env-file-not-gitignored": [
+      "env-file-not-gitignored/no-exclusion"
+    ],
+    "env-secret-console-log": [
+      "env-secret-console-log/direct-console-sink"
+    ],
+    "env-secret-in-prompt": [
+      "env-secret-in-prompt/secret-in-fstring"
+    ],
+    "env-secret-logged": [
+      "env-secret-logged/direct-log-sink"
+    ],
+    "environ-dump-to-network": [
+      "environ-dump-to-network/environ-dump-network-sink"
+    ],
+    "error-info-leak": [
+      "error-info-leak/except-block-response-leak",
+      "error-info-leak/exception-in-http-response",
+      "error-info-leak/exception-str-in-detail",
+      "error-info-leak/traceback-in-response"
+    ],
+    "fail-safe-exception": [
+      "fail-safe-exception/bare-except-pass"
+    ],
+    "fail2ban-absent": [
+      "fail2ban-absent/no-brute-force-protection"
+    ],
+    "file-system-race": [
+      "file-system-race/check-then-use"
+    ],
+    "forwarded-header-blind-trust": [
+      "forwarded-header-blind-trust/xff-in-security-context"
+    ],
+    "frontend-xss": [
+      "frontend-xss/dangerously-set-inner-html",
+      "frontend-xss/script-no-sri"
+    ],
+    "fulfill-on-completed-not-created": [
+      "fulfill-on-completed-not-created/acts-on-created-event"
+    ],
+    "gcp-kms-key-public": [
+      "gcp-kms-key-public/public-member"
+    ],
+    "gcp-kms-rotation-period-not-set": [
+      "gcp-kms-rotation-period-not-set/missing-rotation-period"
+    ],
+    "gcp-sql-publicly-accessible": [
+      "gcp-sql-publicly-accessible/missing-ip-configuration"
+    ],
+    "git-in-docker": [
+      "git-in-docker/git-not-in-dockerignore"
+    ],
+    "go-build-supply-chain-footgun": [
+      "go-build-supply-chain-footgun/checksum-verification-disabled",
+      "go-build-supply-chain-footgun/go-install-unpinned"
+    ],
+    "go-pprof-exposed": [
+      "go-pprof-exposed/blank-import-default-mux"
+    ],
+    "go-sql-injection": [
+      "go-sql-injection/sprintf-query",
+      "go-sql-injection/string-concat-query"
+    ],
+    "go-ssh-host-key-trust": [
+      "go-ssh-host-key-trust/insecure-ignore-host-key"
+    ],
+    "go-template-html-escaping": [
+      "go-template-html-escaping/text-template-execute-http-response",
+      "go-template-html-escaping/text-template-http-response"
+    ],
+    "go-tls-verify-disabled": [
+      "go-tls-verify-disabled/insecure-skip-verify"
+    ],
+    "graphql-mutation-idor": [
+      "graphql-mutation-idor/unscoped-mutation"
+    ],
+    "guardrail-architecture": [
+      "guardrail-architecture/nemo-injection-detection-absent",
+      "guardrail-architecture/nemo-jailbreak-in-process",
+      "guardrail-architecture/nemo-pii-masking-input-only",
+      "guardrail-architecture/nemo-self-check-only",
+      "guardrail-architecture/nemo-tool-rails-without-iorails",
+      "guardrail-architecture/no-external-guardrail",
+      "guardrail-architecture/same-model-self-validation",
+      "guardrail-architecture/scan-result-ignored"
+    ],
+    "hardcoded-llm-provider-key": [
+      "hardcoded-llm-provider-key/known-provider-prefix"
+    ],
+    "hardcoded-password-default-arg": [
+      "hardcoded-password-default-arg/non-empty-literal"
+    ],
+    "hardcoded-private-key-in-source": [
+      "hardcoded-private-key-in-source/pem-header-literal"
+    ],
+    "header-injection": [
+      "header-injection/user-input-in-header"
+    ],
+    "hidden-executable-dotfile": [
+      "hidden-executable-dotfile/dotfile-script"
+    ],
+    "homoglyph-source-chars": [
+      "homoglyph-source-chars/mixed-script-identifier"
+    ],
+    "hostname-regex-unsafe": [
+      "hostname-regex-unsafe/missing-end-anchor",
+      "hostname-regex-unsafe/unescaped-dot"
+    ],
+    "iac-open-ingress": [
+      "iac-open-ingress/world-open-ingress"
+    ],
+    "iam-escalation-action-no-condition": [
+      "iam-escalation-action-no-condition/passrole-missing-passed-to-service",
+      "iam-escalation-action-no-condition/unconditional-grant"
+    ],
+    "iam-managed-admin-policy-attached": [
+      "iam-managed-admin-policy-attached/administrator-access",
+      "iam-managed-admin-policy-attached/full-access-family"
+    ],
+    "iam-notaction-with-allow": [
+      "iam-notaction-with-allow/allow-notaction"
+    ],
+    "iam-policy-attached-to-user-directly": [
+      "iam-policy-attached-to-user-directly/direct-user-attachment"
+    ],
+    "iam-resource-scopable-wildcard": [
+      "iam-resource-scopable-wildcard/unscoped-resource"
+    ],
+    "iam-role-public-assume": [
+      "iam-role-public-assume/service-principal-no-source-scope",
+      "iam-role-public-assume/wildcard-principal"
+    ],
+    "iam-service-wildcard": [
+      "iam-service-wildcard/service-action"
+    ],
+    "iam-wildcard": [
+      "iam-wildcard/action-star",
+      "iam-wildcard/partial-wildcard-dangerous"
+    ],
+    "incomplete-url-scheme-check": [
+      "incomplete-url-scheme-check/missing-dangerous-scheme"
+    ],
+    "incomplete-url-substring-sanitization": [
+      "incomplete-url-substring-sanitization/raw-substring-check"
+    ],
+    "incorrect-suffix-check": [
+      "incorrect-suffix-check/indexof-endswith-emulation"
+    ],
+    "input-delimiters": [
+      "input-delimiters/unwrapped-user-input"
+    ],
+    "insecure-cookies": [
+      "insecure-cookies/missing-flags",
+      "insecure-cookies/samesite-none"
+    ],
+    "insecure-file-permissions": [
+      "insecure-file-permissions/group-or-other-write"
+    ],
+    "insecure-tempfile-mktemp": [
+      "insecure-tempfile-mktemp/mktemp-race-condition"
+    ],
+    "invisible-unicode": [
+      "invisible-unicode/hidden-tag-chars",
+      "invisible-unicode/hidden-zwj-chars"
+    ],
+    "java-command-injection": [
+      "java-command-injection/runtime-exec-tainted"
+    ],
+    "java-hardcoded-password-key": [
+      "java-hardcoded-password-key/literal-jdbc-password"
+    ],
+    "java-ldap-injection": [
+      "java-ldap-injection/concatenated-filter"
+    ],
+    "java-path-traversal": [
+      "java-path-traversal/tainted-file-construction"
+    ],
+    "java-sql-injection": [
+      "java-sql-injection/concatenated-query"
+    ],
+    "java-ssrf": [
+      "java-ssrf/tainted-url-open-connection"
+    ],
+    "java-tls-verify-disabled": [
+      "java-tls-verify-disabled/empty-trust-manager"
+    ],
+    "java-unsafe-deserialization": [
+      "java-unsafe-deserialization/object-input-stream"
+    ],
+    "java-weak-crypto": [
+      "java-weak-crypto/insecure-hash"
+    ],
+    "java-xxe-unsafe-parsing": [
+      "java-xxe-unsafe-parsing/doctype-decl-allowed"
+    ],
+    "js-buffer-noassert": [
+      "js-buffer-noassert/noassert-true"
+    ],
+    "js-client-side-open-redirect": [
+      "js-client-side-open-redirect/request-forgery",
+      "js-client-side-open-redirect/tainted-location-redirect"
+    ],
+    "js-code-injection": [
+      "js-code-injection/eval-dynamic"
+    ],
+    "js-command-injection": [
+      "js-command-injection/tainted-exec"
+    ],
+    "js-cors-wildcard": [
+      "js-cors-wildcard/explicit-options-wildcard",
+      "js-cors-wildcard/reflected-origin-with-credentials",
+      "js-cors-wildcard/response-header-wildcard"
+    ],
+    "js-helmet-header-disabled": [
+      "js-helmet-header-disabled/helmet-feature-disabled"
+    ],
+    "js-host-header-email-link": [
+      "js-host-header-email-link/host-header-in-email-url"
+    ],
+    "js-http-to-file-access": [
+      "js-http-to-file-access/response-to-filesystem"
+    ],
+    "js-insecure-download-sensitive-file": [
+      "js-insecure-download-sensitive-file/http-ftp-sensitive-extension"
+    ],
+    "js-loop-bound-injection": [
+      "js-loop-bound-injection/tainted-length-bound"
+    ],
+    "js-path-traversal": [
+      "js-path-traversal/tainted-fs-path"
+    ],
+    "js-private-file-exposure": [
+      "js-private-file-exposure/dirname"
+    ],
+    "js-prototype-pollution": [
+      "js-prototype-pollution/tainted-key-assign",
+      "js-prototype-pollution/tainted-merge"
+    ],
+    "js-regex-injection-dos": [
+      "js-regex-injection-dos/user-controlled-regex-sink"
+    ],
+    "js-secure-cookies": [
+      "js-secure-cookies/no-options"
+    ],
+    "js-security-headers-absent": [],
+    "js-server-side-open-redirect": [
+      "js-server-side-open-redirect/request-derived-redirect-target"
+    ],
+    "js-sql-injection": [
+      "js-sql-injection/interpolated-query-string"
+    ],
+    "js-ssrf": [
+      "js-ssrf/request-derived-url"
+    ],
+    "js-supply-chain": [
+      "js-supply-chain/insecure-dependency-transport",
+      "js-supply-chain/lockfile-missing",
+      "js-supply-chain/unpinned"
+    ],
+    "js-system-prompt-injection": [
+      "js-system-prompt-injection/tainted-system-role-content"
+    ],
+    "js-weak-crypto": [
+      "js-weak-crypto/weak-hash-algorithm"
+    ],
+    "js-xxe-unsafe-parsing": [
+      "js-xxe-unsafe-parsing/libxmljs-noent-true"
+    ],
+    "jsx-href-scheme": [
+      "jsx-href-scheme/href-dynamic-no-scheme-check"
+    ],
+    "jwt-alg": [
+      "jwt-alg/js-verify-disabled",
+      "jwt-alg/none-algorithm"
+    ],
+    "jwt-claims-validated": [
+      "jwt-claims-validated/verify-disabled"
+    ],
+    "jwt-exp-too-long": [
+      "jwt-exp-too-long/access-token-lifetime-too-long"
+    ],
+    "jwt-key-source-allowlist": [
+      "jwt-key-source-allowlist/untrusted-key-source"
+    ],
+    "k8s-allow-privilege-escalation": [
+      "k8s-allow-privilege-escalation/not-explicitly-disabled"
+    ],
+    "k8s-automount-serviceaccount-token": [
+      "k8s-automount-serviceaccount-token/not-explicitly-disabled"
+    ],
+    "k8s-default-namespace": [
+      "k8s-default-namespace/namespace-not-set"
+    ],
+    "k8s-docker-sock-mount": [
+      "k8s-docker-sock-mount/hostpath-docker-sock"
+    ],
+    "k8s-host-namespace-sharing": [
+      "k8s-host-namespace-sharing/hostipc-enabled",
+      "k8s-host-namespace-sharing/hostnetwork-enabled",
+      "k8s-host-namespace-sharing/hostpid-enabled"
+    ],
+    "k8s-hostpath-writable-mount": [
+      "k8s-hostpath-writable-mount/data-not-readonly"
+    ],
+    "k8s-privileged-capabilities": [
+      "k8s-privileged-capabilities/sys-admin-added"
+    ],
+    "k8s-privileged-container": [
+      "k8s-privileged-container/securitycontext-privileged-true"
+    ],
+    "k8s-rbac-anonymous-binding": [
+      "k8s-rbac-anonymous-binding/subject-is-system-anonymous"
+    ],
+    "k8s-rbac-cluster-admin-binding": [
+      "k8s-rbac-cluster-admin-binding/role-is-cluster-admin"
+    ],
+    "k8s-rbac-dangerous-verb": [
+      "k8s-rbac-dangerous-verb/bind-verb-on-roles",
+      "k8s-rbac-dangerous-verb/create-serviceaccount-token",
+      "k8s-rbac-dangerous-verb/escalate-verb-on-roles",
+      "k8s-rbac-dangerous-verb/impersonate-verb",
+      "k8s-rbac-dangerous-verb/modify-privileged-namespace-pods"
+    ],
+    "k8s-rbac-wildcard-rule": [
+      "k8s-rbac-wildcard-rule/wildcard-resources",
+      "k8s-rbac-wildcard-rule/wildcard-verbs"
+    ],
+    "k8s-readonly-root-filesystem": [
+      "k8s-readonly-root-filesystem/not-explicitly-enabled"
+    ],
+    "k8s-resource-limits-absent": [
+      "k8s-resource-limits-absent/cpu-limit-missing",
+      "k8s-resource-limits-absent/memory-limit-missing"
+    ],
+    "k8s-run-as-non-root": [
+      "k8s-run-as-non-root/not-explicitly-enabled"
+    ],
+    "k8s-seccomp-apparmor-unconfined": [
+      "k8s-seccomp-apparmor-unconfined/apparmor-unconfined",
+      "k8s-seccomp-apparmor-unconfined/seccomp-unconfined"
+    ],
+    "k8s-unmasked-proc-mount": [
+      "k8s-unmasked-proc-mount/proc-mount-unmasked"
+    ],
+    "k8s-unsafe-sysctl": [
+      "k8s-unsafe-sysctl/kernel.msgmax"
+    ],
+    "keylogging-pattern": [
+      "keylogging-pattern/pynput-capture-write"
+    ],
+    "kinesis-stream-not-encrypted": [
+      "kinesis-stream-not-encrypted/missing-encryption"
+    ],
+    "kms-key-disabled": [
+      "kms-key-disabled/explicitly-disabled"
+    ],
+    "kms-key-rotation-not-enabled": [
+      "kms-key-rotation-not-enabled/missing-rotation"
+    ],
+    "langchain-load-prompt-traversal": [
+      "langchain-load-prompt-traversal/dynamic-path"
+    ],
+    "langchain-prompt-template-injection": [
+      "langchain-prompt-template-injection/dynamic-template-string"
+    ],
+    "langchain-serialization": [
+      "langchain-serialization/secrets-from-env"
+    ],
+    "langchain-unsafe-chain": [
+      "langchain-unsafe-chain/allow-dangerous-code",
+      "langchain-unsafe-chain/dangerous-chain-imported"
+    ],
+    "ldap-injection": [
+      "ldap-injection/unescaped-search"
+    ],
+    "lethal-trifecta": [
+      "lethal-trifecta/no-defense"
+    ],
+    "llm-input-size-cap": [
+      "llm-input-size-cap/no-max-tokens"
+    ],
+    "llm-json-output-unvalidated": [
+      "llm-json-output-unvalidated/no-schema-validation"
+    ],
+    "llm-output-html-sink": [
+      "llm-output-html-sink/model-output-html-rendered"
+    ],
+    "llm-output-secrets-unscanned": [
+      "llm-output-secrets-unscanned/no-secret-scan-before-persist"
+    ],
+    "llm-output-to-sink": [
+      "llm-output-to-sink/eval-variable-mediated",
+      "llm-output-to-sink/model-output-executed",
+      "llm-output-to-sink/sql-execute-variable"
+    ],
+    "llm-query-engine-execution": [
+      "llm-query-engine-execution/llm-output-as-sql-query",
+      "llm-query-engine-execution/pandas-code-exec-engine",
+      "llm-query-engine-execution/raw-sql-exec-rpc",
+      "llm-query-engine-execution/rce-capable-privilege",
+      "llm-query-engine-execution/text-to-sql-engine"
+    ],
+    "llm-rate-limit-absent": [
+      "llm-rate-limit-absent/no-rate-limit"
+    ],
+    "llm-response-logged": [
+      "llm-response-logged/model-output-to-logger"
+    ],
+    "llm-tool-dynamic-dispatch": [
+      "llm-tool-dynamic-dispatch/globals-dynamic-call"
+    ],
+    "llm-tool-result-leak": [
+      "llm-tool-result-leak/exception-in-tool-return"
+    ],
+    "log-injection": [
+      "log-injection/user-input-in-log"
+    ],
+    "markdown-render-xss": [
+      "markdown-render-xss/streamlit-html-call",
+      "markdown-render-xss/streamlit-unsafe-html"
+    ],
+    "mass-assignment": [
+      "mass-assignment/orm-update-from-request"
+    ],
+    "matview-exposed": [
+      "matview-exposed/public-materialized-view-unmitigated"
+    ],
+    "mcp-apps-ui-isolation": [
+      "mcp-apps-ui-isolation/iframe-no-hardening-sandbox"
+    ],
+    "mcp-config-security": [
+      "mcp-config/consent-bypass-auto-approve",
+      "mcp-config/dangerous-env-hijack-var",
+      "mcp-config/dangerous-exec-command",
+      "mcp-config/hardcoded-secret-in-env",
+      "mcp-config/relative-path-command-hijack",
+      "mcp-config/remote-url-loopback-pivot",
+      "mcp-config/stdio-launcher-inline-code-flag",
+      "mcp-config/unpinned-npx-uvx-fetcher"
+    ],
+    "mcp-env-placeholder-exfil": [
+      "mcp-env-placeholder-exfil/env-placeholder-resolution"
+    ],
+    "mcp-hardcoded-credential": [
+      "mcp-hardcoded-credential/hardcoded-credential-literal"
+    ],
+    "mcp-marketplace-fetch-stdio-spawn": [
+      "mcp-marketplace-fetch-stdio-spawn/fetch-then-spawn"
+    ],
+    "mcp-noauth-default": [
+      "mcp-noauth-default/fail-open-auth"
+    ],
+    "mcp-oauth-flow-hardening": [
+      "mcp-oauth-flow-hardening/missing-pkce"
+    ],
+    "mcp-oauth-scope-creep": [
+      "mcp-oauth-scope-creep/broad-oauth-scope"
+    ],
+    "mcp-overprivileged-scope": [
+      "mcp-overprivileged-scope/overprivileged-scope-declaration"
+    ],
+    "mcp-raw-execution-tool-name": [
+      "mcp-raw-execution-tool-name/dangerous-tool-name"
+    ],
+    "mcp-routing-desync": [
+      "mcp-routing-desync/header-body-desync"
+    ],
+    "mcp-sampling-no-consent": [
+      "mcp-sampling-no-consent/source-participation"
+    ],
+    "mcp-sandbox-self-disable": [
+      "mcp-sandbox-self-disable/llm-settable-disable"
+    ],
+    "mcp-server-card-integrity": [
+      "mcp-server-card-integrity/transport-capability-mismatch",
+      "mcp-server-card-integrity/unsigned-card"
+    ],
+    "mcp-session-id-security": [
+      "mcp-session-id-security/session-id-as-sole-authorization",
+      "mcp-session-id-security/weak-session-id-generation"
+    ],
+    "mcp-ssrf-unvalidated-destination": [
+      "mcp-ssrf-unvalidated-destination/tool-arg-url"
+    ],
+    "mcp-stateless-migration": [
+      "mcp-stateless-migration/session-id-reliance"
+    ],
+    "mcp-stdio-no-sanitizer": [
+      "mcp-stdio-no-sanitizer/no-sanitizer"
+    ],
+    "mcp-tasks-lifecycle": [
+      "mcp-tasks-lifecycle/no-owner-check"
+    ],
+    "mcp-tool-description-injection": [
+      "mcp-tool-description-injection/confusable-tool-name-across-files",
+      "mcp-tool-description-injection/destructive-tool-missing-confirmation-param",
+      "mcp-tool-description-injection/duplicate-tool-name-across-files",
+      "mcp-tool-description-injection/encoded-payload-in-description",
+      "mcp-tool-description-injection/forced-argument-change",
+      "mcp-tool-description-injection/hidden-instruction-brackets",
+      "mcp-tool-description-injection/html-hidden-instruction",
+      "mcp-tool-description-injection/invisible-unicode-in-metadata",
+      "mcp-tool-description-injection/mandatory-shell-command",
+      "mcp-tool-description-injection/missing-destructive-hint",
+      "mcp-tool-description-injection/preference-manipulation",
+      "mcp-tool-description-injection/quoted-cross-tool-prerequisite",
+      "mcp-tool-description-injection/readonly-hint-contradicts-name",
+      "mcp-tool-description-injection/resource-embedded-secret",
+      "mcp-tool-description-injection/shadow-schema-parameter",
+      "mcp-tool-description-injection/suspicious-description-content",
+      "mcp-tool-description-injection/tool-description-unscanned",
+      "mcp-tool-description-injection/user-intent-override"
+    ],
+    "mcp-tool-env-inheritance": [
+      "mcp-tool-env-inheritance/full-env-forwarded"
+    ],
+    "mcp-tool-path-traversal": [
+      "mcp-tool-path-traversal/js-tool-argument-unvalidated",
+      "mcp-tool-path-traversal/tool-argument-unvalidated"
+    ],
+    "mcp-tool-unverified": [
+      "mcp-tool-unverified/cve-2025-6514-mcp-remote",
+      "mcp-tool-unverified/mcp-server-auto-loaded"
+    ],
+    "mcp-toolgate-asymmetry": [
+      "mcp-toolgate-asymmetry/discovery-exec-mismatch"
+    ],
+    "mcp-tools-list-unbounded": [
+      "mcp-tools-list-unbounded/no-catalogue-bound"
+    ],
+    "mcp-transport-dns-rebinding": [
+      "mcp-transport-dns-rebinding/no-host-allowlist"
+    ],
+    "mcp-transport-flip": [
+      "mcp-transport-flip/dual-transport-declaration"
+    ],
+    "mcp-transport-no-auth": [
+      "mcp-transport-no-auth/http-transport-unauthenticated",
+      "mcp-transport-no-auth/js-http-transport-unauthenticated"
+    ],
+    "mcp-transport-session-unauth": [
+      "mcp-transport-session-unauth/decorative-credential"
+    ],
+    "mcp-tunnel-config-security": [
+      "mcp-tunnel-config-security/ssrf-defense-disabled"
+    ],
+    "mcp-twin-route-auth-asymmetry": [
+      "mcp-twin-route-auth-asymmetry/unauthed-sibling"
+    ],
+    "mcp-unsafe-auth-url-launch": [
+      "mcp-unsafe-auth-url-launch/auth-url-opened-via-shell",
+      "mcp-unsafe-auth-url-launch/browser-opener-no-scheme-check"
+    ],
+    "ml-artifact-committed": [
+      "ml-artifact-committed/binary-artifact"
+    ],
+    "ml-gguf-template-injection": [
+      "ml-gguf-template-injection/sandbox-escape"
+    ],
+    "ml-keras-lambda-rce": [
+      "ml-keras-lambda-rce/lambda-layer"
+    ],
+    "ml-model-provenance": [
+      "ml-model-provenance/from-pretrained-no-revision",
+      "ml-model-provenance/http-model-download"
+    ],
+    "ml-onnx-external-data": [
+      "ml-onnx-external-data/custom-operator"
+    ],
+    "ml-pickle-dangerous-global": [
+      "ml-pickle-dangerous-global/dangerous-import"
+    ],
+    "msk-cluster-transit-encryption-disabled": [
+      "msk-cluster-transit-encryption-disabled/client-broker-not-tls"
+    ],
+    "multi-agent-prompt-origin": [
+      "multi-agent-prompt-origin/untagged-relay"
+    ],
+    "next-api-route-auth-missing": [
+      "next-api-route-auth-missing/no-auth-check"
+    ],
+    "next-public-client-secret": [
+      "next-public-client-secret/next-public-prefix-secret"
+    ],
+    "next-server-action-no-auth": [
+      "next-server-action-no-auth/no-auth-check"
+    ],
+    "no-cache-on-sensitive": [
+      "no-cache-on-sensitive/missing-no-store"
+    ],
+    "no-pan-stored": [
+      "no-pan-stored/raw-card-data"
+    ],
+    "nosql-injection-js": [
+      "nosql-injection-js/unvalidated-filter-value"
+    ],
+    "nosql-metadata-injection": [
+      "nosql-metadata-injection/dynamic-operator"
+    ],
+    "npm-ignore-scripts": [
+      "npm-ignore-scripts/missing-ignore-scripts"
+    ],
+    "npm-install-script-network": [
+      "npm-install-script-network/install-script-network-call",
+      "npm-install-script-network/mcp-package-typosquat"
+    ],
+    "obfuscated-payload-execution": [
+      "obfuscated-payload-execution/decode-exec-chain",
+      "obfuscated-payload-execution/hex-blob-literal",
+      "obfuscated-payload-execution/js-decoded-eval",
+      "obfuscated-payload-execution/skill-shell-decode-exec-chain"
+    ],
+    "open-redirect": [
+      "open-redirect/user-controlled-target"
+    ],
+    "opensearch-domain-encryption-disabled": [
+      "opensearch-domain-encryption-disabled/encrypt-at-rest-disabled",
+      "opensearch-domain-encryption-disabled/enforce-https-disabled",
+      "opensearch-domain-encryption-disabled/node-to-node-disabled"
+    ],
+    "overly-large-regex-range": [
+      "overly-large-regex-range/unintended-character-span"
+    ],
+    "paramiko-host-key-trust": [
+      "paramiko-host-key-trust/implicit-trust-policy"
+    ],
+    "path-prefix-authz-bypass": [
+      "path-prefix-authz-bypass/naive-startswith-containment"
+    ],
+    "path-traversal": [
+      "path-traversal/llm-output-as-path",
+      "path-traversal/path-constructor",
+      "path-traversal/unsanitized-path"
+    ],
+    "payments-user-scope": [
+      "payments-user-scope/payment-fetch-unscoped"
+    ],
+    "pdf-embedded-javascript": [
+      "pdf-embedded-javascript/js-action"
+    ],
+    "pg-anon-grant": [
+      "pg-anon-grant/grant-to-anon-public"
+    ],
+    "pg-default-privileges-public": [
+      "pg-default-privileges-public/row-access-to-public"
+    ],
+    "pg-extension-in-public": [
+      "pg-extension-in-public/no-schema-clause"
+    ],
+    "pg-foreign-table-exposed": [
+      "pg-foreign-table-exposed/granted-to-low-trust-role"
+    ],
+    "pg-function-immutable-reads-session": [
+      "pg-function-immutable-reads-session/should-be-stable"
+    ],
+    "pg-function-leakproof": [
+      "pg-function-leakproof/marked-leakproof"
+    ],
+    "pg-function-search-path": [
+      "pg-function-search-path/security-definer-no-search-path"
+    ],
+    "pg-graphql-table-exposed": [
+      "pg-graphql-table-exposed/anon"
+    ],
+    "pg-rls-no-policy": [
+      "pg-rls-no-policy/rls-enabled-without-policy"
+    ],
+    "pg-rls-not-forced": [
+      "pg-rls-not-forced/enabled-without-force"
+    ],
+    "pg-role-bypassrls": [
+      "pg-role-bypassrls/attribute-granted"
+    ],
+    "pg-role-bypassrls-membership": [
+      "pg-role-bypassrls-membership/set-role-path"
+    ],
+    "pg-security-definer-view": [
+      "pg-security-definer-view/view-without-security-barrier",
+      "pg-security-definer-view/view-without-security-invoker"
+    ],
+    "pg-ssl-required": [
+      "pg-ssl-required/no-sslmode"
+    ],
+    "pgmq-queue-exposed-in-api": [
+      "pgmq-queue-exposed-in-api/schema-exposed"
+    ],
+    "php-code-injection": [
+      "php-code-injection/eval-tainted-arg"
+    ],
+    "php-command-injection": [
+      "php-command-injection/tainted-shell-sink"
+    ],
+    "php-extract-superglobal-overwrite": [
+      "php-extract-superglobal-overwrite/direct-superglobal-extract"
+    ],
+    "php-file-inclusion": [
+      "php-file-inclusion/tainted-include"
+    ],
+    "php-preg-replace-eval-modifier": [
+      "php-preg-replace-eval-modifier/e-modifier-set"
+    ],
+    "php-reflected-xss": [
+      "php-reflected-xss/unescaped-superglobal-echo"
+    ],
+    "php-sql-injection": [
+      "php-sql-injection/concatenated-query"
+    ],
+    "php-tls-verify-disabled": [
+      "php-tls-verify-disabled/curl-ssl-verify-disabled"
+    ],
+    "php-unsafe-deserialization": [
+      "php-unsafe-deserialization/tainted-unserialize"
+    ],
+    "pii-llm-roundtrip": [
+      "pii-llm-roundtrip/no-redaction"
+    ],
+    "plugin-security": [
+      "plugin-security/tool-no-auth-check",
+      "plugin-security/tool-shared-service-identity"
+    ],
+    "policy-exists-rls-disabled": [
+      "policy-exists-rls-disabled/rls-off"
+    ],
+    "policy-no-role-scope": [
+      "policy-no-role-scope/no-to-clause"
+    ],
+    "policy-truncation": [
+      "policy-truncation/untruncated-value-reaches-spawn"
+    ],
+    "postmessage-origin": [
+      "postmessage-origin/no-origin-check"
+    ],
+    "privileged-field-assignment": [
+      "privileged-field-assignment/unchecked-privilege-write"
+    ],
+    "prompt-string-interp": [
+      "prompt-string-interp/chatml-control-token",
+      "prompt-string-interp/concat",
+      "prompt-string-interp/format-method",
+      "prompt-string-interp/fstring-system-role-var",
+      "prompt-string-interp/fstring-user-var",
+      "prompt-string-interp/langchain-template",
+      "prompt-string-interp/percent-format"
+    ],
+    "proxy-tls-hardening": [
+      "proxy-tls-hardening/no-https-redirect",
+      "proxy-tls-hardening/weak-tls-protocol"
+    ],
+    "public-table-rls": [
+      "public-table-rls/rls-disabled-in-public"
+    ],
+    "pydantic-model-construct": [
+      "pydantic-model-construct/model-construct-bypass"
+    ],
+    "python-supply-chain": [
+      "python-supply-chain/no-cooldown",
+      "python-supply-chain/no-locked-hashes",
+      "python-supply-chain/unpinned"
+    ],
+    "rag-isolation": [
+      "rag-isolation/vector-store-no-namespace"
+    ],
+    "rag-no-instruction-filter": [
+      "rag-no-instruction-filter/retrieved-content-unfiltered"
+    ],
+    "rag-scoped-retrieval": [
+      "rag-scoped-retrieval/no-user-scope-on-retrieval"
+    ],
+    "rag-trust-boundary": [
+      "rag-trust-boundary/no-trust-boundary-on-retrieved-content"
+    ],
+    "rate-limit-no-persistent-store": [
+      "rate-limit-no-persistent-store/no-persistent-store"
+    ],
+    "rate-limit-no-user-key": [
+      "rate-limit-no-user-key/ip-only-key-func"
+    ],
+    "rds-backup-retention-too-short": [
+      "rds-backup-retention-too-short/rds-cluster"
+    ],
+    "rds-publicly-accessible": [
+      "rds-publicly-accessible/public-instance"
+    ],
+    "rds-storage-not-encrypted": [
+      "rds-storage-not-encrypted/cluster-missing-encryption",
+      "rds-storage-not-encrypted/missing-encryption"
+    ],
+    "react-native-insecure-token-storage": [
+      "react-native-insecure-token-storage/async-storage-setitem"
+    ],
+    "redis-glob-pattern-injection": [
+      "redis-glob-pattern-injection/unescaped-glob-pattern"
+    ],
+    "redos": [
+      "redos/nested-quantifier",
+      "redos/regex-injection"
+    ],
+    "refresh-token-plaintext": [
+      "refresh-token-plaintext/token-stored-unhashed"
+    ],
+    "regex-html-sanitizer": [
+      "regex-html-sanitizer/wildcard-tag-strip"
+    ],
+    "request-body-size-unbounded": [
+      "request-body-size-unbounded/no-size-check"
+    ],
+    "request-model-extra-forbid": [
+      "request-model-extra-forbid/missing-forbid"
+    ],
+    "response-model-set": [
+      "response-model-set/raw-db-object-returned",
+      "response-model-set/sensitive-field-in-response-model"
+    ],
+    "reverse-shell-pattern": [
+      "reverse-shell-pattern/bash-dev-tcp"
+    ],
+    "rls-anon-write-access": [
+      "rls-anon-write-access/anon-write-permitted"
+    ],
+    "rls-auth-email-lockout": [
+      "rls-auth-email-lockout/gated-on-email"
+    ],
+    "rls-auth-role-unknown-literal": [
+      "rls-auth-role-unknown-literal/negated-always-true",
+      "rls-auth-role-unknown-literal/not-a-real-role"
+    ],
+    "rls-auth-uid-unwrapped": [
+      "rls-auth-uid-unwrapped/uid-unwrapped"
+    ],
+    "rls-auth-users-unbound-exists": [
+      "rls-auth-users-unbound-exists/no-caller-binding"
+    ],
+    "rls-current-setting-unqualified": [
+      "rls-current-setting-unqualified/no-namespace-prefix"
+    ],
+    "rls-current-user-tenant-key": [
+      "rls-current-user-tenant-key/role-identity-comparison"
+    ],
+    "rls-fkey-to-auth-non-primary": [
+      "rls-fkey-to-auth-non-primary/non-primary-reference"
+    ],
+    "rls-hardcoded-tenant-literal": [
+      "rls-hardcoded-tenant-literal/identity-column-pinned"
+    ],
+    "rls-inverted-auth-check": [
+      "rls-inverted-auth-check/is-null-or-bypass"
+    ],
+    "rls-multiple-permissive-policies": [
+      "rls-multiple-permissive-policies/multiple-permissive"
+    ],
+    "rls-no-user-metadata-claim": [
+      "rls-no-user-metadata-claim/editable-claim"
+    ],
+    "rls-partition-inherits-bypass": [
+      "rls-partition-inherits-bypass/inherits-child-no-rls",
+      "rls-partition-inherits-bypass/partition-child-no-rls"
+    ],
+    "rls-pattern-match-auth-context": [
+      "rls-pattern-match-auth-context/wildcard-shape-controlled"
+    ],
+    "rls-permissive-policy": [
+      "rls-permissive-policy/always-false",
+      "rls-permissive-policy/always-true",
+      "rls-permissive-policy/restrictive-always-true",
+      "rls-permissive-policy/write-check-open"
+    ],
+    "rls-realtime-published-no-rls": [
+      "rls-realtime-published-no-rls/published-without-rls"
+    ],
+    "rls-restrictive-only": [
+      "rls-restrictive-only/no-permissive-policy"
+    ],
+    "rls-update-privileged-column": [
+      "rls-update-privileged-column/unpinned-column"
+    ],
+    "ruby-command-injection": [
+      "ruby-command-injection/shell-exec-untrusted"
+    ],
+    "ruby-dangerous-dispatch": [
+      "ruby-dangerous-dispatch/non-literal-method-name"
+    ],
+    "ruby-mass-assignment": [
+      "ruby-mass-assignment/params-permit-bang"
+    ],
+    "ruby-sql-injection": [
+      "ruby-sql-injection/interpolated-sql"
+    ],
+    "ruby-tls-verify-disabled": [
+      "ruby-tls-verify-disabled/verify-mode-none"
+    ],
+    "ruby-unsafe-deserialization": [
+      "ruby-unsafe-deserialization/marshal-load"
+    ],
+    "ruby-unsafe-reflection": [
+      "ruby-unsafe-reflection/non-literal-class-name"
+    ],
+    "ruby-weak-crypto": [
+      "ruby-weak-crypto/insecure-hash"
+    ],
+    "s3-bucket-canned-acl": [
+      "s3-bucket-canned-acl/acl-resource"
+    ],
+    "s3-bucket-insecure-transport-allowed": [
+      "s3-bucket-insecure-transport-allowed/no-deny-insecure-transport"
+    ],
+    "s3-bucket-policy-wildcard-principal": [
+      "s3-bucket-policy-wildcard-principal/unconditional-wildcard"
+    ],
+    "s3-mfa-delete-disabled": [
+      "s3-mfa-delete-disabled/versioning-configuration-resource"
+    ],
+    "s3-public-access-block-disabled": [
+      "s3-public-access-block-disabled/control-disabled"
+    ],
+    "sagemaker-notebook-not-encrypted": [
+      "sagemaker-notebook-not-encrypted/missing-kms-key"
+    ],
+    "sandbox-denylist-bypass": [
+      "sandbox-denylist-bypass/attribute-lookup-primitives-omitted"
+    ],
+    "secret-in-url-query": [
+      "secret-in-url-query/secret-in-query-param",
+      "secret-in-url-query/secret-query-param-declared"
+    ],
+    "secret-str-serialized": [
+      "secret-str-serialized/serialized-logged"
+    ],
+    "secrets-manager-default-kms": [
+      "secrets-manager-default-kms/default-aws-managed-key"
+    ],
+    "security-headers": [
+      "security-headers/no-security-headers-middleware"
+    ],
+    "sensitive-columns": [
+      "sensitive-columns/public-schema-sensitive-name"
+    ],
+    "sensitive-logging": [
+      "sensitive-logging/request-body-logged",
+      "sensitive-logging/request-headers-logged"
+    ],
+    "service-role-key": [
+      "service-role-key/client-env"
+    ],
+    "session-fixation-no-regenerate": [
+      "session-fixation-no-regenerate/login-writes-session-without-regenerate"
+    ],
+    "session-no-csrf": [
+      "session-no-csrf/session-middleware-without-csrf"
+    ],
+    "setup-network-call": [
+      "setup-network-call/setup-py-network-call"
+    ],
+    "sfn-observability": [
+      "sfn-observability/logging-disabled",
+      "sfn-observability/tracing-disabled"
+    ],
+    "shared-resource-authz": [
+      "shared-resource-authz/no-per-actor-authz"
+    ],
+    "skill-poisoning": [
+      "skill-poisoning/trusted-name-typosquat"
+    ],
+    "skill-untrusted-exec-path": [
+      "skill-untrusted-exec-path/untrusted-search-path"
+    ],
+    "slopsquatting": [
+      "slopsquatting/cross-ecosystem-pip-install"
+    ],
+    "sns-topic-not-encrypted": [
+      "sns-topic-not-encrypted/missing-encryption"
+    ],
+    "sql-race-check-then-insert": [
+      "sql-race-check-then-insert/check-then-insert"
+    ],
+    "sqlalchemy-text-parameterized": [
+      "sqlalchemy-text-parameterized/string-built-sql"
+    ],
+    "sqs-queue-not-encrypted": [
+      "sqs-queue-not-encrypted/missing-encryption"
+    ],
+    "ssh-allowlist-absent": [
+      "ssh-allowlist-absent/no-account-allowlist"
+    ],
+    "sshd-hardening": [
+      "sshd-hardening/password-auth-enabled",
+      "sshd-hardening/pubkey-auth-disabled",
+      "sshd-hardening/root-login-enabled"
+    ],
+    "ssrf-bracketed-ipv6-bypass": [
+      "ssrf-bracketed-ipv6-bypass/no-bracket-normalization"
+    ],
+    "ssrf-dns-rebind-toctou": [
+      "ssrf-dns-rebind-toctou/no-ip-pinning"
+    ],
+    "ssrf-general": [
+      "ssrf-general/user-controlled-url"
+    ],
+    "ssrf-ipv6-bypass": [
+      "ssrf-ipv6-bypass/missing-ipv4-mapped-check"
+    ],
+    "ssrf-redirect-bypass": [
+      "ssrf-redirect-bypass/redirect-not-disabled"
+    ],
+    "ssti": [
+      "ssti/raw-template-constructor",
+      "ssti/user-input-in-template"
+    ],
+    "staticfiles-broad-mount": [
+      "staticfiles-broad-mount/root-or-parent-dir-mounted"
+    ],
+    "storage-no-rls": [
+      "storage-no-rls/private-bucket-no-object-policy"
+    ],
+    "string-format-injection": [
+      "string-format-injection/format-user-var"
+    ],
+    "stripe-payments": [
+      "stripe-payments/live-key-literal-in-source",
+      "stripe-payments/secret-in-client-env",
+      "stripe-payments/subscription-state-from-client",
+      "stripe-payments/webhook-unverified"
+    ],
+    "supabase-anon-key-rls-reachable": [
+      "supabase-anon-key-rls-reachable/confirmed-reachable-rls-gap"
+    ],
+    "supabase-filter-injection": [
+      "supabase-filter-injection/unparameterized-filter"
+    ],
+    "supabase-storage-public": [
+      "supabase-storage-public/public-storage-bucket"
+    ],
+    "supabase-vault-exposure": [
+      "supabase-vault-exposure/definer-function-executable"
+    ],
+    "supabase-vault-plaintext-leak": [
+      "supabase-vault-plaintext-leak/literal-secret-in-sql"
+    ],
+    "svg-embedded-script": [
+      "svg-embedded-script/script-element"
+    ],
+    "system-prompt-exposure": [
+      "system-prompt-exposure/concat-leakage",
+      "system-prompt-exposure/hardcoded-literal",
+      "system-prompt-exposure/in-error-response",
+      "system-prompt-exposure/logged-at-debug-info"
+    ],
+    "system-prompt-leak": [
+      "system-prompt-leak/no-leak-filter"
+    ],
+    "target-blank-noopener": [
+      "target-blank-noopener/missing-rel-noopener"
+    ],
+    "terraform-hardcoded-secret-literal": [
+      "terraform-hardcoded-secret-literal/attribute-literal",
+      "terraform-hardcoded-secret-literal/locals-literal"
+    ],
+    "tls-verify-disabled": [
+      "tls-verify-disabled/reject-unauthorized-false",
+      "tls-verify-disabled/ssl-unverified-context",
+      "tls-verify-disabled/verify-false"
+    ],
+    "token-in-localstorage": [
+      "token-in-localstorage/localstorage-setitem"
+    ],
+    "tool-callback-enforcement": [
+      "tool-callback-enforcement/no-interrupt-before",
+      "tool-callback-enforcement/trust-config-wildcard-bypass"
+    ],
+    "tool-chaining-exfil": [
+      "tool-chaining-exfil/read-and-send-tools"
+    ],
+    "trust-boundary": [
+      "trust-boundary/enable-all-project-mcp-servers"
+    ],
+    "trusted-host-absent": [
+      "trusted-host-absent/no-trusted-host-middleware"
+    ],
+    "truthy-ownership-check": [
+      "truthy-ownership-check/unguarded-truthy-scope"
+    ],
+    "unauthenticated-file-download": [
+      "unauthenticated-file-download/no-auth-signal"
+    ],
+    "unawaited-async-truthy": [
+      "unawaited-async-truthy/unawaited-call"
+    ],
+    "unrestricted-file-upload": [
+      "unrestricted-file-upload/client-filename-to-disk"
+    ],
+    "unsafe-deserialization": [
+      "unsafe-deserialization/haystack-pipeline-load",
+      "unsafe-deserialization/trust-remote-code-rce",
+      "unsafe-deserialization/untrusted-load"
+    ],
+    "untrusted-package-install-source": [
+      "untrusted-package-install-source/pip-url-source"
+    ],
+    "upload-no-size-limit": [
+      "upload-no-size-limit/no-size-check"
+    ],
+    "upstream-response-unvalidated": [
+      "upstream-response-unvalidated/api-response-used-unvalidated",
+      "upstream-response-unvalidated/http-text-content-raw-return"
+    ],
+    "vite-client-secret": [
+      "vite-client-secret/vite-prefix-secret"
+    ],
+    "vite-sourcemap-prod": [
+      "vite-sourcemap-prod/build-sourcemap-true"
+    ],
+    "vscode-tasks-auto-exec": [
+      "vscode-tasks-auto-exec/folder-open-suspicious-command"
+    ],
+    "weak-crypto": [
+      "weak-crypto/insecure-hash",
+      "weak-crypto/weak-key-size"
+    ],
+    "weak-password-length-check": [
+      "weak-password-length-check/short-minimum"
+    ],
+    "weak-secret-key-literal": [
+      "weak-secret-key-literal/known-weak-literal"
+    ],
+    "webhook-idempotency": [],
+    "webhook-signature-not-verified": [
+      "webhook-signature-not-verified/github-unverified"
+    ],
+    "websocket-no-auth": [
+      "websocket-no-auth/websocket-without-auth-dep"
+    ],
+    "websocket-origin": [
+      "websocket-origin/accept-without-origin-check"
+    ],
+    "xpath-injection": [
+      "xpath-injection/untrusted-expression"
+    ],
+    "xxe-safe": [
+      "xxe-safe/unsafe-xml-import"
+    ],
+    "zip-bomb": [
+      "zip-bomb/no-size-limit"
+    ],
+    "zip-slip": [
+      "zip-slip/unsafe-extractall"
+    ]
+  },
+  "files": {
+    ".claude/routines/nightly-report.json": "a48dcbd207dd1a935d7b49feec5d01355f637207241a8c9eddbef90e55b342c3",
+    ".claude/settings.json": "2bded0b152d69a9dee50d9c34d935147d4d2f11f6e00ef122d9db71b1feb3fee",
+    ".env": "1622e6d8116df6ea8d8c2c2988e32d1ca9b054636450ed684ac3e0c3c1ab37f7",
+    ".env.development": "2aabf64abfc28bfe8ff884d02e3efab6743c9bf35263716dea692160a4e11aa2",
+    ".env.example": "a52441320374545171896062918155da0e265f444880f5b01610680c295db91a",
+    ".env.local": "e2c94f32ea3f6cb1413cb09e56bffb18cdf6ac508060805bfe28a0c65efdfd04",
+    ".github/workflows/agent.yml": "b40f2ffa410dbd8aff9ca99381ae36c802b38bd2d188dbbd1455dce592d90ae3",
+    ".github/workflows/ci.yml": "e5a75a9c336c2f79ff95e645467ac11fa9922111d97a496e45ab4138cb1d4493",
+    ".github/workflows/deploy.yml": "f81242be6f2af674a872db9b742da4846d98383f45400672f4762675c4624794",
+    ".github/workflows/release.yml": "1122f4152ad24e991622afe37ea2d8b85fcb1288b53799402c7c39a3ed281d5d",
+    ".update.py": "53eab199a5a080ff261712257bb1d73ab31d1e232b9fa0648e2fa0914cf4467a",
+    ".vscode/settings.json": "92a5f198b365c3c5d228b387269133ce945ccf78bd9b05e064ef0ae789073d0b",
+    ".vscode/tasks.json": "735277efc5a38010f958f0cf94f4163db4a4e8bae370dcd6e1fe9622360891ce",
+    ".well-known/mcp/server-card.json": "6b06f374a16c8c2ee1a5f01739516aca3478e7154f4d85c7d873306be69581a2",
+    "CLAUDE.md": "2fd45b539b160102c0eba6904dbc6e14d72af660b87352b0c35c156f5f84c4cc",
+    "CodeInject.php": "e1ad40c31727388867755a1c2ded3b70a689cbb1d48eec3dc1337f7ea0a10db9",
+    "CommandInjection.php": "3d0789e313000e03bd8c92080d8162ff4d564fdc4f775e63b7d2e8b59b212f80",
+    "CurlTls.php": "d7f6561848ac4d44d0852757504fde128ac1c71b34580e93e10b65ed15d7208f",
+    "Deploy.java": "87a711d2411cc84b69d599d5de8be0fb62510ad36597b961bc12623d05e5eb8d",
+    "Deser.java": "26631c3ffb8e57585b5a57d936acf1c4673d920c0c2cbdae82d2adbc697bb716",
+    "Dockerfile": "5e47a01ed45354da1bf856bd3bb493bea417a0e7b69de0a236fa726c03fa0c6e",
+    "Dockerfile.apt-update": "22669809488f7dc2180ab093039936e81357af40f0e59df70ad1fc7950838d4e",
+    "Dockerfile.credential-in-instruction": "87b509b4c4dd8284e323cafc14702e585c4eee3d0a55378f5137d1d61ac04bac",
+    "Dockerfile.go-build-footgun": "95bd0d8ed6a10731cca2234eb5f6d6016bbdb651ff1043c0ce23fd5edd65a908",
+    "Dockerfile.hardening-canary": "d88478ed3e98a3a78e1bbfee5f53a3261f417fa1aaa0dd3a122c4bc1ce84efd2",
+    "Dockerfile.run-isolation-weakening": "112b9ed9d3e96f69046ca04c4c88162985f6d9dec124c28edfd89c887c8d6ee7",
+    "Dockerfile.workdir-sensitive-path": "ee7a0b84a276213636676263280b8556b45b86d3f116b9154c7e785d9ea9d359",
+    "ExtractOverwrite.php": "4558610b58a7e2da6fd405930a864c1f3f16fe723350dae0d47877b84c664326",
+    "FileInclude.php": "62b4a903b20412f2309e0bf8aa0a784e796a0054a532b26e8a343b76a76322e4",
+    "HardcodedJdbcPassword.java": "6d08ec0debaa170a999666d2dbfd830901e36e18697f57dfeb24b84aff9c7154",
+    "JavaSqlQuery.java": "70ddd7e6392c80183a10ea59b059bc63384c56e72c06c2e53b7c294dcfd81f0e",
+    "LdapAuth.java": "00f5245503189d9aac00448bd5ce5e86bbd8d289adf61e2138bb5da4553c206b",
+    "Reflected.php": "2dd7d3256e26fe6eeca34249e2592110e132a1e212d1d782b67ee1ad371b5250",
+    "RegexEval.php": "6534601e4f746fcc41a97bf74bb3af4e46d29e436901ac89a0c48785dc618ca4",
+    "SKILL.md": "97ec85311a1f88761f4b90654213fbae70e49dba16cc07c21da393a1118c3372",
+    "SessionHandler.php": "70618d5de88eef989419816b1081033aa20973555c20cd7c6949cecb7a4ebd0d",
+    "SqlInjection.php": "c49efc5c91206d97a7ddfca310c9570889f2257f66eb8a1f8d468b628b61c652",
+    "TaintedFile.java": "83e89e2612037a3f453d6d89d7a89263f64ab88ce9661782c681da2bb76612f8",
+    "TrustAll.java": "54cf25ee265905c87e86087df82c8f5a477c50977ce9357f5763fce413a7f4db",
+    "UnsafeXxe.java": "4e79d0f530c6a9568da114c7721415594bb74c48997810ac62e41c700cb12c35",
+    "UrlFetcher.java": "8c5669eb2b2a97e73f3ed65d659511a0be9bda451f02b4dc3ea711dee3197516",
+    "WeakHash.java": "edadd46c378a5ec2fc47b47df675a35a9d605143a524f3ee7739c728f1395f91",
+    "account_admin.py": "defb0af558dd172b1468bb070845258e309808d2e42b4ee139c6db6ffe6bc3be",
+    "account_billing.py": "3b7c4e9c21771321ca615fc856fd6d70809d28306e3a291c856040ecfefba1d7",
+    "acp_handler_vuln.py": "e125bba1e32d442f8bcda92128e9d504b05436bb68608047e132950d9299a42c",
+    "acp_org_token_vuln.py": "1cf290af011831f2d773beab3e86929a72ccff2c6198c91ba43b513e487bf8ce",
+    "acp_reload_vuln.py": "3f8c8459eeb2fbb45d08004b0fcd1279ae3e0c5aebe5065e22fe73d252aedd01",
+    "acp_sampling_vuln.py": "b701fc034bfb0f41db79809d799f7e73b91e2a460b17c50c005439214b7bb5df",
+    "admin_delete.py": "db7696fff54a217369b43f73028082f086c54eedb4043147524b34f23c7d3245",
+    "agent.py": "34ced871dd01149920173e225026140f6b365d9262494574a7df7c858b33313e",
+    "agent_dynamic_dispatch.py": "62e3ff081e529244206f033b78011bb57fa3525284c22db1dc3d18f87db59238",
+    "agent_execution_policy.json": "518e2f3534de76bf9a98f6d4fda6ff8fea11feaa78534c28fd20b219ffca4d5d",
+    "agent_executor.py": "71e52b67d89b78cf66e7df2d4685f257c6406ea639a1a9a9958bde49f7113ca4",
+    "agent_memory_checkpoint.py": "d00e491d876db47ec5274e714f0409f9b045be6d8b4aed067cf9fc95fd32a5fe",
+    "agent_memory_history.py": "3ddabef56e68d1ff029df1021cd411be3526ec905337ff75a0990d06fe0b591b",
+    "agent_memory_prompt.py": "15c6cc518ba427ec20e20274b1a9297783c82d606a875dbd50d9316fd5127a31",
+    "agent_memory_store.py": "40aaa2d503999e6a2f309eee608b9566f5f5e582944714f975e496ad988882fb",
+    "agent_memory_write.py": "0417e7ffed0addbae2a423fc0c9d333b8c5aff566cb1651330bc4978c4ee9e6d",
+    "agent_policy.json": "bd58c99888a7f7eb44d72a4ab472f25e12c69a1c409e7f5616fb2a0b8b30cd0b",
+    "agent_tools.py": "e16eb8f5e76cd062a8f4dbbac338d3b70d7bd496a918e33c8eb3e9bec1ecb2c7",
+    "alb_listener_http_protocol.tf": "8ca8d2c82a26368a6fa8132feef5a83a741e9e3d2a50bc35c03a20c80a35e4d0",
+    "api_client.py": "cd2de599a9adc2c580b2c922b97f7abbaf33f42db1606c1b3c9ed221f4b19083",
+    "app.py": "0b118a6accd0addcfadebd4851cf83fa3657407310ae744e06c8f563558c1b41",
+    "app/actions.ts": "e8303214d1dc8d7e9842a39e0a4d2df5980cda5bc764e37d9bcdcca2f2e5db64",
+    "app/api/orders/route.ts": "7e5d74be3e5961e76ba9ba11c267c6d381756858f1a4a6b1b893312f7200a41c",
+    "approval.py": "6992df53e8c4771a325118627382eeda72121965b38382c7e25d873c18974dc8",
+    "argv_runner.py": "33cfb4b19fe9fd5943c667db88aac29e4c23444e4f89b9142748ca70c4aece23",
+    "arm_aks.json": "3d81e84ab2c331f92af217180a07c4de64b782d8a3948a56bfb919c949d542fc",
+    "arm_apim_backend.json": "b3735c1dc7fa7e3fcfe35ea480a5c5283f5f3fb26b3e01b87b2a2e358f7e74a7",
+    "arm_appservice.json": "b5d83b68d25a0fc2fef1395a57846b449e2a3eb23ec82b11b94cb837f1b4769e",
+    "arm_redis.json": "070e462ca81d8ed062db770dd616582ee4837c7fe66ebd72fdf14654358f0f11",
+    "arm_sql_tde.json": "61d5440ef491a9f31544708e2044c058d1a22926f0408452e58a6e8b8d78b724",
+    "async_io_handler.py": "8d07ae8159c402bc52f146c6bde0e9d078ce21033a8d4f16c054c9c5140c9fa9",
+    "auth.py": "242a2febb2ae25042bd0a8b9d4598397aab5f9a61e239bcfab7538bed305246c",
+    "auth_config.py": "d34ffef38fb50de08925845bdade38235a07a53aa5408bd138f418d82b6b9195",
+    "auth_disabled_default.py": "797308bf452e2df9bb824f17b105ddb1a19acdf7a0b6d6f146f85eff32d423ad",
+    "auth_login_route.py": "0b051da7db0ae857f0d17a662604c55863756a54e7bbb7857bb7f5dfc0e335eb",
+    "auth_samesite.py": "94b0f4cf376209712c7768a4258b05f7b7db2afb0947442627c38fcc067974c9",
+    "auth_verify.py": "8cf545fe387cdc3ca3919ad365ae90e98c49ed19d42cc962ca0e2fc1d563baa1",
+    "aws_weak_tls_policy.tf": "a18df18bb7c4ae2458614911305bcd3fd4211db81ba577f9604cb463115e2735",
+    "azure_keyvault.tf": "cc6b7645939892a1c3f9b2fd4b374df427fcc08787234951a6a5356f64ffba81",
+    "azure_keyvault_key.tf": "553663f5f554a872620b818ac8973e854c8cc1e6c5f87fc84888b99d8eed01ba",
+    "azure_mssql.tf": "719de0b613867c82b3e5b40ea8058ca481260c2da3f93f9bfbbe4cd9cbeaeec8",
+    "azure_storage_https.tf": "b033716b11ef23ed025d1bbc926a62a5ffd0464ad7c3b395b715886c8602c870",
+    "azure_storage_public.tf": "e2f35b5df9d9397c1e6a129020f10eb9bc9da3992c26018bc4c172229c2022b9",
+    "backdoor.sh": "53c9f07fdf20047f6038da3d20fdf15732d88cbcf494976752ce41739fbbfdff",
+    "bicep_cmdexec.bicep": "6ff3438349c62d948571a85545912b49fdb3dfd21db28437b7f384bc833ce0a8",
+    "bicep_nested_deploy.bicep": "89026d4c539a35e771cdcfd18e129f5cdecdc2c13be4e19fd6265936e820a710",
+    "bicep_output_secret.bicep": "e4145e39922748a0aec6a59ef49ab356adfc9076ba96766b1c4fc342989fce8c",
+    "bicep_param_file.bicepparam": "d5cc68d1f0c02937eae28e31d734cbb9d7c3481e354b25b3629aa9b32829888b",
+    "bicep_secret_param.bicep": "21ceca33628bd48358e040dab2fee337fd5ce4c4df40d0906222fe7503b55a0b",
+    "bicep_secure_default.bicep": "60d603588ad314b794c8a38a1ba06711af2266473b9ee5781730415d84c52624",
+    "bicep_vm.bicep": "3d8f65095194a1b6174cfc197ff61cfe7d26b0fb1cf566e4053c0661da97072d",
+    "bookings.py": "f71a643e269fc606b18231e623734912ed688f839daab99e0a612c58505dbaad",
+    "bridge_dispatch.py": "50519fb944101e78705fa848e528d8a4a57cd0fdf1e5dc9e76335cc518d518f3",
+    "buffer_parse.js": "9a45bc9b5238fbd9c54c606ecc869f27d65ff62f60f31bd3e1b30198f885f44c",
+    "cache.py": "1498530095d32526d7f323bc4f9b9ca199fc3f6119b288b4462a9fa20ddf94b0",
+    "canary-bedrock-model.json": "a6b1df3478b792d13f4e54cba26edc6d469a3e1ea0449191c4ef2bce96dba9db",
+    "canary-bedrock.json": "f4a3b04ee60da86964d8545e2e002b62e48e240e995356795146a75f9bd79f9f",
+    "canary-db-scan.tf": "bada8994a849c25ecc7cc161e312e183a55e801d20feb1e12868d3f6d4631679",
+    "canary-killchain.json": "056d9ec1f3335267694f9e7b49cbb175618c3b326da2a01e11b82669238f7705",
+    "canary-model.gguf": "8ef0856d3eee04cf68fd0b98e2ad37ed6a437e86b710ecfc6701e3f50a138f46",
+    "canary-model.h5": "89126922a01c890080304c03aec20581ef82de9f7ae34bdfdf42d46e5c63abc5",
+    "canary-model.onnx": "21236e9f6d2b681ba0694023930e0e843cb5ac13ac37ab7ec565ad2a4fd4da27",
+    "canary-model.pkl": "981c77a9e14d04729a8b482cb470f60f9ec262b8b42085299824d45813c1f42d",
+    "canary-obfuscated-eval.js": "662b7a1e3cc8000b9eb298a6e22167d4a52d1f53902f9b2766b4c1ef92f795df",
+    "canary-s3-write.tf": "29c3da7b00cf8dc73e9830792cfba5c8b3eaf82131f1faba5dd6aa012dfbf667",
+    "canary-sagemaker.tf": "d11e85a77ee8768e64a0edd2411a42ca789187165532674fc89e5246ad3231b0",
+    "canary-tool-exec.json": "21adeeec753a91e3cf019b8a6598e8ffc213450f2d94c75e8c81de9d982f9190",
+    "canary-weights.pkl": "717c61d54589c17c2c4196dcdd551fe4d9c0f0f3c157cf351009122a0c37d00d",
+    "cfn_authentication.yaml": "12998927d3364bbcf01d5896079271b0280c31c1b5eecc0073f93d7bd45bb52c",
+    "cfn_batch_job.yaml": "d25148ca5f7216bee85f4b0cc9854ea7e3aa9825b9571b205d62fe9c5ea4b26e",
+    "cfn_cognito_identity_pool.yaml": "7bc5273b572a47e92766ebcfd324e484a2937ec5361359ef7f62e838ff8ddfe1",
+    "cfn_cognito_pool.yaml": "005c0ab3a3793bf85b0adf33ea148b0d3e73f53a362c5ffddcc84043df6f8843",
+    "cfn_ecr_repo.yaml": "671acfca50768b11cd5a904bc9b176931a69a4a9c46e5c8883fe575f0738761b",
+    "cfn_iam_escalation.yaml": "4653bcbc8d8ecc25f9b8e742a38d7b0154451035ac9e8a56a0fea54b397ac267",
+    "cfn_iam_notaction_with_allow.yaml": "7a775eda70ff84907e4eae74fdc6677c3dc942a17a741fc0eef1b0e0a9e47bd7",
+    "cfn_iam_user_direct_policy.yaml": "1c405851150cb962f439f7ec31ff78ca64704994577a8356bb7ebd2e85c2e712",
+    "cfn_kms_key.yaml": "e9cecee33341ef59830a5f2d7fee6fec4eb053ccc838de326fe089ac99926875",
+    "cfn_nacl_deny.yaml": "5bdc30c3d1b627db13dc57d5b5a1301f8b31a100d0efe6635066368857e19cb2",
+    "cfn_rds_password.yaml": "a6047609af51a09df9c34bdb1f037eff37e3d17d99941ad0f6716ddbfb95ae84",
+    "cfn_rds_public.yaml": "e716b894b5c636487bf08788bf59045bb36eceeb13e333bf491052348b6fa905",
+    "cfn_s3_bucket.yaml": "bd10673d7c41b133d62c13ee6679910b7fd1fdcc8eddd9cc273596c7d586a2f7",
+    "cfn_s3_public_acl.yaml": "99a54f663d75425e67f6b06bc2849f55538e53ce4d505362efe0339c236bef0f",
+    "cfn_subnet.yaml": "afe5e881f8e840329559ec537d34210068daf75e1853dadf45667ff3f6545484",
+    "cfn_vpc_no_flow_log.yaml": "a3e69f520dd934fee6bcf209863bdde3a4573390a1e26a241b660fe0cf591e50",
+    "cfn_waf_webacl.yaml": "0002e9aab923d70053c5ecd8b73d668085df3ab586acd5148e531da3e1ddbfb9",
+    "cfn_wildcard_principal.yaml": "221a1ec9c8be4d22315009d0c6d06bcdc45976f87fc7a36c82bfc9927230bc8a",
+    "chained_tools.py": "181cd9851438db1a9b8bc4cf89bcefac097564aee0e1d35613fe2dbd3043b599",
+    "chat_llm.js": "c2e12ae2c1eae326a84e9bed5b9e9e99cf32c6e007d21d0131794b7722930776",
+    "chatml_templates.py": "f2a03596793deb6e9085422048d4dd6358ce3f74ff8b7ad6500636a1fb7efa05",
+    "checksum.rb": "99b1f82a15ec348591d4f6795aca15e9d57b17244a9e4fa4f1a693f6f0152630",
+    "claude-hook-rce-canary/.claude/settings.json": "5d84621a32aa75d951e203d6792d2be5b2a7d7710722128dea6eec79fb0b5e18",
+    "cleartext_secret.py": "7eb8aba8084541bed37a7ab96d0a76ff27e4da4bb3ba3001d1a932cc4f6daa2f",
+    "cli_tool.py": "1587d156f5554f5ec9f1a748f02270f59af1ad34c57957a670a72f88dbb128ec",
+    "client_redirect.js": "a664420e72cb3fcd24c4413636d8d001be0b900a0a6e8bd5bfb733f5c27f67d5",
+    "client_request_forgery.js": "7d7cf4b34f75eeee9f2a4822763199abe696e5a1692d9841d20d5671006ad8a6",
+    "cloudtrail.tf": "37744bc8782da562d83e372b3a538d0cc64f748236ef5a87768ef65e1f7b5815",
+    "cloudwatch_logs_kms.tf": "f3393b1aecca6a3fae930d694e6f6ed411a91111790561fda05b93056c1108c4",
+    "components/ExternalLink.jsx": "e0f9955a05d8b1ac67807e90610212907ba4d6dd00ddcf2416b92f158ba720c3",
+    "components/NavLink.jsx": "94889458df2ca95f419a7a317a9a97b32a2e0bab7600554f81ed79222b1345d2",
+    "components/UserContent.jsx": "0872aabec5a3ec01f5998fdcd1679bf4f72ad6ac120737ba31af60090ae69ae9",
+    "components/api_client.js": "596a73a3e6e5cbd7a5371a1f976b16d961d12a87b7995dbf041747db48f5c9a9",
+    "components/auth.js": "f10d8623a2dd4452ea72a101ac3a248f57241ba6ed8a0dede3b430c78f580c6a",
+    "components/broken_sanitizer.js": "88cb1bfcf3e2b0af42b52e09be15ca01a4c4ab73edb83bc3b9dc2e72ad568cf8",
+    "components/client_login.js": "c11707c9a7cccb350f9d32f6dbfe3b23129d0ca34239ec55422e06cae1cb8e13",
+    "components/eval_runner.js": "6e598b1dc78d90f917e08e533b05f106de625196871b622eb1294359a24f7a5f",
+    "components/firebase_config.js": "99389f8d2267c42f436217d347acf3570691c5639beee11ee816e33227e35542",
+    "components/gcp_server_key.js": "f0d6a07459eb25e23f2456570ec71519cd1d87e9fd3b24173da8bcf59950d4c6",
+    "components/merge_handler.js": "2ab9a1503cc3dba1ff1918a18a5cd30b5e414ca3b2bafcca09847ce6712a8174",
+    "components/mobile_auth.js": "599b1d549162f359edc4a5d8979e678f5f256149610506c0937b39c5610a0b52",
+    "components/widget.js": "8db97456a7b9314b6269333075df7334d98f278f934c90f901c833c419fd6635",
+    "components/xpath_query.js": "add443c51867d31eee1c998de3a2e1803094557ddd58fec6e074894b5096970c",
+    "config.py": "8a40364fdb6980c3f674b612e0c9246a6588c051bde3ed62d910660892da5890",
+    "config/config.yml": "4c46cdc8654fc3f9100bb5544318ba5095486a1bc75f32e0aab1053f2127310c",
+    "corpus/trojan_doc.txt": "9b66f80888c00b4bf3dc99bb566c3a4072f2aa8b71db6af89d46718d8e847e01",
+    "credential_symlink_escape.sh": "7107f7dce911674ef03e331a1a242bf14d73f50f21985319850f5e71254d8416",
+    "credential_theft.py": "ce66cfc3a6bc969b7ac96c27da4554bd411d116289fc51cad3670bbca823801f",
+    "crew_tools.py": "d3d9e182a8dcf4c3e6f0b1e5b4f57f865fa5b89837de36b343da43169ea37233",
+    "cron_systemd_persist.py": "ac7c9ec23e97a6f06ee59955d4528e1bbf4f77697898054204f88f712ebdc82e",
+    "crypto.py": "db9057ff99651d88d49aff5ab328f33a61f07f44a6acb48bb2080687a6053202",
+    "custom_loop_agent.py": "e76f6125c6ffd36e4bfb3a2ec02df6b2a4cc897fd5f3d62a26c9bf48c0fb8654",
+    "db.py": "3cf3e9d255b858b1cc9b22feb02c0688c92d550d28f02a7fdf411ae4a8cdb061",
+    "db_helper.py": "e77532307baca2fe33225571b618066127abb8b63b99c7d7b05e33eb10151545",
+    "debug_endpoints.py": "67ceb102491386d92ea857caea020d82a68c99e9556e055d69a753b823ff789a",
+    "deploy.py": "45e20db5fff6a0caaef3f2f2977285efbe18d08cf9f6bc95c6a9cce56e7d30ff",
+    "deploy.rb": "9620518c52a15392667185cd4bd931b9c62719f0f0519230b40354c629d52ce4",
+    "dispatch.rb": "de92b8675ea9007bbaad8a766ab3104094690a41a718b6d11f38101240c5b51f",
+    "dns_rebind_server.py": "27672d55de08f8c95b50a47f293c345a56ee46c09c63413d72f8704c713670fd",
+    "docker-compose.admin-broker-port.yml": "c3db3a64971fae1c64bcf72061e66329e2fce6fdca731c4ed83ca7f7ed85cfe0",
+    "docker-compose.ai.yml": "36d571997534dbed54feac27b9b6e44279299944c58fc181186012d1ff8ef3a7",
+    "docker-compose.cache.yml": "ef2d2e97536d6d8a945ac190958f62b192ee1cdba04b3b8da8efbddaf675396f",
+    "docker-compose.conn-string.yml": "2e648842d90a1aa4f52e33910e244d6486f95bf44d91cb801c10e66d4fef7117",
+    "docker-compose.creds.yml": "b645e338c31d2e9b663a92d9ff2049e8580c7af1f0927fb10404dcce8ba47ff0",
+    "docker-compose.db.yml": "157c4761d1603f2d733301e4a4779bc59aca410760f220154e7221b566b16b93",
+    "docker-compose.digest.yml": "f01e39ab7af4e32b7220b59bbe5205c47189a2439d7feaf0028d481da0dab845",
+    "docker-compose.egress.yml": "a9792426db614bec93a3bce2f4548ce2c0c19e630373e0732a5f14e79d2e36ff",
+    "docker-compose.host-root-mount.yml": "15f73eac8f1dbc871a3270ec4d5fd098020ebc18610766e079eb633ce7495a0a",
+    "docker-compose.limits.yml": "0b4c68b08901fb79a0cfd477aedf6ce05fcefce7c733536b8bf27cc60c24bf61",
+    "docker-compose.logging.yml": "e96177ab367b3b3333b00643cb36cd564140df894c5ba4e1c61b7424f355f293",
+    "docker-compose.mcp.yml": "2dc060696dd931b93f934ff604c53d10fedce480e2207ed65056da2b38d97149",
+    "docker-compose.minio.yml": "1e403b7b46239ce26fcd8136c45de32cea0a86b9b01327ea83ab753d60cf2b0d",
+    "docker-compose.no-network-segmentation.yml": "910dab9cb4b9ac6fa88d83167fd1e6cf9a4c2d65949f18f5ddd1a271763c002c",
+    "docker-compose.no-new-privileges.yml": "fdcd7d3dd00bfacc785c1375406819d0a1a5c24c100fb14849579615154c9a37",
+    "docker-compose.no-user.yml": "fdcd7d3dd00bfacc785c1375406819d0a1a5c24c100fb14849579615154c9a37",
+    "docker-compose.ollama.yml": "884f403fc059de37049cfb3ad9ee4eba3b82258bcf7459c09d9cb47327800416",
+    "docker-compose.propagation.yml": "c562de1204755a5f7745ba73c044bb358eeacef73907b6b4b589df7213360c09",
+    "docker-compose.sensitive-mount.yml": "6ae998dd663b4e5b80511938dfdcdedb03d2bc8f2e6b51f8931d88a3447b508e",
+    "docker-compose.tmpfs.yml": "a05a64f88e1570ce554b6443668c1459770920d478b8b0390478ad2a88cc2da7",
+    "docker-compose.writable-rootfs.yml": "fdcd7d3dd00bfacc785c1375406819d0a1a5c24c100fb14849579615154c9a37",
+    "docker-compose.yml": "2cc40a9f1cf277446e1c38f67299ab3c77f46d0bbad76b131269d927c6d22362",
+    "docker_escape.py": "8154381062d72420c60a3c0118a52964fd40d253e39df0f15de0f10a00a7228b",
+    "dynamic_import.py": "c191c5117912b174352236411e8820ece33ee8c43417143c301933b58c3766c5",
+    "dynamodb_encryption.tf": "3ce111666cd3b24a0b2c88437d61bc07356410c89bd0634b99df4ca1676be184",
+    "ebs_encryption.tf": "21b8407a7ae4a0d34a5ce9b8414c8fb0722929d4e6a176a02bd64159eda00a53",
+    "ecr.tf": "6c9576ddbbd55cb272612cddbdf7ac0c9fc9d0ac6283535c71997e51fdd056e3",
+    "ecr_encryption.tf": "6ca8289aff1dc9bc6159bd947eb31965906c8ff0c8de424751ed28769b0754be",
+    "ecs_efs_volume_transit_encryption_disabled.tf": "a29e0f0efb2a54d370d53acaa3eb71de546f7f20d2fe6a0477eeea0d32575857",
+    "efs_encryption.tf": "2dc3e00e2aa12f2a64be4e9c6a762d2223f510f5db7e7c93acd50db710d9b328",
+    "elasticache_transit_encryption.tf": "b486e7b5e87770866dbdf521f43dd673e261fa055449df798e0b4b38ee22eaac",
+    "electron_main.js": "9012793604037c39b7b21de587de72a8487d9db17475d3a923980cd80bb48937",
+    "empty_password_config.json": "75bc026a5380b372de80f33a3bbade1b2f1008a131ff54bd829568b7db0eb0d2",
+    "env_dump.py": "e3ec3770873b7826c9fb8439458c9c4e738295b2c56576a02ec7dad8b902fd9f",
+    "env_setup.py": "a40bda653c9fee2d9e2b3c6fedf488580ff68aee3aac384b1d5a6ea9b1217ec1",
+    "environ_exfil.py": "78a112b3ae51439b15d726eb4b3d4a005595893475f70d4ed42d3c5d009d9ea0",
+    "error_handler.py": "c0305fa2878653f67872d3b411f08ae7293dc09a68987b6f5c7447661319f1a3",
+    "error_handler_json.py": "813032ad5c02621a5e9fc671597c8a0fb558f974b182bd8867520069116af659",
+    "eval_injection.py": "3ccb227ba09b77956398d08ce51f4fb58ab99a2522f4117150a7e11866f51812",
+    "exception_handler.py": "a8647a5561aec8a8e702dff1bad784397083fb0a54bb2e7dc0921594a26557da",
+    "exfil.py": "78ae970008e2b941e5ece2c58dc2bd4d62ba7cee7ec9cda49225a0651d8df087",
+    "export.py": "73e1b9aae428af3e670265f09c564cebbe88417a4af042f786090ed2275ca54f",
+    "exporter.py": "b21d6f4ca02b5559fc877878aab372dcb29808e77faa4eeabe8c53f3309683b1",
+    "exports.py": "5d833628a8a323f940e41d87bdb6df5fcb487d05cb6a234d2d57487c291ebf37",
+    "express_app.js": "02bd20925a8dff891a6a48d8daa12db9b0c0c438f24c9ca268428e14d3efa1b3",
+    "express_code_injection.js": "f564f49122112032df592b6310790c545d50188ab49907235c82723581663cf7",
+    "express_cookie.js": "04868975013340deb0aa680f7a944713ad5066b7ac9b5cc59c81e18cca8f988e",
+    "express_cors_credentials.js": "05a5363116be2127b47c2e060947c2c1ea4a3e7af2a02df5fa1eab28c8164c97",
+    "express_download.js": "933905dbd6bf9bad412923f6e533669f10a31af6fb41d04c6aa3fd48bd22efd5",
+    "express_error.js": "f4e71bc3c58f89ed772e4819ef0230e16d68549b5e500a19708f392cfc67f7c5",
+    "express_helmet.js": "cd0408b69eecd6bd945499aebdec3afb285b3b77d6cb5bfcdcbaf187a0fbbba5",
+    "express_hostname_check.js": "a8f81f62c11aa0271b38b4a3e23d30774739f6c853e93d0d1c0da5b26b9985db",
+    "express_insecure_cookie.js": "529dd838a1e2a199c88e05385b2fef8527d8ffbf64cba0d19c083bc322b57765",
+    "express_jwt.js": "a53622be6833315709aebf2e9e7420ab6b84e0c6fc75f8aced418d2a5682fe8b",
+    "express_login.js": "fad19fdd5851ed18474c7716b594a90245f57f09dcd8312a5462019cd3a25343",
+    "express_loop.js": "cfb8e8e21345a4f71705f12b1426af62b6b258386dba33f4028d62cd729f64e3",
+    "express_mailer.js": "556eba5a217a1258a1a7fb5c7421d1a4c08786524099775b8c0da5b5ea3f5d8f",
+    "express_open_redirect.js": "98eaad0e5314c87a74e20ee158d04b8e9fbb82c8abff542de89bc84d278585ea",
+    "express_private_file_exposure.js": "3aecbc9f74c4ab0b48109e01885ed7b75e0e0cc9c677b9818d15bb3360d460ce",
+    "express_regex.js": "eadfa54914e46f9788c4896f7ba5ef9187bc24e9bce1829277a5dffba56c2e83",
+    "express_regex_range.js": "4b8d7f63c9050184aa9b0483633e79f051a1590bed9602ed47af4ad609c7615c",
+    "express_secret_query.js": "a8ae1a216807cc5b45ca1a061cbfca68ef52992b24e5f290295d3a44355ca20d",
+    "express_session.js": "8073d10554c48a9428f624a75db3712b9e750d673741985a58720e5d4c04bce8",
+    "express_suffix_check.js": "b6321d1ee785bfd6eec071c145fcf1a4134607c085cedf3d37aa18161781c7db",
+    "express_tls.js": "e23a219d7feb94e6ac0de73f20d38311f215320686a47ca87dab0e2429ac9590",
+    "express_url_scheme.js": "a12d8b36b3422bda3a008ea3b8fbf17d91f83cc047bf146e08875a993e9f7299",
+    "express_url_substring.js": "86b2e6ee31579ca70e9d826cafcb98f7d11be83cf187d1a4c0494154d0c73209",
+    "express_weak_crypto.js": "92ce2449a5a1fcf6094723ac6096d9133c668355d0e2b33b29ced55ce2a6e60b",
+    "express_xxe.js": "be2d48afadbceda96b04b11d39fd42eef4d0b05903f8a660a80def29c8aef496",
+    "express_zip.js": "7aa8f554870f9b4aa53b57d2e27488f9aa81a22b89c57e15cc03ae9f7426a176",
+    "fetch.py": "00b9071e380a13d21d215d109610bf0e2e0a6ead716ed184046ccbcc5e89a228",
+    "fetch_pkg.sh": "e58e9e36f1136d72329dc20a6fb48f72577557895564bb6d210865de960bdce8",
+    "fetcher.py": "ec36857b45cfbef1f7381f93c7524296e1c911575fd8343052f946bf6282bf05",
+    "file_permissions.py": "ec7736c7f7e2d4b085baac6e865917ac50924f236095efc342f3785efcf44606",
+    "flow_lookup.py": "c5461e94c7041ea1cd9e8bb9d7d37471eb477b988e4e659b8dd692fdd7d99eb4",
+    "format_inject.py": "0b20a43517c5f520b284f59b00c4c782b0fc1e8174d2e46ae33bce81ecd8f933",
+    "frontend/Dockerfile": "b98f1601699109ba701090ce73f21ece956c3eb61626302424bf0ba96f88dc96",
+    "frontend/client.ts": "271c96ab2f51443483bb10055a853fc81f5e1ae5620bc39d093a840e9b03ba2e",
+    "frontend/index.html": "bfb517ecb5e7ca4727729b8433194a248392fc525ec2ebc0d2981e09a60848b9",
+    "frontend/package.json": "06f061d1fd37d9f80595e3c13d4e2592b0ff4e6983216c349a41889468d6556d",
+    "frontend/src/App.tsx": "34cf329e9b1580d3d4eac0c7b80b55077cbfe45bd6eb6a20eec4461e97c511a8",
+    "frontend/src/analytics.ts": "c4fcb080013d74ae1daa6f5088603642f99b1aa9f99faf3bb00f791550bf0988",
+    "frontend/src/build-config.ts": "3deb244ec9725a352dfbb71907616e02ab921078277f9d7d525270e9da36a806",
+    "fs_race.js": "efd8c1ff0a49293fc09d0687c58f76b57f430a4e22a27333a9e989c920debe94",
+    "gateway_fetcher.py": "e86bfb695be5958d996dd84877986cab883d6dab34b04b9d3e75de6d4e0f4131",
+    "gcp_kms_iam.tf": "af04b711b4254d3edeaac2b7424bb003fbf2a5c7fea4d4c2b7bd28fcc3f9ea08",
+    "gcp_kms_key.tf": "f170afe5fc10c2ca8feeb904f41d809d5bae50b45c73e25e44074faa3b90f1a6",
+    "gcp_sql.tf": "033a938157c73aac1888c3b205282aff42c94abba10c04de8d2d0207a79c49cf",
+    "gcp_storage_iam.tf": "7b8b36a3d8f74af7d0e412241d6180078ef99de4793eb18d4197f26f0a6ff700",
+    "go_pprof.go": "269e6e2e84aa5c2470a94ae0140bc8b078fbb3b6fec652027409d9babe2321ad",
+    "go_sql.go": "0969eb6048db065bfcdee93d3dfa20522ab6395bae51f0ce93a1a705496733ad",
+    "go_ssh.go": "bb8746134f0abf07573dd03f4417fbdb4a16b21bbf103196646c3aef4effa682",
+    "go_template_signal1.go": "e9bd09bdeb7e7d26d14cfb33ce89698c812d4c3bab313d56c924051b91723e41",
+    "go_template_signal2.go": "8e081e8d7e56b1262f7717a931eab2f463c5e4b5cf2080430f9aabc9c659d01a",
+    "go_tls.go": "539e6810b2a747b38d5e741975370e32e3b16a3aaebc43842bdf210f5a4c5c3b",
+    "group_vars_all_canary.yml": "c0ecf64b27622722565dfde3d606242c77222f0336c7edb64f82d0ee32773ef9",
+    "guardrail_scan.py": "7d9566a1ded76038b5c581c0d55f097197f0860aa2f1f655c479654789e152a6",
+    "guardrail_validator.py": "71cba70d9d383a95a7dae042355c268da7cf53a06c869c1f6580177b2081b2de",
+    "health_api.py": "10b8d5ca37b6686c76ddddabcf7dd40fea4b2314a0a2f36c2db7ec5fddfe6202",
+    "html_output.py": "f84e16c99dce2535d0a6d200e53d1056c0a67a9e32439c7a3b4dbc971d1ea06a",
+    "html_sanitizer.py": "006fe724cdab33b415079e556c01f7987e578b95bb8390e5e6b54b1258093b7d",
+    "http_client.py": "13af4ebd1505900d3dc473f66e8d0fa7d195c8e4a9974e6614fab1ea39df57e9",
+    "iam_admin.tf": "d4d66add81881cad9f89b54b38a025a7bed2ed007842ef9ee655fc27bff9d801",
+    "iam_escalation_action_no_condition.tf": "f422e6f30ba35fcd6ba9a2ff574aa6396fd0ec4293a208ade2cda56c82795dcb",
+    "iam_fullaccess.tf": "f60be059e3caee91a51a1946f98bfc997e915c1f650c66da419645a98e9affe7",
+    "iam_notaction_with_allow.tf": "cf3db8b15e1966d98b3a7ffd6631fbe17a153d05312249cea83a31a5d9f959d2",
+    "iam_passrole_wrong_condition.tf": "996329a9c92302a699a64a3c73658df8ddc41e72a4895f50af4478f82d8ff24d",
+    "iam_resource_scopable_wildcard.tf": "1f085c94ad7b29705b926f8181101532d1489293bc31a38a7c02e9301c1c6c7b",
+    "iam_role_trust.tf": "2e2f0ed5d5b9b707c6d372965431152a0b01f1317baf022399feb4b6983115d6",
+    "iam_service_wildcard.tf": "79cfaaa98138d6c149b1b19ebf9e5addc60d7a557dd46d0ad04b9eb045dae5ca",
+    "iam_user_policy.tf": "15a4b7b6bdf5de9c438f4ba77a233992f9c7975e8417d9866b3746fe7c858d2c",
+    "infra/partial_wildcard_policy.json": "55a02438f3ae0bdc62147990c8bf8fba482ce592694dced8f19208002a3f758f",
+    "infra/policy.json": "be2b330fb5c49981db41d979de47ef3e103b79d6a5fd7b871baf709f9659243f",
+    "install.sh": "a63144d7a0f1fcfa0573e84ae34a6bbe21633169791b63c89df2a28cb935a312",
+    "installer_download.js": "25488581179ed294c158e38218281ec029debd3d1c84494fcbba7424fcf9c18f",
+    "invoice.pdf": "35922965d001d56d2ad67b0094044e7b89f3db1ddcea41d4a1c206803526ff27",
+    "ip_limiter.py": "90968233198956874a2ce971beccb2dba0d4a1b27063b3ce9b4be02b01bb7a9e",
+    "js_command_exec.js": "c06bcd2682bbe9145a7660b8660de64559acbd9eac8a6f89c24a7aabf63863e0",
+    "js_fs_read.js": "ed4c25181c8c523719484556cff0fa0dfe60faeee7a4d53eb4f14af698a84698",
+    "js_sql_query.js": "7f29b8a1e21f283a559f8048aced06616754dddac030ccc4d971253dafb10054",
+    "js_ssrf_fetch.js": "ec7304cb4cb37b611ad07c97c394bf30093dcde695e57a7abe383a7275768ff1",
+    "jwt_handler.py": "147aa3eac88ebb13dffeef07bc6f592c9138b24d2d186baf6c101b158e3b6ece",
+    "k8s-deployment.yaml": "d6ee1e0def303481b8b39b9dea2253a78af38b9488915f2350b506981acef316",
+    "k8s-hostpath-writable-mount.yaml": "c180decfaa90ae2ab4de0bf26790a375105dd2732603e87379959ad63d96ee0d",
+    "k8s-rbac-binding.yaml": "963256aee8a78abe1dd34e1374fc8e16dfcc4f8c5ab55def8e9258c10668a001",
+    "k8s-rbac-cluster-admin-binding.yaml": "8b2966e2d09b90964c84762c085b1614d3fd9a679b8de0a923dc24c52d6501ac",
+    "k8s-rbac-dangerous-verb.yaml": "6f61fae4c7f8546dd4ee10db9a13c1b4c89b59bb18896b4506bdcc6a233654ab",
+    "k8s-rbac-wildcard-rule.yaml": "ef81eb4a501916fb2a7f05451d3a9dd06f76219c6554efea8f7ebd06b3476d8b",
+    "k8s-unmasked-proc-mount.yaml": "eeb5f8010be78e4d6a301bd50e76c38f3ecb4a5dd9e884636dc303e885a81a0f",
+    "k8s-unsafe-sysctl.yaml": "df05ec057883dc87a7007560830fed11094056800ebfb9f0b69b18d23d1246d2",
+    "keygen.py": "0395c4c340064f54aad932eabb3d9633825d3894fc56b781c678ce87f4dc40a4",
+    "keylog.py": "2a337644991e7b339ff6fcc66839510c8eb8ae6b7caff516b1fb3e8e86ea05dd",
+    "kinesis_encryption.tf": "feb6376fdf7fe07fbd10ff1722d677a17d5dea46f8c0607e4858f689c791921a",
+    "kms_key_disabled.tf": "20a37971fe6e219a69252cea62eeea667acc237d75bf11dbf310c24794fbf209",
+    "kms_key_rotation.tf": "f8e5a01bc5da5f3edcd13b599f8bc2cd22daa2ffe3ff70c10f1601bf659e5c96",
+    "langchain_chain.py": "e95a9b98aa4e053d8003dc6e7eeee0026da6e55ed121419355bea99df965cc2a",
+    "langchain_chains.py": "02acf077cc6f3c9ccc6d093a5778b9d2d8b9614dc344cc84ec1a6daba2579c41",
+    "langchain_dynamic_prompt.py": "746521f91e4abfd48936fc26d3088d6397763a378d12b9c3755818056c332e9b",
+    "langchain_prompt_loader.py": "0358d09abaa49652799dd96e6958351c929225f670f75cc08c7e6be78e1201da",
+    "ldap_auth.py": "85fd088b2a739962f476d8c0580406dd7764835fbd66faa28d3afa695e595efb",
+    "leaked_key.pem": "67ec52705af40d733fc3ac3c520b9166d57c1ad5a2dc05f2aec28a48da2733b6",
+    "limiter.py": "90968233198956874a2ce971beccb2dba0d4a1b27063b3ce9b4be02b01bb7a9e",
+    "llm_eval_sink.py": "2ac25731c9222f03e3e78a669e338514f18ad61d7172e07d3c58d057dd662de8",
+    "llm_file_path.py": "cec2e627f90ed783fa2b09c5f26d94b7be7dd4920acb25d658e41bd1386a8923",
+    "llm_json_unvalidated.py": "5b9007e774db531226ab828a86a872348d2a5f6de59043ea1b2287d223764d65",
+    "llm_json_unvalidated_unrelated_validation.py": "0fc4f55e77303f4a12ddef4e958f39def1e63e0621445274064ee2dff0c80fce",
+    "llm_key.py": "94e6c692d113abc2439a9f218c7fb4236b4f163217019dcd7dbaa63792e33108",
+    "llm_logger.py": "dccb259b0a0bafb2fc6a780ee680a2c6e0a2665881ba828bd18b64e70baa6c99",
+    "llm_output_secrets.py": "f3dcf45f942be4364bff4c8283e6d2cbdf473b7d09567583222ba78d434800c8",
+    "llm_route.py": "05a525c35e0fcb8d3f4a75f72c3700030ba929707a23e52d5897baa9b787feb0",
+    "llm_setup.py": "4db490d0dd27e3215985c716ee52671f04b4e481b48e6194ab3f9a93bd6ccfc5",
+    "llm_sizing.py": "4dde773a63df77329a44c86920b37c6a3f7e2669feb35070bda167fd2255bf1a",
+    "llm_sql_query.py": "44481a36128c5d124e40aa1c561e7c566ada51b309c030567ec5867bfa5e79ca",
+    "llm_sql_rce.py": "291efa51bc8db3459f26e37294db2f9b95cef7e493b9b7c92c14aa4c8f7c4f1c",
+    "llm_sql_sink.py": "0af078300464a9286ca6de631f11580d5a58227caade0bc029f755adaf15a3d6",
+    "llm_tool_result.py": "438dfa8bed3fba0827a86e99d8c6288d72f4115c1f70c8a71d4f4399174a08a1",
+    "loader.py": "0ee05e96540d04aa1e10c7146f455028450a3531df17f4b06d2303148213591c",
+    "logo.svg": "f72ece0ceb8cef637d2eee00371e3ec14c0bf3b79785171e20b2e3cb7cc3e791",
+    "main.tf": "8f222acc6e9a7dc4d44366aaa96d6e644ed517760b8efd53a1f4bbdd497f8bd2",
+    "mcp-config-rules-12-14.json": "f7ac7c8b5b6fae12b9ee4a1738d83e9141ce804aacae0b5d976973855fe2349f",
+    "mcp-dangerous-env.json": "693b25fde405f65e313eaf6e32a52f87e807ac74422d526ac6a9b8ee0f6b7069",
+    "mcp-dangerous-exec.json": "948fcc2a4ee79e75a9e3942ba3d6ee967ffcfdea41312480a691516af2ab0cfc",
+    "mcp-gateway/config.yaml": "b352060417710b8268fe290e2bb9c9c616b46d96984314ce425aee8a93ae2d03",
+    "mcp-transport-flip-canary/mcp.json": "040cfdd201788c430cfdc1b658afe3ec7e3fcc7b41f12c0b9e8da0e79ee1fee9",
+    "mcp.json": "9710ff31cc51232f3530bb73f21fbc5b679087ce682b9f97e6c38bb77c92f823",
+    "mcp_auth_launch.py": "eb94a03cb10c0e1886e3587b31f549344255cee2930e9bd5c7bd77bd83fe7713",
+    "mcp_client.py": "47d16d60842df6549a202af8bbbe79ea8c0d7ec2de5f83c36123061c6c829e29",
+    "mcp_gateway.py": "e2f4aee07a84ce6a8f3708748d99616b573f407ca70c731bcd863fd5e6db1318",
+    "mcp_http_server.js": "eccee61e4d99687c81ee32ea3e55d75030273d4080eeb23d0fc2dcb922d9ce26",
+    "mcp_http_server.py": "7729d93b1c9473ff61fbc6a4f43ef19001923400ffdb4827fbf74a703ed233cf",
+    "mcp_kube_server.py": "7bf2946faed5e514c6dd25c0ea05b233bdd2e7df29e50672cd7e3ad397bdd17f",
+    "mcp_marketplace_client.py": "0fe3dce471573f2d6d496c0f1b6e2dacf0f3af504b2fc5f32d9d3abbfaca5fa4",
+    "mcp_poisoned_tool.py": "9a82d1ce34863498b6d82616803f98ae29502a24bf6e69b6ab3bc859dd547923",
+    "mcp_server_config.js": "85be7e8a796344d7da20036355a9ecaa0b976b09468faa1594ed3c8ec7d2ae26",
+    "mcp_server_config.py": "1be1841b60310b6056a3fdc6f86b614abd0b52819245af75d8c97e69721f903b",
+    "mcp_server_launcher.py": "63d9f98e3c12688a0b6a5f6dd6b4fcf9a17a91ba100a49042fd9e577c88336a1",
+    "mcp_server_scope.js": "3d1523f62fa28bed38f1a4a62f548e199202ad2a5068adc144279cb65b6d060e",
+    "mcp_server_scope.py": "0e921b827ac0a874c5520acaf532c920a76ddf223b52a3cd1a1ec713853eb92f",
+    "mcp_session.py": "8acdaf446b938032c144b61a1ac96cbd96c56d2527168d383fadca7664012162",
+    "mcp_session_handler.py": "4ff0663a875ef6f2686fcbc3b0515d31b3c6ff2da4eb5d398cbe6660e7dc11db",
+    "mcp_stdio_pkg/mcp_stdio_server.py": "479ab8fc689e5bd0a4e1c6b4abb584d43aa414aa144a5cfbf77080040b4c0d53",
+    "mcp_stdio_pkg/pyproject.toml": "b2bdd66b84a38a08ce1b033fb500913a8e24c2662b1c9c814f350ede1b9d6181",
+    "mcp_tool_aggregator.py": "4305a8c9e30d31a7f2081872f68b30974db5f963648f0318d5b47f76bc57aa82",
+    "mcp_tool_confusable_name.py": "407072132b0ac67b5fd239a0d92f90bbf71e9c9ced6c0da82ff483946a4260ba",
+    "mcp_tool_poison_markers.py": "7bde899b4bef59f0eaed763df05f0fca30dfc05f34b4bc59591f0552f41cf20d",
+    "mcp_tool_trust_extensions.py": "672a8a50ea3446167e3bdd2394ff9867257aac97263fdb4003ace70787fd5d61",
+    "mcp_tool_trust_extensions_secondary.py": "d9021cdaf4377c163ff4eccafd98b6e51967d44e507d045b1f37bbe2f1df39ac",
+    "mcp_tools.py": "43be8c38aaa8d1d746d9ba4b86af9931251019bc2a00c64bf766be1d8065d8f5",
+    "mcp_twin_routes.py": "631ea2fd4a1dbf704a5757d865832ae0ee48cf59d53936706ac7860c90a82322",
+    "mcp_ui_host.tsx": "8c4985998768cac3c8cb059b5d58b205e04b466c4f9972abb121df8a45107991",
+    "mcp_url_resolver.py": "a4107035eeb0278f99ed61399818b4f2464846952a0c594319c5bafdf4750116",
+    "mcp_wiki_server.py": "66a1ef897476200c5595de5f151e1dfb022e9f5780c39fc347b9760c35f7f540",
+    "mem0_memory.py": "78f08f1e52fc7efd7056e53e5cf5c50c9db3c5a56d3d3861bd0ade1e718d572d",
+    "memory_manager.py": "e3a6d8a4132f4728dcc22227f5fe5bb745154ac0f28e452d5e34416d4c5bf682",
+    "metadata_theft.py": "e9b6008c4d725ccffcb870d0c9c20fd037755ff05f73f46c11f3a0cb4ded4c01",
+    "ml_download.py": "1134a535434f0fb5f4c807cef2c0780bcd85fdf6fc0a952ee87990f7a997fb8a",
+    "ml_hub.py": "f6c29bdc7b881dc266a39ebfefae71550500bd24dc5b37a2182bdcbc33c80212",
+    "model_factory.py": "28e530f1d96317954595e030a518874874d9970b30d6266a87800d6a851895d7",
+    "model_loader.py": "3041cff89ad39073ca297a7aae6e835369f3130f26b63a3b9728b3f3eb2020b7",
+    "models.py": "2cb523bceb0ad31788c6b2fcf330985b171c9d3b0a2bb51e9c38c150516d932a",
+    "mongo.py": "8a8ebc85483cd3e87dea4d16913e5dfcbfbad80a4e9d269e11727eeea7839ab5",
+    "msk_transit_encryption.tf": "06d2619757d8f44bae353b929a9801b7995b1e65ae64d82c9758af7a93b0a493",
+    "multi_agent_relay.py": "d0fc58994a030e493983dbd7d32bb08fc6d7ec21b70c4b1fc326478aaa3235ae",
+    "next.config.js": "8222b8169ee86f25cdccd84d340340060ae3f0cff55e2ea9d344d7c332733b71",
+    "nginx.conf": "63b080364931b9afefcabcf86ab6e7e61aa69fadf6930c3fe3e0ee651e094d22",
+    "nosql_query.js": "0a0b2885d4607d6995ccf95f247ed27c5a5cfb0b7375abadb12ea5189a1d05db",
+    "notes.md": "2a54a35353354af6a7a36fff325678303c294d7af7c347e1ddd5b00ed229fe88",
+    "notes_zwj.md": "07519696ac4e3dd49209d18c32bedfab2587cfc6bfb5b3862229a5017d5a90e3",
+    "npm-install-script-network-canary/package.json": "cb2dd28cfe1dffe767f0b6a42ea293beccf09623ac4e92d18f8313191d78bfc5",
+    "oauth_client.py": "9e429bfbd1c595b4816d58c4135859cd1f7acdff5a7818523195ca4900f61024",
+    "oauth_config.py": "13b1d58b5e2a31cc6eae51789bdfc096346d009feb81c41ead940de885c36803",
+    "observability_hygiene.tf": "462ee19520e4a51debaff8e87b644e704883c4539036d17f7dc11433a0c5b699",
+    "observability_hygiene_short_retention.tf": "617f13db676fc46ef0928deb0163d9a96e0cf96c9281c966f2b01db6fa4ff086",
+    "opensearch_encryption.tf": "e7452ccda7c47163efdefeca5e7c462e67a8402089d928ca8f91eb4fd850184a",
+    "orders.py": "327425d7427d074937650fb7ca91d57f5175c69160604c9f06ee93549fc47886",
+    "orders_api.py": "87c1750e8d661f5d7a8281a5e68d689ee3bbdd26ad2a4dab90ae63ae8327e05c",
+    "package.json": "cfe57a204785a5f4d250254c021b21c3cda200023fb85574ef71a3621f8a9713",
+    "payload_decoder.py": "bb4ddc2e235a7f5da94c61790f7a12f7c126ef8fc4f5341655dacbb3820047f1",
+    "payment_routes.py": "ebb801b309ebd94e405e031396517545dab051bbdde30e20193410bce195e6a9",
+    "persist.py": "3a284bde628a200e2f53e4844884cef831122418f7ccc40a027697a4455f22f8",
+    "pii_roundtrip.py": "075d11a4cf35ac642a600134c8f8e975dd804434faaba6835fe2e4524fc9c372",
+    "playbook_debug.yml": "b5db4a7d05671332dc96049fa3720fa179362cd5b1540664db61b8bfe7b60852",
+    "playbook_hostkey.yml": "fd9fc13b38c09e3d5613b81d01ba292aebfbfec68c6f352faaad70b93a445d57",
+    "playbook_ignore_errors.yml": "1ca4d17be03836d45cd2e4091ed4060dda4197f77c07ef24a5a81127a68ffe28",
+    "playbook_setuid.yml": "b4a25a5289ffb9d4d79622c76bb9042b66d317a99aa5c2cf713c3c01d75a5b51",
+    "playbook_sudoers.yml": "1c36ac2201ffe275483f755eb42574ea9b3da8a9e5c351621e915e45b5fe5fe7",
+    "plugin_shared_identity.py": "71215c479ba40eb24fe3e767192b96116535c7924abc000375e24f04e575014d",
+    "plugin_tools.py": "a141cde65b9deb34a93b531061931cbbafbaa8f53df77d5fec89df03fda9cc5e",
+    "policy_check.py": "0e2733b83ee2b73bb9c0314210a38c36482c50c267d29229653e4d8f830ed9a4",
+    "profile_routes.py": "eed1e36d3d4ed1239795f01f8eaa19d9e5800f401b8938ff01ebc76d78dadfa4",
+    "prompt_concat_output.py": "6f7399df9d63596da087570cbf8c8a568737c0d820d76d06b1a88a4e4523a082",
+    "prompt_interp.py": "44a98d014aa9da1ee3eff9511efac8c45ea19b0a4635d2648771769feadc9352",
+    "prompt_interp_ext.py": "bc0b8104816ea44aa59a9b14d5be190ce7e16e49baf2f066e0988e2223daea0a",
+    "pyproject.toml": "b2bdd66b84a38a08ce1b033fb500913a8e24c2662b1c9c814f350ede1b9d6181",
+    "rag.py": "db2579b2bc7f08fb6e85121b63cfd5d51af5fa9a6ba8c04a44907cacd90aa040",
+    "rag_filter_no_identity.py": "f573f06a3d542d4cfa2cd1bcdc25802c110b539c4303c605f8c5682cf3cfa656",
+    "rag_isolation_plant.py": "96492bfe7745df87fe118c1c9f632a87ec8ee0d053eadd0e53a0c3e6398e18f5",
+    "rds.tf": "b07387aef06e8b457e8c3e5661c246c4c5ebd22a94542d7469e2fde35f97025f",
+    "rds_backup_retention.tf": "07cf87f479575e102059b2a3e4667d32b6a4490bc88dabaeb4ad3f44906c1a28",
+    "rds_cluster_encryption.tf": "b5de2de61a0b5a8f62ed56129cc6d26580fb9481013926fef4d864881cdcdf6b",
+    "recursive_agent.py": "093ccc72ced950c534732d27ef851a0a4846d734c8ea4ba38630cbf74e140041",
+    "redirect.py": "d60003378b89c1b4dd4a92878a3e296f3d75fa7ff45486b5a83201a32f23c0ee",
+    "reflection.rb": "80c0238856771d3b3b2a2e1b63a7a0a56a2f8c60308f0a2253d836a24d057bbd",
+    "reports.py": "41069dcda27a16b08e2c872f5e64477c8d8788e67fd5d988389cba6605ebde01",
+    "request_headers_logger.py": "9afba599063943427b0deaf52071c4b6a11abadd7bfff6252c8bf04636815fa3",
+    "request_logger.py": "51ca04ff25b2a4930feee124203beb456248e003d981595cbdc7b799e3764a35",
+    "requirements.txt": "17015b349cd9461e3aa6d618877d8d820a5b0d1e2719d81ea9f4695fa28ec8f6",
+    "response_headers.py": "8cfca0b89fede04a64feb033e23999d97d862f940292d9d4110449bb4c2a4d99",
+    "ruby_http_client.rb": "1b1f0034b8f0101c3e0f949f6c0028115cbd6c09e7b4dc885317a153069df1c2",
+    "s3_access.tf": "ce970b5c5ec19964064bd6f77faa71d81f49e387b4169a4d75a21e235cb69e71",
+    "s3_canned_acl.tf": "06d1459f746f1c096918a433fcde1f4cc52d6e81d1e911ff7d9d41ab287c0f41",
+    "s3_insecure_transport.tf": "4fd276fe5c895ff940056387a9bb54d6da2d855a37bc007c764fcb7b46138f65",
+    "s3_mfa_delete.tf": "3e1b19ed09696924261c5c6b1a7b5d3375a95020507e2adde74a4cc5b19e1654",
+    "s3_policy.tf": "cea2628bd1686c92999002607e7195dafaf5e135f65b61c52eeaf9daf68c0cf9",
+    "sagemaker_encryption.tf": "41f05cb47a569e915e12d697af9dbd8779a1c3545d970e15cf5154668a7b0826",
+    "sampling_handler.py": "33f858711654f0ebe2457e278b4b456db677a7909d0e436757f74cf9cf040e2b",
+    "sandbox_check.py": "18f380a45e632e6f5ed84c991a3b90fe5a48b911c445e796535208342379b546",
+    "secret_str_leak.py": "cf2e5271c4865df31aa4ebf0138f040313d858b276e2e6116c6218f114e4f1bd",
+    "secretsmanager_kms.tf": "e80e6ca18ed7c5a16931763c6b3bbb7926f217b3e5e588a33d66d38b0229b256",
+    "serve.py": "5e37e055e71006347afc2418f17a815715ae64ff1b960b0d2a11187a79bc138b",
+    "server.py": "1df84d78a59a700cfa03186023d223937adda1f10b498bd05cd33572094bcebf",
+    "server.ts": "26d9460f353ed01b9c7edca62ca4f98db2024f822fc02b1f1c8b57894b6ef8c4",
+    "service.dockerfile": "36be74702e6198cf441f7b17087a468a2f937fdcc2f0c4629fe5488e412654e7",
+    "session_app.py": "cabda785c4f1aa059a3fc84201173fb694a97c8987475108df44a4c26a0f22a4",
+    "session_store.rb": "b691a018f600474545ae22017f633810255eba162b104b98b86b95c908f10046",
+    "setup-host.sh": "c22bce0d70b0794ae0697d0968e86508f4ea2fd974ca463669f230d5404c52bb",
+    "setup.py": "3fd62bea45ff77ed47353b196b73731b6105dcaab336286c884cb2b92e855edf",
+    "sfn.tf": "9e2a473e0a3f00a1a265e3f72dab89ae36a9adc18a55b8dbc743e0f314b1c34b",
+    "signup.py": "33553bbd5c2f1c105046c6d615717cab95e8b7587122d7d4ec3d94289215789f",
+    "site.yml": "bc90a556088928f8cecdbad8f0c04718b6b101381a01ef4d903930e59c0c0b76",
+    "skill_install.py": "6409a3628c6aebb5475a4beb9d2c74071ab0a34e0f063fc2626bad77cca86aa6",
+    "skills/evil-pdf/SKILL.md": "6db9d50154f4dd7d2c1781db9e3f7939b3e47eff5d1d522de1999767c4b3fcfa",
+    "skills/my-skill/SKILL.md": "777b6ecbccee10170f8a7c599d75f8cb2da5a613ec2b73393d441a91428d6e81",
+    "slop_install.sh": "dbdf1d5efa28a1e514dc22efe379e33f047e2f9812b5c129a9d4e713f9df351c",
+    "sns_encryption.tf": "9a95fa9c24481906803e411c5a4ac9cbf52707a35ca137562bff9297e8a1cffe",
+    "sql/definer_dynamic.sql": "0e3e9daf964c66013aaaef2a8507daeabdaa2baa79ce9ecca72382ffc2c03b21",
+    "sql/extensions.sql": "c973ce9bae5b2b7f7c2fe0f6da600e98c2e26a7c3bcd4b9dcae6a69b4af21baa",
+    "sql/fkey_to_auth.sql": "9317c64fdc36201cf1c063fdba6807ae1bee57d70a4b1728cbe927d1362778c3",
+    "sql/grants.sql": "a60f3744793a5ce99f259f6f342a502a1b63f1b4514cea5e9c883db9591ca3cd",
+    "sql/graphql_exposure.sql": "56e83e666ef592bfd534ce7a32c427a3a4c82b8b3c40a2a0d5519d9a047de401",
+    "sql/matview_exposed.sql": "01d87ab94156ffb9e68ea61c79f8113e1f190c59eb1e0439a02d49e7bb0b7aff",
+    "sql/pg_default_privileges_public.sql": "b07a7c4e03d7180a43d392011fe97950476808f71044158c3ccd6959bc1dfa34",
+    "sql/pg_foreign_table_exposed.sql": "8b7426c73a99108e6da9705e278459e59ab76cec50fceb1f9f9642199e1e7867",
+    "sql/pg_function_immutable_reads_session.sql": "efabe76b77b239341605bdc754215b1b4dfdf177fa50703e1d1b27f2eda5b3e8",
+    "sql/pg_function_leakproof.sql": "8ad3925c6c15bdd1a822a5ae707d7dc2fd7c79f2a299c653c3b753f718a5a000",
+    "sql/pg_rls_not_forced.sql": "4640ce98ae0f15c857dbdf9bf9dee24b866a79256c36b6d8555acdf29b32ecd3",
+    "sql/pg_role_bypassrls.sql": "fcf0a757c4c50f15e3ea53fe5e3a78b75e61794aa0c0db70af1a6bc53123cd36",
+    "sql/pg_role_bypassrls_membership.sql": "3bc00eb6801fa5a667221d51e724b3122de479936199ceae58098163cc6ffe1f",
+    "sql/rls_anon_write_access.sql": "64dff5756be2345a18ec024ad3f15b98cf90517eb09941eb09c38c7a985bd7d3",
+    "sql/rls_auth_email_lockout.sql": "82490a3c3159d7193527272b4cc89ea1ec81cf7feb319613f6400aee01271baa",
+    "sql/rls_auth_role_unknown_literal.sql": "7ee7ea4310e8b49a3b0d5a499ec6307c3d7be4632d3b17f40d12cb088e8c36b2",
+    "sql/rls_auth_uid_unwrapped.sql": "b4da323ef08479243856ed310ad6e406f976e1701779b3773552d2bec40bed76",
+    "sql/rls_auth_users_unbound_exists.sql": "8a4431d9eefdce161747031b5cb76138cb89cb3937ebaa775e5d4e2f9d6331c2",
+    "sql/rls_current_setting_unqualified.sql": "0deacefd68d7884537dcd6619b494c7dc354fb20dcb3882845b02f8388acaa09",
+    "sql/rls_current_user_tenant_key.sql": "3c82cd1cdbab03da56a572436f21001c8cb2a16b3299e25f38a4ce6a58af0c92",
+    "sql/rls_hardcoded_tenant_literal.sql": "96e6c8a0a8848766fcf775bd6b85a8bd8637c919c85db9a9ba3aa061989cf258",
+    "sql/rls_inverted_auth_check.sql": "13d93c7fbe814ff4be734056dcb26b368f9e6949276c83bd75b43ac0eb2fee90",
+    "sql/rls_partition_inherits_bypass.sql": "96d4f87374765b14eac4649d9a2ecbfc747cc917feee63af1ef5a3adce2a41a0",
+    "sql/rls_pattern_match_auth_context.sql": "e4ef7e45254fa84544730555bb29a5d6af75b014ce01ea6587db5922e21c4b94",
+    "sql/rls_realtime_published_no_rls.sql": "2ec8f7f2e423b2bd15edcfe59acc7cedb540c84657164e188142b9860fbeb716",
+    "sql/rls_restrictive_only.sql": "0e7672c66fb6e139efe23d23d8f308b44a65fccc7e9831e59cafd859d61e3f88",
+    "sql/role_privilege.sql": "27a47e59e9f67e2be6dd43d420c6d6b1a2eb5ac2f78639675faa521a488a4046",
+    "sql/schema.sql": "f73411f19889ad0b156ba1d93ace8a121ee034012c053c4793c8516e2fdec8c9",
+    "sql/sensitive_columns.sql": "bfa5e8d19d8e1761aaea10ffb0a23c5eaa2331ca94db1c1a3df1d02a578ab80b",
+    "sql/storage_buckets.sql": "d163312663b926ae0b0d11db8781a1662fe6dd5118f41be5cb3eb4893511b534",
+    "sql/storage_buckets_private.sql": "65431145478c47f875c5aff09bacd8f4a7727cab7aa24f3646490f3b72840e96",
+    "sql/supabase_vault_exposure.sql": "7f571cd160cc47711156c74167e5e8e039c156838ccb18796f5900b5b86a9cfd",
+    "sql/supabase_vault_plaintext_leak.sql": "49121c4d7dba30be2917cba2b569e1e3b99e038e2de15b49d7408193638af501",
+    "sql/tables.sql": "579590a471a76ef1163b7e4dec727f922799f4eac49016042026a32a58bdc5bb",
+    "sqs_encryption.tf": "3e6ab6dfdbbec633da864b77aa4e5821fd3e597833d2997ec87dc4f02ca31bba",
+    "ssh_client.py": "67f46d9667e15a7264295278aced3e950c3d63ab0fe4b9d69c936d840a638556",
+    "sshd_config": "7bae4ff0bee9a6e608c0ccf71a15252a46f069d47c84f970fde301b215a75c42",
+    "ssl_client.py": "3f46f068da370b60fba9d7518314d8f0cbfaad1cddf51e76903d02cd696f94bb",
+    "ssrf_validator.py": "2a694a39a6d17ede1c7558518b7066bc68fa93759177983c692406c00e6529fc",
+    "stager.sh": "4f0c4b7883fc5944197af025375fcd9c230df29dde7dc4b7086f746aa1d6be14",
+    "startup_diagnostics.py": "42f7d1c5405934d05006d6102524758fc064ea8c1b8d8a60267f47e66891876a",
+    "static_mount.py": "7ea133560c36c4460882d7ccd3215ee7766cd9ad06067e603c6e4b74823fa3ad",
+    "steal.py": "ec3bb56d2eb2bc58785e9d08cf4abd83350d4b505e0243db81127aeb371bb704",
+    "streamlit_ui.py": "15394cfbd1ef6ef187c9cbe719fd935725bf07e2f6ea92ce4024f180bfba1ce3",
+    "stripe_config.py": "096ff27cba2e36dc1a06d9995943c6aab8bf3c506c9f66db9044c46c71594e20",
+    "stripe_webhook.py": "f0d8a1a951f32b5dfc54ed7c88a799775f676e9c0839d9c76f7d12ee94948247",
+    "supabase/config.toml": "8f18645f6d2beb6862682ec519ccd87d74dc154fbed9cd733c6678745a5345ef",
+    "system_prompt_inject.py": "d992f2820f17175a662cd2c2744f220d5f30bcc87cdd1ceef893641d2d65b6d3",
+    "tasks_store.py": "58cc20dcad5ba82c449a2e344e5589917543b6387ec91c5f35e01189d41d5e90",
+    "tenant_files.py": "4ee13bf20c455ccafddeb3dd3934b79936519a42a29779651d46be6bf6a1e2cd",
+    "tf_locals_secret.tf": "027eb853ae334d0c2e15117c164a4a58177d69143b4253596dfb7801f04de40f",
+    "tf_secret.tf": "d1060dff1b7ce24e5404ea17502f785c7d3eb283957694c909ab708979b7d410",
+    "toctou.py": "87646328c1dac84fcb90206e6acb5629fc7aebe04d7cdaf222d1daeca944c3e0",
+    "token_service.py": "2b7bdf4dc05fa0e07bb5e3f8f5e72c80968f5305fe7459332de9dbfba9de1485",
+    "tool-schema.json": "480fdd0d0bb644cfc9004205e26128d1f11d4f3547be8e6217fd17726e9755d7",
+    "tool_callback.py": "b3a6c0d764cfb36c9daee0d115bf2e329bfaf727336ebdeeb913723a189a78e4",
+    "tool_fs_server.js": "c3a097c82ac4e277e505b0614fac641a0b862d35482aa77362b5a6b7f06f1f14",
+    "tool_fs_server.py": "c9eb8bd099e04d600f57c1d689fac8120f126edc1f6ca471e0c0eb739f017fa5",
+    "tool_raw_return.py": "09dd4b6ed6ce30e9a40e8738bcc6ecc464b8c6d5cc45a3c59e55b21cc298f50d",
+    "tool_use.py": "e5e16ff9ec5b49f404b951a3586b52c3ddf11763c0de7ec132507147d5c7d2e4",
+    "tools.json": "65f4b2afd41df52e8887a52b085a630d7eaf73ad460e27c5c488f44eeaa613df",
+    "tools.py": "b90594c712f30db6066589e7622b091c38e016df35de84a92b8aa2e336ba1e4e",
+    "tools/poisoned.py": "8a3a772850448f60a852757a9e4f20d84dabc700c62a3577c468410b9848c310",
+    "trust-boundary-canary/.claude/settings.json": "4e315138e9204412da47ed9201a10584f781afa6b9553d9c05b31a684b8fe30d",
+    "trust_policy.json": "670dbf7425bac8b187d067fc25614cf294af7d397df715ec5a1dffd42fef81a8",
+    "trust_policy_no_source_scope.json": "4c16edd077d765d0f9a34fbbecfaf38140c33008cb38f9a9f9322f96a7eb48c9",
+    "unawaited_auth.js": "11735e50cc69ea1e9b91e3697b3b49c14d6e059aef23c4602bc8fcba3be2e016",
+    "unbound.conf": "e19da59b310c3a94e3d3e41b03b8a022195b9b236edf04bd17beb655330b1b25",
+    "unbounded_body.py": "63bbf29af9690a33b45b59155d610681d48cf3fa9e78f24e92fbcdfaa52cbf73",
+    "upload.py": "e20dc68ad889f2635a1a8b35ad88c4b99c08678578de0cff3a97a87a1aa35171",
+    "upload_handler.py": "a5c857fcb4903f7944f037e862c1ed71c28002f1573c01be6af450f21e85c827",
+    "url_guard.ts": "f2e41a17d79a09351553ea1c6eba2776d0134e356eafac6ccd184ccedeecbf03",
+    "user_profile_schema.py": "14c0d7be41cd88a5ba8dcbf499b1b91b2dce85e8bef6942e0b26ff1c17d9e577",
+    "user_search.rb": "dacb5542a42327fc82d68a2228f54e67af090b626368a3c220c25ce601b1bf6a",
+    "user_update.py": "4d3dd82c5ec84f59ed2a0f2c4b4c5908a43d4434503de605c237149e2c5ffbe7",
+    "users_controller.rb": "ec0517fa7d4f4565bed3aeac1d2271bf16dc9073019973b109f87dc937a69a50",
+    "validate.py": "cadb51141345a3331881671c6d89658afd0bad0a90f043088bcdce3394b67dc7",
+    "vite.config.js": "203732840bb220720085904fefcb0e9e3686ad375c2b1cfac488776832e5dd8f",
+    "weak_password_policy.py": "e7220a553d1c52177381da0b8700b68fb16f5be56f7d9e7da2f8423ec0514d96",
+    "weak_secret.py": "27f0a9bba645826ef4276978760381147cef54d1f70c2f04193ed9cbcce54927",
+    "web.py": "87f4428d39d9ce2d95fc5b0468d5c90de71f3a431251f1a4d9218c562fd3cbc1",
+    "web_fetch_tool.py": "ff2bf4fe6dd9ed04ca19967df3abb5e0272f1de682c2c6390e6f8185f1c15d0c",
+    "web_fetch_tool_http_client.py": "f18f3bcd7a719b2f3f9b9e7ba38ea4d41bf1c1db7a948a04a4027da7511ed856",
+    "webhooks_github.py": "dc30e289deb334e577674c94674c187b1509b8e440c6573f1f7608beb067830f",
+    "wipe.sh": "b0e26a96689728ee7dc2d50f4a4f55f6ac1b631852c445b5e18edc07fe50aa9d",
+    "ws_handler.py": "8b51e2b21fe5f5108cb1aa09289cd335a3cb5e81f3fc532f6265fb71de9183fa",
+    "ws_origin_handler.py": "90525728d3b1abfbbcc1998c8ce55ae3effab6c47aaeeedd821496043145ad54",
+    "xff_rate_limiter.py": "cec4759c882772276321617e622e08864f05396cc526a2430414a11d877e1625",
+    "zip_bomb_handler.py": "dd1b06bc8276f907eec2a97efe0aa06a8fc5d97280bbeb70f2f74d7305eab60b",
+    "zip_handler.py": "ae10808d1e917936db7881c2e678bfe5d2241ed6e7371734eddf961153a88f71"
+  }
+}

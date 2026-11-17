@@ -1,0 +1,44 @@
+name: Type Check (mypy + pyright)
+
+# Installed by `agentsec ci add type-check`. Type-checks your detected Python
+# dirs. No secrets or project-specific values are embedded.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  type-check:
+    name: Type Check (mypy + pyright)
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+    - name: Install type checkers + project deps
+      run: |
+        python -m pip install --upgrade pip
+        # pyright (PyPI) drives the node-based checker; Node ships on ubuntu-latest.
+        pip install mypy pyright
+        # Best-effort: install project deps so imports resolve.
+        for d in . @@PYTHON_DIRS@@; do
+          if [ -f "$d/requirements.txt" ]; then pip install -r "$d/requirements.txt" || true; fi
+        done
+        if [ -f pyproject.toml ]; then pip install -e . 2>/dev/null || pip install . 2>/dev/null || true; fi
+
+    - name: Type check
+      run: |
+        rc=0
+        # --ignore-missing-imports avoids drowning in third-party stub noise on
+        # the first run; remove it (add types-* stubs / a --config-file) to
+        # tighten. Append `|| true` to a line to make that checker non-blocking.
+        mypy --ignore-missing-imports @@PYTHON_DIRS@@ || rc=1
+        pyright @@PYTHON_DIRS@@ || rc=1
+        exit "$rc"

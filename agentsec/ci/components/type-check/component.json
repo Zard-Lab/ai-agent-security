@@ -1,0 +1,14 @@
+{
+  "id": "type-check",
+  "title": "Python type check (mypy + pyright)",
+  "summary": "Static type checking of the detected Python source dirs with mypy and pyright.",
+  "category": "quality",
+  "applies_when": ["python"],
+  "requires_secrets": [],
+  "params": {
+    "PYTHON_VERSION": {"default": "3.12"},
+    "PYTHON_DIRS": {"from": "profile.python_dirs", "default": "."}
+  },
+  "depends_on": [],
+  "notes": "Runs mypy and pyright over your detected Python dirs (net-new vs `agentsec audit`, which does security scanning, not type checking). Best-effort installs project deps (per-dir requirements.txt / a root pyproject) so imports resolve. Ships with mypy --ignore-missing-imports to avoid third-party-stub noise on the first run — remove it (and add types-* stubs / point --config-file at your own config) to tighten. Both checkers gate the build; make non-blocking during rollout by appending `|| true` to each."
+}

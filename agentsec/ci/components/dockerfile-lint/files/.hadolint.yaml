@@ -1,0 +1,28 @@
+# Hadolint config (installed by `agentsec ci add dockerfile-lint`).
+# https://github.com/hadolint/hadolint/blob/master/docs/INSTALL.md
+#
+# Promotes the rules whose violation IS a real bug-class (floating tags =
+# invisible drift; unpinned apt = supply-chain risk) to error. Other rules stay
+# at their hadolint default (warning) until they prove their value with a real
+# false-positive / friction signal.
+
+failure-threshold: error
+
+override:
+  error:
+    # always tag the version — bans `:latest`, `:alpine`, `:2`, etc.
+    # This is the primary regression-prevention rule.
+    - DL3007
+    # pin versions in apt-get install — supply-chain hygiene.
+    - DL3008
+    # apt-get install --no-install-recommends — image-size + attack-surface.
+    - DL3015
+    # delete apt cache after install — image-size hygiene.
+    - DL3009
+    # use WORKDIR not `cd` — correctness; `cd` is a no-op in RUN layers.
+    - DL3003
+
+# Per-file rule overrides go here as `ignored: [...]` on a path basis.
+# Use inline `# hadolint ignore=DLxxxx` comments in the Dockerfile when
+# possible — keeps the rationale next to the suppression.
+ignored: []

@@ -1,0 +1,45 @@
+name: Python Security (agentsec)
+
+# Installed by `agentsec ci add python-sec`. Runs agentsec's deterministic
+# scanners (bandit, pip-audit, semgrep) + dependency-free static guards and
+# gates the build. No secrets or project-specific values are embedded.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-security:
+    name: Python Security (agentsec)
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        fetch-depth: 0  # gitleaks/history-aware scanners need full history
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+@@AGENTSEC_INSTALL_STEP@@
+
+    - name: Install scanners (pip-able)
+      run: pip install bandit pip-audit semgrep
+
+    - name: agentsec audit (SARIF artifact)
+      run: agentsec audit . --format sarif --out agentsec.sarif --no-fail
+
+    - name: Upload SARIF
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      if: always()
+      with:
+        name: agentsec-sarif
+        path: agentsec.sarif
+        retention-days: 30
+
+    - name: agentsec audit (gate)
+      run: agentsec audit . --fail-on @@FAIL_ON@@

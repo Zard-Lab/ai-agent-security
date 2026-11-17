@@ -1,0 +1,64 @@
+name: LLM red-team (promptfoo)
+
+# Installed by `agentsec ci add promptfoo`. Runs promptfoo's eval/red-team suite
+# (via agentsec live) against the app's LLM using a committed promptfooconfig.yaml.
+# No secrets or project-specific values are embedded. promptfoo calls a real model
+# — point its config at an owned, non-production endpoint only.
+on:
+  schedule:
+    # Weekly, Tuesday 05:00 UTC. Adjust to taste.
+    - cron: '0 5 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  promptfoo:
+    name: LLM red-team (promptfoo)
+    runs-on: @@RUNNER@@
+    timeout-minutes: 30
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+    - name: Set up Node.js
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      with:
+        node-version: "@@NODE_VERSION@@"
+
+@@AGENTSEC_INSTALL_STEP@@
+
+    - name: Install promptfoo
+      run: npm install -g promptfoo
+
+    - name: Check for promptfooconfig.yaml
+      id: cfg
+      run: |
+        if [ ! -f promptfooconfig.yaml ]; then
+          echo "::notice::No promptfooconfig.yaml at the repo root — skipping promptfoo."
+          echo "skip=1" >> "$GITHUB_OUTPUT"
+        fi
+
+    # Single promptfoo run: writes the SARIF artifact AND gates on exit code.
+    - name: Run promptfoo LLM red-team (agentsec live)
+      if: steps.cfg.outputs.skip != '1'
+      env:
+        # Exposed for the promptfoo config's provider to reference.
+        LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      run: |
+        agentsec live . --promptfoo-config promptfooconfig.yaml \
+          --format sarif --out promptfoo.sarif --fail-on @@FAIL_ON@@
+
+    - name: Upload SARIF
+      if: always() && steps.cfg.outputs.skip != '1'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: promptfoo-sarif
+        path: promptfoo.sarif
+        retention-days: 30

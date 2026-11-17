@@ -1,0 +1,84 @@
+name: Frontend Health (react-doctor)
+
+# Installed by `agentsec ci add react-doctor`. Adapted to your detected stack;
+# no secrets or project-specific values are embedded.
+on:
+  pull_request:
+  workflow_dispatch:
+
+# Least-privilege token.
+permissions:
+  contents: read
+
+jobs:
+  react-doctor:
+    name: Frontend Health (react-doctor)
+    runs-on: @@RUNNER@@
+    outputs:
+      score: ${{ steps.results.outputs.score }}
+      passed: ${{ steps.results.outputs.passed }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        fetch-tags: true
+
+@@PM_SETUP_BLOCK@@
+
+    - name: Install dependencies
+      run: |
+        cd @@FRONTEND_DIR@@
+        @@PM_INSTALL@@
+
+    - name: Run react-doctor health check
+      id: results
+      run: |
+        cd @@FRONTEND_DIR@@
+
+        # react-doctor @@REACT_DOCTOR_VERSION@@ (oxlint engine) emits a flat
+        # schemaVersion-1 --json report. Run via `npx` (npm's resolver) rather
+        # than `pnpm dlx`: a fresh pnpm resolve of react-doctor's dep tree is
+        # blocked by pnpm 11 as ERR_PNPM_TRUST_DOWNGRADE (a package-takeover
+        # defense). `--no-telemetry` disables the bundled Sentry client so a
+        # security gate never phones home with scan data. Never fail the step
+        # directly — the gate is computed from the JSON below.
+        REACT_DOCTOR_RANGE="@@REACT_DOCTOR_VERSION@@"
+        npx -y "react-doctor@${REACT_DOCTOR_RANGE}" . --json --json-compact --no-telemetry -y > rd.json 2>/dev/null || true
+
+        if [ ! -s rd.json ]; then
+          echo "⚠️  react-doctor produced no JSON report"
+          echo "score=0" >> "$GITHUB_OUTPUT"
+          echo "passed=0" >> "$GITHUB_OUTPUT"
+          exit 1
+        fi
+
+        # Advisory: echo every finding to the CI log.
+        echo "react-doctor findings:"
+        jq -r '.diagnostics[]? | "  [\(.severity)] \(.rule)  \(.filePath):\(.line)"' rd.json | sort || true
+
+        # The gate's HARD signal is the error-severity count — deterministic and the
+        # one we rely on. The 0-100 score is a SOFT signal: 0.5.x only derives it from
+        # the telemetry/Socket path, so `--no-telemetry` (above) leaves it `null` and
+        # @@MIN_SCORE@@ effectively never triggers — by design, so this gate stays
+        # deterministic and network-free. The score branch is kept for the case where a
+        # numeric score is present (e.g. telemetry enabled); a missing score is never
+        # coerced to 0 (that would false-fail a clean codebase).
+        ERRORS=$(jq '.summary.errorCount // 0' rd.json)
+        MIN=$(jq -r '[ .projects[]?.score.score | numbers ] | min // empty' rd.json)
+        echo "React Doctor: lowest score=${MIN:-n/a}/100, error-severity findings=$ERRORS"
+        echo "score=${MIN:-}" >> "$GITHUB_OUTPUT"
+
+        # @@MIN_SCORE@@+ is react-doctor's "Good" threshold.
+        THRESHOLD=@@MIN_SCORE@@
+        FAILED=0
+        [ "${ERRORS:-0}" -gt 0 ] && FAILED=1
+        if [ -n "$MIN" ] && [ "$MIN" -lt "$THRESHOLD" ]; then FAILED=1; fi
+        if [ "$FAILED" -ne 0 ]; then
+          echo "passed=0" >> "$GITHUB_OUTPUT"
+          echo "❌ react-doctor gate failed: errors=$ERRORS, lowest score=${MIN:-n/a} (threshold $THRESHOLD)"
+          exit 1
+        fi
+
+        echo "passed=1" >> "$GITHUB_OUTPUT"
+        echo "✅ react-doctor passed: lowest score=${MIN:-n/a}/100 (threshold $THRESHOLD), no error-severity findings"

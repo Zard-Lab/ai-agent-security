@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "internal-tools": {
+      "command": "node",
+      "args": ["server.js"],
+      "env": {
+        "API_KEY": "sk-proj-AbCdEfGhIjKlMnOpQrStUvWxYz0123456789"
+      },
+      "roots": ["/app/uploads"]
+    }
+  }
+}

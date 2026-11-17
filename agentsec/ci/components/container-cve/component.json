@@ -1,0 +1,14 @@
+{
+  "id": "container-cve",
+  "title": "Container image CVE scan (Trivy)",
+  "summary": "Scheduled/manual Trivy scan of container images (base-image OS CVEs + secrets) listed in .trivy-images.txt.",
+  "category": "container",
+  "applies_when": ["docker"],
+  "requires_secrets": [],
+  "params": {
+    "TRIVY_VERSION": {"default": "0.73.0"},
+    "TRIVY_SHA256": {"default": "2edd39da482bb4e9831962487b68f68e3928ec3137794757f54d00383d79547b"}
+  },
+  "depends_on": [],
+  "notes": "Scans container IMAGES for OS-package CVEs + secrets with `trivy image` — complementary to `agentsec audit`, whose TrivyRunner does `trivy fs` (dependency/IaC scanning) but not base-image OS CVEs. List the images to scan, one ref per line, in the shipped `.trivy-images.txt` (no images are embedded). The Trivy binary is version- + sha256-pinned; bump both together from the Trivy releases page. Public images only by default; for private registries add a docker-login step with registry credentials as secrets."
+}

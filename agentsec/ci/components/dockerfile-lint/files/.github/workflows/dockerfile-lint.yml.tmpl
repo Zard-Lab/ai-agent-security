@@ -1,0 +1,34 @@
+name: Dockerfile Linting (Hadolint)
+
+# Installed by `agentsec ci add dockerfile-lint`. No secrets or project-specific
+# values are embedded.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hadolint-dockerfiles:
+    name: Dockerfile Linting (Hadolint)
+    runs-on: @@RUNNER@@
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    # Pin to commit SHA, not tag — supply-chain hygiene. Tag is v3.3.0 (verify
+    # at https://github.com/hadolint/hadolint-action/releases). Bump by
+    # resolving the new tag's commit via the GitHub API:
+    #   gh api /repos/hadolint/hadolint-action/git/refs/tags/<new-tag>
+    - name: Run Hadolint on all Dockerfiles
+      uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5  # v3.3.0
+      with:
+        recursive: true
+        failure-threshold: error
+        config: .hadolint.yaml
+        # Emit per-Dockerfile output even when clean so the job log shows
+        # *which* files got scanned — a silent "✓ Run Hadolint" can't be told
+        # apart from a misconfigured run.
+        verbose: true

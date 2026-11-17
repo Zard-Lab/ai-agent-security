@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- Regression fixture mirroring the REAL 9_Agent_SaaS finding: a third-party
+     script (the Lovable/gpt-engineer CDN) is loaded WITHOUT Subresource Integrity.
+     -> frontend-xss/script-no-sri (MEDIUM). The local /src/main.tsx is first-party
+     (relative) and must NOT be flagged. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dynamous AI Agent App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

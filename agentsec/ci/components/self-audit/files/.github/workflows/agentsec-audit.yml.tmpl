@@ -1,0 +1,44 @@
+name: agentsec security audit
+
+# Installed by `agentsec ci add self-audit`. Runs agentsec's stack-aware static
+# audit as a PR gate through agentsec's own GitHub Action, and publishes the
+# findings report + the checklist coverage score card to the run summary. No
+# secrets or project-specific values are embedded. (Findings show in the run
+# Summary and the agentsec-sarif artifact, which work on any plan; the GitHub
+# code-scanning / Security tab needs Advanced Security and is not used.)
+on:
+  pull_request:@@SCOPE_PATHS@@
+  push:
+    branches: [main]@@SCOPE_PATHS@@
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agentsec-audit:
+    name: agentsec security audit
+    runs-on: @@RUNNER@@
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      with:
+        persist-credentials: false
+@@AGENTSEC_ACTION_SETUP@@
+    # ONE audit pass feeds everything: the findings report (top @@TOP@@ findings) and the
+    # coverage score card in the run summary, inline annotations on the PR, the
+    # agentsec-sarif artifact, and the gate (@@FAIL_ON@@+ findings). The action runs
+    # agentsec from its own checkout (no install step), deterministic by default (the
+    # dependency-free guards + static scanners, no live-advisory lookups). It is pinned to
+    # the commit of an agentsec release; to upgrade, re-run `agentsec ci add self-audit
+    # --force` with a newer agentsec. mode: advisory reports every finding without failing
+    # the build. A scan that did not complete fails the job in every mode.
+    - name: agentsec audit
+      uses: @@AGENTSEC_ACTION_USES@@
+      with:
+        path: '@@AUDIT_PATH_SQ@@'
+        fail-on: @@FAIL_ON@@
+        mode: @@AUDIT_MODE@@
+        top: "@@TOP@@"
+        python-version: "@@PYTHON_VERSION@@"
+        coverage: "true"@@BASELINE_WITH@@

@@ -1,0 +1,14 @@
+# pre-commit hook manifest: lets a project run agentsec's dependency-free guards before each commit.
+# Users reference this repo by `repo:` + `rev:` (a release tag) in their .pre-commit-config.yaml; see
+# docs/user-guide.md section 16. `language: python` makes pre-commit pip-install agentsec at that rev
+# into its own environment, so agentsec need not be on the user's PATH. `--guards-only` sits in
+# `entry`, not `args`, so a user overriding `args:` (e.g. `--fail-on critical`) keeps the fast,
+# scanner-free run. Pinned by tests/test_precommit_hooks.py.
+- id: agentsec-guards
+  name: agentsec security guards
+  description: Run agentsec's dependency-free static guards over the repo and fail on high+ findings.
+  entry: agentsec audit --guards-only
+  args: [".", "--fail-on", "high"]
+  language: python
+  pass_filenames: false
+  always_run: true

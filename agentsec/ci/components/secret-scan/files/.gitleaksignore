@@ -1,0 +1,6 @@
+# gitleaks fingerprint ignore file (installed by `agentsec ci add secret-scan`).
+#
+# Add one fingerprint per line to silence a specific, reviewed finding. Get the
+# fingerprint from a gitleaks report (the `Fingerprint` field, of the form
+# `commit:file:rule:line`). Prefer rotating a real leaked secret over ignoring
+# it. Ships empty.

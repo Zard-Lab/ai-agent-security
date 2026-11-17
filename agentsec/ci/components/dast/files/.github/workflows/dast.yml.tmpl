@@ -1,0 +1,90 @@
+name: DAST (OWASP ZAP baseline)
+
+# Installed by `agentsec ci add dast`. Runs OWASP ZAP DAST (via agentsec live)
+# against a running deployment. The scan target is NOT embedded: set a repo
+# variable DAST_TARGET_URL, or pass `target_url` when dispatching. No secrets or
+# project-specific values are embedded.
+#
+# Default = unauthenticated passive baseline. Configure the optional DAST_SUPABASE_*
+# secrets to upgrade to an authenticated active scan against a seeded non-prod
+# target (see the run step + the component notes). Only scan systems you own.
+on:
+  schedule:
+    # Weekly, Monday 04:00 UTC. Adjust to taste.
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "URL to scan (overrides the DAST_TARGET_URL repo variable)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  dast:
+    name: DAST (OWASP ZAP baseline)
+    runs-on: @@RUNNER@@
+    timeout-minutes: 30
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+    - name: Set up Python @@PYTHON_VERSION@@
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+      with:
+        python-version: "@@PYTHON_VERSION@@"
+
+@@AGENTSEC_INSTALL_STEP@@
+
+    - name: Resolve scan target
+      id: target
+      env:
+        # Manual dispatch input wins; otherwise fall back to the repo variable.
+        TARGET_URL: ${{ github.event.inputs.target_url || vars.DAST_TARGET_URL }}
+      run: |
+        if [ -z "${TARGET_URL}" ]; then
+          echo "::notice::No scan target set (workflow input or DAST_TARGET_URL repo variable) — skipping DAST."
+          echo "skip=1" >> "$GITHUB_OUTPUT"
+        else
+          echo "url=${TARGET_URL}" >> "$GITHUB_OUTPUT"
+        fi
+
+    # Single ZAP run: writes the SARIF artifact AND gates on exit code. ZAP is
+    # pulled as the official Docker image by `agentsec live` (Docker ships on
+    # ubuntu-latest).
+    #
+    # Default: an UNAUTHENTICATED passive baseline (safe, runs anywhere). If the
+    # optional seeded-test-user secrets are configured (DAST_SUPABASE_URL,
+    # DAST_SUPABASE_ANON_KEY, DAST_TEST_USER_EMAIL, DAST_TEST_USER_PASSWORD), this
+    # upgrades to an AUTHENTICATED ACTIVE scan: agentsec mints a bearer token via the
+    # Supabase password grant (`--supabase-login`) and runs the active API scan
+    # (`--zap-active`, which sends real attack payloads). `--allow-remote-target` is
+    # required because a deployed target is remote from the runner — point this at a
+    # NON-PROD, disposable deployment seeded with a throwaway test user only.
+    - name: Run ZAP DAST (agentsec live)
+      if: steps.target.outputs.skip != '1'
+      env:
+        SUPABASE_URL: ${{ secrets.DAST_SUPABASE_URL }}
+        SUPABASE_ANON_KEY: ${{ secrets.DAST_SUPABASE_ANON_KEY }}
+        TEST_USER_EMAIL: ${{ secrets.DAST_TEST_USER_EMAIL }}
+        TEST_USER_PASSWORD: ${{ secrets.DAST_TEST_USER_PASSWORD }}
+      run: |
+        ARGS=(. --target-url "${{ steps.target.outputs.url }}" \
+              --format sarif --out dast.sarif --fail-on @@FAIL_ON@@)
+        if [ -n "${SUPABASE_URL}" ] && [ -n "${TEST_USER_EMAIL}" ]; then
+          echo "::notice::Authenticated active scan (Supabase login + --zap-active)."
+          ARGS+=(--zap-active --allow-remote-target --supabase-login)
+        else
+          echo "::notice::Unauthenticated passive baseline. Set DAST_SUPABASE_* secrets for an authenticated active scan."
+        fi
+        agentsec live "${ARGS[@]}"
+
+    - name: Upload SARIF
+      if: always() && steps.target.outputs.skip != '1'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: dast-sarif
+        path: dast.sarif
+        retention-days: 30

@@ -1,0 +1,13 @@
+{
+  "_comment": "react-doctor suppressions. Starter set with only stack-generic global ignores for a client-side-rendered (CSR) Vite + React app: the on-by-default hydration rules are SSR/SSG concerns that can only false-positive on a CSR app. Add your own narrow per-path `ignore.overrides` for patterns intentional in your codebase (e.g. tests/, UI component libraries) rather than loosening global rules. Rule keys are `<plugin>/<rule>` (react-doctor's own rules are `react-doctor/...`; the deslop plugin's findings are `deslop/...`); run `react-doctor rules list` to see the full set and current severities (verified against 0.5.6). `supplyChain.enabled:false` disables the Socket (firewall-api.socket.dev) PURL lookup so the scan sends no dependency data; the workflow already passes `--no-telemetry` to block the Score API egress.",
+  "supplyChain": {
+    "enabled": false
+  },
+  "ignore": {
+    "rules": [
+      "react-doctor/rendering-hydration-mismatch-time",
+      "react-doctor/rendering-hydration-no-flicker"
+    ],
+    "overrides": []
+  }
+}

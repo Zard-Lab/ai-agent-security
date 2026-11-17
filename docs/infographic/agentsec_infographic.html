@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agentsec — AI Application Security Auditor</title>
+<style>
+  :root{--sage:#8c9a79;--sage-dark:#6f7d5f;--cream:#efece3;--cream-2:#e7e4d9;
+    --peach:#fbe6ce;--orange:#df8f39;--orange-soft:#e8a75a;--ink:#26261f;
+    --ink-soft:#3c3c33;--muted:#55564a;--shield:#7f9070;--shield-2:#9aab8b;--line:#c9c6ba;}
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{background:#d9d6cc;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);-webkit-font-smoothing:antialiased;padding:24px;}
+  .sheet{max-width:1480px;margin:0 auto;background:var(--cream);border-radius:6px;
+    overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.18);}
+  .header{background:var(--sage);color:var(--ink);padding:38px 46px 30px;
+    display:grid;grid-template-columns:1.55fr 1fr;gap:30px;align-items:start;}
+  .header h1{font-size:41px;line-height:1.1;margin:0 0 16px;font-weight:800;
+    letter-spacing:-.5px;max-width:760px;}
+  .header .sub{font-size:19px;font-weight:600;color:var(--ink-soft);max-width:640px;}
+  .header-right{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;}
+  .blind h3{font-size:19px;font-weight:800;margin:0 0 8px;line-height:1.2;}
+  .blind p{font-size:14px;line-height:1.45;margin:0;color:var(--ink-soft);}
+  .hero-icons{display:flex;gap:12px;align-items:center;justify-self:end;}
+  .section-title{font-size:29px;font-weight:800;margin:0 0 22px;letter-spacing:-.4px;}
+  .block-h{font-size:20px;font-weight:800;line-height:1.2;margin:0 0 8px;}
+  .block-p{font-size:13.5px;line-height:1.5;color:var(--muted);margin:0;}
+  .upper{display:grid;grid-template-columns:300px 1fr;gap:30px;padding:34px 46px 30px;}
+  .problem .prob-block{margin-bottom:26px;} .prob-icon{margin:6px 0 18px;}
+  .how-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:20px;}
+  .step .step-ico{height:112px;display:flex;align-items:flex-end;margin-bottom:14px;}
+  .step h4{font-size:16px;font-weight:800;margin:0 0 7px;line-height:1.15;}
+  .step p{font-size:12px;line-height:1.45;color:var(--muted);margin:0;}
+  .term{background:#1c1c1a;border-radius:8px;padding:12px 13px;width:100%;
+    font-family:"SF Mono",Menlo,Consolas,monospace;}
+  .term .dots{display:flex;gap:5px;margin-bottom:9px;}
+  .term .dots i{width:8px;height:8px;border-radius:50%;background:#4a4a45;display:block;}
+  .term code{color:#c9d7b6;font-size:10.5px;line-height:1.5;display:block;white-space:normal;}
+  .term .tag{color:var(--orange-soft);font-weight:700;}
+  .band{background:var(--peach);padding:34px 46px 30px;display:grid;
+    grid-template-columns:1.9fr 1fr;gap:38px;}
+  .special-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .feat{display:grid;grid-template-columns:58px 1fr;gap:14px;align-items:start;}
+  .feat h4{font-size:16px;font-weight:800;margin:0 0 7px;line-height:1.15;}
+  .feat p{font-size:12.5px;line-height:1.48;color:#6a5a44;margin:0;}
+  code.inline{background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.92em;}
+  .hood{background:var(--cream-2);padding:34px 46px 40px;display:grid;
+    grid-template-columns:1.9fr 1fr;gap:38px;}
+  .hood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 28px;}
+  .hood-item{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:start;}
+  .hood-item h4{font-size:15.5px;font-weight:800;margin:0 0 6px;line-height:1.18;}
+  .hood-item p{font-size:12px;line-height:1.46;color:var(--muted);margin:0;}
+  .perf-grid{display:grid;grid-template-columns:1fr;gap:26px;}
+  .proof .feat + .feat{margin-top:28px;}
+  .foot{padding:14px 46px 22px;text-align:right;font-size:12px;color:#8a897c;
+    font-weight:600;letter-spacing:.3px;}
+  svg{display:block;}
+
+@media(max-width:1080px){.header,.upper,.band,.hood{grid-template-columns:1fr!important;}
+.how-grid{grid-template-columns:repeat(3,1fr)!important;}
+.special-grid,.hood-grid{grid-template-columns:repeat(2,1fr)!important;}
+.hero-icons{justify-self:start;}}
+@media(max-width:640px){.how-grid,.special-grid,.hood-grid{grid-template-columns:1fr!important;}}
+</style></head><body><div class="sheet">
+  <header class="header">
+    <div>
+      <h1>A security auditor that reads your AI app&rsquo;s code, finds the real vulnerabilities, and tells you exactly what to fix &mdash; automatically, every time you push.</h1>
+      <p class="sub">A tireless security reviewer that lives in your terminal and knows how AI apps break.</p>
+    </div>
+    <div class="header-right">
+      <div class="hero-icons"><svg width="188" height="156" viewBox="0 0 212 176" fill="none">
+  <!-- dashed arc arrow over the top -->
+  <path d="M158 36 Q107 5 56 32" stroke="#26261f" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity=".7"/>
+  <path d="M56 32 l9 -2 -3 8 z" fill="#26261f" opacity=".7"/>
+  <!-- ground planes -->
+  <path d="M64 112 L106 133 L58 144 Z" fill="#6f7d5f" opacity=".45"/>
+  <path d="M148 112 L106 133 L154 144 Z" fill="#59654f" opacity=".45"/>
+  <!-- incoming orange ribbon (enters upper-left, angles down-right into cube) -->
+  <path d="M6 60 L46 80 L46 74 L8 54 Z" fill="#e8a75a"/>
+  <path d="M8 60 L46 80 L40 92 L2 72 Z" fill="#df8f39"/>
+  <path d="M40 74 L66 87 L38 101 Z" fill="#df8f39" stroke="#26261f" stroke-width=".8"/>
+  <!-- CUBE faces -->
+  <path d="M64 60 L106 81 L106 131 L64 110 Z" fill="#414a3d" stroke="#26261f" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M148 60 L106 81 L106 131 L148 110 Z" fill="#23201a" stroke="#26261f" stroke-width="1.7" stroke-linejoin="round"/>
+  <path d="M106 39 L148 60 L106 81 L64 60 Z" fill="#c8cebc" stroke="#26261f" stroke-width="1.7" stroke-linejoin="round"/>
+  <!-- left face: hollow framework hints + slot the ribbon enters -->
+  <path d="M70 63 L100 78 M70 74 L100 89 M84 66 L84 116" stroke="#2b322a" stroke-width="1.1" opacity=".8"/>
+  <path d="M72 84 L94 95 L94 112 L72 101 Z" fill="#14140f"/>
+  <path d="M74 89 L92 98" stroke="#df8f39" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- right face: framed vertical slot + orange ribbon through it -->
+  <path d="M110 86 L122 92 L122 120 L110 114 Z" fill="#100f0b" stroke="#3a352b" stroke-width="1"/>
+  <path d="M126 92 L138 98 L138 124 L126 118 Z" fill="#df8f39" stroke="#26261f" stroke-width=".8"/>
+  <path d="M118 74 L118 122 M132 82 L132 128" stroke="#151310" stroke-width="1" opacity=".7"/>
+  <!-- AI black diamond on the TOP face -->
+  <path d="M106 47 L131 60 L106 73 L81 60 Z" fill="#141410" stroke="#dfe3d4" stroke-width="1.3" stroke-linejoin="round"/>
+  <text x="106" y="65" font-size="13" font-weight="800" fill="var(--orange-soft)" text-anchor="middle" font-family="Segoe UI,Arial">AI</text>
+  <!-- exit orange chevron (front, lower-right) -->
+  <path d="M138 108 L176 122" stroke="#df8f39" stroke-width="10" stroke-linecap="round"/>
+  <path d="M170 113 L190 124 L168 133 Z" fill="#df8f39" stroke="#26261f" stroke-width="1" stroke-linejoin="round"/>
+  <!-- straight dashed arrow from lower-left into cube -->
+  <path d="M22 150 L72 118" stroke="#26261f" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity=".7"/>
+  <path d="M72 118 l-10 0 l4 8 z" fill="#26261f" opacity=".7"/>
+  <!-- chat bubbles -->
+  <rect x="2" y="6" width="36" height="21" rx="5" fill="#e7e4d9" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M10 26 v9 l9 -9 z" fill="#e7e4d9" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M8 13 h22 M8 20 h15" stroke="#8c9a79" stroke-width="1.9" stroke-linecap="round"/>
+  <rect x="172" y="2" width="38" height="22" rx="5" fill="#e7e4d9" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M194 24 v9 l9 -9 z" fill="#e7e4d9" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M180 10 h23 M180 17 h16" stroke="#8c9a79" stroke-width="1.9" stroke-linecap="round"/>
+</svg><svg width="122" height="112" viewBox="0 0 140 128" fill="none">
+  <circle cx="80" cy="64" r="43" fill="none" stroke="#26261f" stroke-width="2.6"/>
+  <circle cx="80" cy="66" r="30" fill="#e7e4d9" stroke="#26261f" stroke-width="1.4"/>
+  <path d="M52 58 q28 -11 56 0 l0 15 q-28 9 -56 0 z" fill="#26261f"/>
+  <circle cx="68" cy="64" r="2.3" fill="#8c9a79"/><circle cx="92" cy="64" r="2.3" fill="#8c9a79"/>
+  <path d="M72 87 h16" stroke="#26261f" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M32 8 L51 15 V32 C51 44 42 49 32 53 C22 49 13 44 13 32 V15 Z" fill="#7f9070" stroke="#26261f" stroke-width="1.7" stroke-linejoin="round"/>
+  <rect x="24" y="29" width="16" height="13" rx="2.2" fill="#1d1d18"/>
+  <path d="M27 29 v-3.5 a5 5 0 0 1 10 0 v3.5" fill="none" stroke="#1d1d18" stroke-width="2.4"/>
+  <circle cx="32" cy="35" r="1.9" fill="#7f9070"/>
+  <path d="M30 76 L52 114 L8 114 Z" fill="var(--orange)" stroke="#efece3" stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M30 90 v12" stroke="#26261f" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="30" cy="108" r="2" fill="#26261f"/>
+</svg></div>
+      <div class="blind">
+        <h3>Generic Scanners Are Blind to AI Risk</h3>
+        <p>Most security tools either miss LLM-specific vulnerabilities entirely or drown developers in irrelevant &ldquo;false alarm&rdquo; notifications.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="upper">
+    <div class="problem">
+      <h2 class="section-title">The Problem</h2>
+      <div class="prob-block">
+        <h3 class="block-h">AI Apps Have New, Invisible Attack Surfaces</h3>
+        <p class="block-p">Traditional tools weren&rsquo;t built for prompt injection, poisoned knowledge bases (RAG), or LLM outputs being executed as code.</p>
+      </div>
+      <div class="prob-block">
+        <div class="prob-icon"><svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+  <path d="M40 6 L70 24 V56 L40 74 L10 56 V24 Z" fill="#26261f"/>
+  <path d="M40 6 L70 24 L40 42 L10 24 Z" fill="#3d3d34"/>
+  <path d="M40 42 L70 24 V56 L40 74 Z" fill="#1f1f1a"/>
+  <text x="40" y="49" font-size="28" font-weight="800" fill="var(--orange)" text-anchor="middle">?</text>
+</svg></div>
+        <h3 class="block-h">The &ldquo;Unknown Unknowns&rdquo; of AI Security</h3>
+        <p class="block-p">Many developers don&rsquo;t realize their AI layer is part of their attack surface until a vulnerability is exploited in production.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-title">How It Works</h2>
+      <div class="how-grid">
+        <div class="step"><div class="step-ico"><svg width="104" height="88" viewBox="0 0 104 88" fill="none">
+  <path d="M10 20 h24 l7 8 h38 v40 a4 4 0 0 1-4 4 H14 a4 4 0 0 1-4-4 Z" fill="var(--sage-dark)"/>
+  <path d="M10 31 h69 v37 a4 4 0 0 1-4 4 H14 a4 4 0 0 1-4-4 Z" fill="var(--orange-soft)"/>
+  <path d="M22 44 h20 M22 52 h28 M22 60 h14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+  <path d="M60 48 l20 20 -7 1.5 4 9 -5.5 2.2 -4 -9 -6 4.5 Z" fill="#26261f"/>
+</svg></div>
+          <h4>1. Point to Your Repo</h4>
+          <p>The process begins by simply pointing the CLI at your code repository&mdash;no complex setup required.</p></div>
+        <div class="step"><div class="step-ico"><svg width="104" height="88" viewBox="0 0 104 88" fill="none">
+  <rect x="6" y="10" width="60" height="46" rx="4" fill="#e7e4d9" stroke="#26261f" stroke-width="2"/>
+  <path d="M6 19 h60" stroke="#26261f" stroke-width="2"/>
+  <circle cx="12" cy="14.5" r="1.6" fill="#26261f"/><circle cx="18" cy="14.5" r="1.6" fill="#26261f"/>
+  <path d="M14 30 h22 M14 38 h30 M14 46 h16" stroke="var(--sage-dark)" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M40 30 h10 M46 46 h8" stroke="var(--orange)" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M78 8 l-9 15 h7 l-4 13 12 -17 h-7 z" fill="#3ecf8e" stroke="#26261f" stroke-width="1.3" stroke-linejoin="round"/>
+  <path d="M86 40 q9 -2 13 5 q-3 8 -12 6 q4 3 8 2 q-6 5 -13 1 q-4 -3 -3 -9 q1 -5 7 -5 z" fill="#7f9070" stroke="#26261f" stroke-width="1.2"/>
+  <circle cx="90" cy="45" r="1.4" fill="#26261f"/>
+  <path d="M99 45 l4 -1 -3 3 z" fill="var(--orange)"/>
+  <circle cx="60" cy="58" r="15" fill="none" stroke="#26261f" stroke-width="3.2"/>
+  <path d="M71 69 l11 11" stroke="#26261f" stroke-width="4.4" stroke-linecap="round"/>
+  <path d="M52 58 q8 -9 16 0" stroke="var(--orange)" stroke-width="2.6" fill="none"/>
+</svg></div>
+          <h4>2. Fingerprint Your Stack</h4>
+          <p><code class="inline">agentsec</code> automatically identifies your tech stack (e.g., FastAPI, Supabase, Stripe, LangChain) via manifest and AST analysis.</p></div>
+        <div class="step"><div class="step-ico"><svg width="104" height="88" viewBox="0 0 104 88" fill="none">
+  <path d="M30 40 l10 8 M74 40 l-10 8 M52 20 v10" stroke="#26261f" stroke-width="1.6" opacity=".5"/>
+  <g stroke="#26261f" stroke-width="1.4">
+    <path d="M52 6 l13 4.5 v9 c0 8-6 12-13 15 -7-3-13-7-13-15 v-9 z" fill="var(--shield)"/>
+    <path d="M22 26 l12 4 v8 c0 7-5 11-12 13.5 -7-2.5-12-6.5-12-13.5 v-8 z" fill="var(--orange-soft)"/>
+    <path d="M82 26 l12 4 v8 c0 7-5 11-12 13.5 -7-2.5-12-6.5-12-13.5 v-8 z" fill="var(--shield-2)"/>
+    <path d="M22 54 l12 4 v8 c0 7-5 11-12 13.5 -7-2.5-12-6.5-12-13.5 v-8 z" fill="var(--shield-2)"/>
+    <path d="M82 54 l12 4 v8 c0 7-5 11-12 13.5 -7-2.5-12-6.5-12-13.5 v-8 z" fill="var(--orange-soft)"/>
+    <path d="M52 58 l13 4.5 v9 c0 8-6 12-13 15 -7-3-13-7-13-15 v-9 z" fill="var(--shield)"/>
+  </g>
+  <path d="M47 18 l3.5 3.5 6 -6.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17 38 l4 -4 M17 38 l4 4 M27 34 l-4 4 4 4" stroke="#26261f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <rect x="77" y="33" width="10" height="7" rx="1.5" fill="#26261f"/><path d="M79 33 v-2 a3 3 0 0 1 6 0 v2" stroke="#26261f" stroke-width="1.6" fill="none"/>
+  <circle cx="22" cy="63" r="2" fill="#26261f"/><circle cx="17" cy="70" r="2" fill="#26261f"/><circle cx="27" cy="70" r="2" fill="#26261f"/><path d="M22 65 l-4 4 M22 65 l5 4" stroke="#26261f" stroke-width="1.4"/>
+  <path d="M82 62 l3 5 -6 0 z" fill="#26261f"/><rect x="80.6" y="69" width="3" height="3" fill="#26261f"/>
+  <path d="M47 70 l3.5 3.5 6 -6.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+          <h4>3. Run Targeted Checks</h4>
+          <p>It activates only the guards that apply to your specific tools, running 493 static guards and optional external scanners in parallel.</p></div>
+        <div class="step"><div class="step-ico"><svg width="104" height="88" viewBox="0 0 104 88" fill="none">
+  <path d="M52 12 v52" stroke="#26261f" stroke-width="3.2"/>
+  <circle cx="52" cy="11" r="4.5" fill="var(--orange)" stroke="#26261f" stroke-width="1.4"/>
+  <path d="M20 24 h64" stroke="#26261f" stroke-width="3.2"/>
+  <path d="M20 24 l-11 22 h22 z" fill="var(--shield-2)" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M84 24 l-11 22 h22 z" fill="var(--orange-soft)" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M20 20 v4 M84 20 v4" stroke="#26261f" stroke-width="1.6"/>
+  <rect x="16" y="30" width="8" height="8" rx="1.5" fill="#26261f"/>
+  <path d="M76 32 h6 M76 36 h6 M76 40 h6" stroke="#26261f" stroke-width="1.8" stroke-linecap="round"/>
+  <rect x="38" y="64" width="28" height="8" rx="2" fill="#26261f"/>
+  <rect x="32" y="72" width="40" height="5" rx="2" fill="#26261f"/>
+</svg></div>
+          <h4>4. Score &amp; Prioritize</h4>
+          <p>Findings are scored by severity &times; reachability, filtering out issues in non-product code like test files or migration scripts.</p></div>
+        <div class="step"><div class="step-ico">
+            <div class="term"><div class="dots"><i></i><i></i><i></i></div>
+              <code><span class="tag">[ACTION]</span> Lethal Trifecta found in agent_loop.py &mdash; LLM has autonomous tool access without a human gate.</code></div>
+          </div>
+          <h4>5. &ldquo;Fix These First&rdquo; Report</h4>
+          <p>It emits a prioritized report.</p></div>
+        <div class="step"><div class="step-ico"><svg width="104" height="88" viewBox="0 0 104 88" fill="none">
+  <rect x="12" y="14" width="30" height="54" fill="var(--shield-2)" stroke="#26261f" stroke-width="2"/>
+  <path d="M20 14 v54 M28 14 v54 M36 14 v54" stroke="#26261f" stroke-width="1.5"/>
+  <g stroke="#26261f" stroke-width="3" fill="none" stroke-linecap="round">
+    <circle cx="58" cy="26" r="4.5" fill="var(--sage)"/>
+    <circle cx="58" cy="60" r="4.5" fill="var(--sage)"/>
+    <circle cx="78" cy="43" r="4.5" fill="var(--orange)"/>
+    <path d="M58 31 v24"/>
+    <path d="M58 43 q0 0 16 0" transform="translate(0,0)"/>
+    <path d="M58 43 h12 q4 0 4 -4 v0"/>
+  </g>
+  <path d="M84 43 h14 M92 37 l8 6 -8 6" stroke="var(--orange)" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div>
+          <h4>6. CI Gate Security</h4>
+          <p>The CI/CD integration automatically blocks the Pull Request if any &ldquo;HIGH&rdquo; or &ldquo;CRITICAL&rdquo; vulnerabilities are detected.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="band">
+    <div>
+      <h2 class="section-title">What Makes It Special</h2>
+      <div class="special-grid">
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <path d="M31 8 c-10-5-20 2-20 12 -6 2-7 10-2 15 -2 7 4 13 11 12 3 5 12 5 15-1 8 1 13-7 9-14 3-7-3-14-9-14 -1-6-3-9-4-10z" fill="var(--shield)" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M22 18 v20 M22 24 h8 M22 32 h8 M30 21 a4 4 0 0 1 0 8 M30 29 a4 4 0 0 1 0 8" stroke="#26261f" stroke-width="1.4" fill="none"/>
+  <path d="M35 33 l6 3 v7 c0 5-3 8-6 9.5 -3-1.5-6-4.5-6-9.5 v-7 z" fill="var(--orange)" stroke="#26261f" stroke-width="1.3"/>
+  <path d="M33 43 l2 2 4 -4.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><div><h4>Knows AI Threats</h4>
+          <p>Specifically covers the OWASP LLM Top 10 (2025) &mdash; e.g. LLM05 Improper Output Handling &mdash; detecting flaws like &ldquo;LLM output passed to <code class="inline">exec()</code>&rdquo; and the Lethal Trifecta.</p></div></div>
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <path d="M12 22 h9 l16 -9 v30 l-16 -9 h-9 a3 3 0 0 1-3-3 v-6 a3 3 0 0 1 3-3 z" fill="var(--sage)" stroke="#26261f" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M21 22 v12" stroke="#26261f" stroke-width="1.4"/>
+  <path d="M22 34 v6 a3 3 0 0 0 6 0 v-2" stroke="#26261f" stroke-width="1.6" fill="none"/>
+  <path d="M41 24 q5 4 0 9" stroke="#26261f" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="28" cy="28" r="24" fill="none" stroke="var(--orange)" stroke-width="3.4"/>
+  <path d="M11 11 l34 34" stroke="var(--orange)" stroke-width="3.4" stroke-linecap="round"/>
+</svg><div><h4>No False Alarms by Design</h4>
+          <p>If you don&rsquo;t use Stripe, the payment guards don&rsquo;t fire. A clean report means nothing was found, not just that nothing was checked.</p></div></div>
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <rect x="4" y="12" width="48" height="32" rx="4" fill="#26261f"/>
+  <path d="M4 20 h48" stroke="#3f3f38" stroke-width="1.4"/>
+  <circle cx="10" cy="16" r="1.6" fill="#5b5b52"/><circle cx="16" cy="16" r="1.6" fill="#5b5b52"/><circle cx="22" cy="16" r="1.6" fill="#5b5b52"/>
+  <text x="28" y="38" font-size="14" font-weight="800" fill="var(--orange-soft)" text-anchor="middle" font-family="SF Mono,Menlo,monospace">pipx</text>
+</svg><div><h4>Zero Dependencies to Start</h4>
+          <p>Run <code class="inline">pipx install ai-agent-security</code> and you&rsquo;re ready; it uses built-in guards first, making external scanners like Semgrep or Bandit optional.</p></div></div>
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <rect x="5" y="8" width="25" height="34" rx="3" fill="#e7e4d9" stroke="#26261f" stroke-width="1.8"/>
+  <path d="M11 17 h13 M11 23 h13 M11 29 h8" stroke="var(--sage-dark)" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="25" cy="31" r="8" fill="none" stroke="#26261f" stroke-width="2.2"/>
+  <path d="M31 37 l7 7" stroke="#26261f" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="42" cy="15" r="9" fill="var(--orange)" stroke="#26261f" stroke-width="1.6"/>
+  <path d="M39 11 l6 4 -6 4 z" fill="#fff"/>
+  <path d="M50 8 q4 7 0 14" stroke="#26261f" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+</svg><div><h4>Static + Live</h4>
+          <p>Beyond reading code, it runs black-box scans against your <em>running</em> app &mdash; OWASP ZAP (DAST), Supabase Splinter DB-lint, OpenAPI fuzzing, and JWT&thinsp;/&thinsp;LLM red-team &mdash; all merged into the same report.</p></div></div>
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <path d="M8 12 h19 M8 20 h13" stroke="#c0654a" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M8 34 h19 M8 42 h15" stroke="var(--sage-dark)" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M47 10 a7 7 0 0 0 -9 9 l-13 13 4 4 13 -13 a7 7 0 0 0 9 -9 l-5 5 -4 -1 -1 -4 z" fill="var(--sage)" stroke="#26261f" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="42" cy="43" r="9" fill="var(--orange)"/>
+  <path d="M37 43 l3.5 3.5 6 -7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><div><h4>Fixes, Not Just Findings</h4>
+          <p>It doesn&rsquo;t just report: <code class="inline">agentsec fix</code> applies safe, diff-first mechanical fixes and hardens your dependencies (cooldown + hashed lock + lifecycle-script blocking). Nothing auto-commits &mdash; you review the diff.</p></div></div>
+        <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <path d="M28 5 l18 6 v13 c0 12 -8 19 -18 24 -10 -5 -18 -12 -18 -24 v-13 z" fill="var(--shield)" stroke="#26261f" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M19 31 a6 6 0 0 1 12 -2 a5 5 0 0 1 1 10 h-12 a4.5 4.5 0 0 1 -1 -8 z" fill="var(--cream)" stroke="#26261f" stroke-width="1.5"/>
+  <path d="M14 13 l28 28" stroke="var(--orange)" stroke-width="3.2" stroke-linecap="round"/>
+</svg><div><h4>Offline by Default</h4>
+          <p>Tier&nbsp;0 sends nothing off your machine. The few scanners that fetch advisories are skipped unless you explicitly opt in with <code class="inline">--network tier1</code>.</p></div></div>
+      </div>
+    </div>
+    <div class="proof">
+      <h2 class="section-title">Proof &amp; Performance</h2>
+      <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <rect x="6" y="10" width="44" height="40" rx="4" fill="#e7e4d9" stroke="#26261f" stroke-width="2"/>
+  <path d="M6 20 h44" stroke="#26261f" stroke-width="2"/>
+  <path d="M16 6 v8 M40 6 v8" stroke="#26261f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M13 26 h6 M23 26 h6 M33 26 h6 M13 34 h6" stroke="#8c9a79" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="38" cy="38" r="10" fill="var(--orange)"/>
+  <path d="M33 38 l3.5 3.5 6 -7" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><div><h4>Honest by Construction</h4>
+        <p>Security exceptions (ignores) expire. If you acknowledge a risk, it will resurface after a set date to ensure it isn&rsquo;t forgotten.</p></div></div>
+      <div class="feat"><svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+  <rect x="5" y="12" width="46" height="32" rx="4" fill="#e7e4d9" stroke="#26261f" stroke-width="1.8"/>
+  <path d="M10 30 h8 l3 -8 5 16 4 -11 3 5 h5" stroke="var(--orange)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="44" cy="42" r="8.5" fill="var(--sage)" stroke="#26261f" stroke-width="1.4"/>
+  <path d="M39.5 42 l3.2 3.2 5.5 -6.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><div><h4>Every Guard, Proven to Fire</h4>
+        <p><code class="inline">doctor --canary</code> plants a violation for each of the 493 guards and confirms it&rsquo;s caught end-to-end through the real pipeline &mdash; so a guard can never silently rot into a dead check.</p></div></div>
+    </div>
+  </div>
+
+  <div class="hood">
+    <div>
+      <h2 class="section-title">Under the Hood</h2>
+      <div class="hood-grid">
+        <div class="hood-item"><svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <path d="M30 5 l3.5 6.2 7-1.2 1 7 6.3 3.3 -2.6 6.6 4.6 5.3 -5.3 4.6 1.4 7 -7 .8 -3.6 6.1 -6.3-3.5 -6.3 3.5 -3.6-6.1 -7-.8 1.4-7 -5.3-4.6 4.6-5.3 -2.6-6.6 6.3-3.3 1-7 7 1.2 z" fill="var(--sage)" stroke="#26261f" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="30" cy="30" r="10" fill="var(--cream)" stroke="#26261f" stroke-width="1.6"/>
+  <circle cx="30" cy="30" r="4.5" fill="var(--orange)"/>
+</svg><div><h4>493 Dependency-Free Static Guards</h4>
+          <p>Uses Python stdlib-only guards for speed and security, supplemented by 11 optional integrations like Bandit, Semgrep, Trivy, and Gitleaks.</p></div></div>
+        <div class="hood-item"><svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <circle cx="26" cy="26" r="16" fill="none" stroke="#26261f" stroke-width="3.2"/>
+  <path d="M38 38 l13 13" stroke="#26261f" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="26" cy="17" r="3.4" fill="var(--sage)" stroke="#26261f" stroke-width="1.2"/>
+  <circle cx="17" cy="32" r="3.4" fill="var(--orange)" stroke="#26261f" stroke-width="1.2"/>
+  <circle cx="34" cy="32" r="3.4" fill="var(--sage)" stroke="#26261f" stroke-width="1.2"/>
+  <path d="M26 20 l-8 10 M26 20 l8 10 M20 33 h10" stroke="#26261f" stroke-width="1.6"/>
+</svg><div><h4>Advanced Stack Detection</h4>
+          <p>Fingerprints FastAPI, LangChain, Pydantic-AI, Supabase, and Docker using AST (Abstract Syntax Tree) walks for high accuracy.</p></div></div>
+        <div class="hood-item"><svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <rect x="2" y="6" width="26" height="18" rx="3" fill="#26261f"/>
+  <path d="M7 12 l4 3 -4 3 M14 18 h6" stroke="var(--orange-soft)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <g stroke="#26261f" stroke-width="2" fill="none">
+    <circle cx="38" cy="9" r="3.4" fill="#7f9070"/><circle cx="52" cy="9" r="3.4" fill="#7f9070"/><circle cx="45" cy="20" r="3.4" fill="var(--orange)"/>
+    <path d="M41 9 h8 M45 12 v4"/>
+  </g>
+  <path d="M14 44 c-6 0-11 4-11 10 0 5 3 8 7 9 -1-1-1-2-1-3 -3 .6-4-1.4-4-1.4 -.6-1.6-1.6-2-1.6-2 -1.4-1 .1-1 .1-1 1.5 .1 2.3 1.6 2.3 1.6 1.3 2.3 3.5 1.6 4.3 1.2 .1-1 .5-1.6 .9-2 -3-.4-6.2-1.6-6.2-7 0-1.5 .5-2.8 1.4-3.8 -.1-.4-.6-1.9 .1-3.9 0 0 1.2-.4 3.9 1.5 1.1-.3 2.3-.5 3.5-.5 1.2 0 2.4 .2 3.5 .5 2.7-1.9 3.9-1.5 3.9-1.5 .7 2 .2 3.5 .1 3.9 .9 1 1.4 2.3 1.4 3.8 0 5.4-3.2 6.6-6.3 7 .5 .5 1 1.3 1 2.6 v3.8 c0 .4 .2 .8 1 .7 4-1 7-4 7-9 0-6-5-10-11-10 z" fill="#26261f"/>
+  <path d="M45 39 l-9 16 h6 l-3 8 12-17 h-6 z" fill="var(--orange)" stroke="#26261f" stroke-width="1.2" stroke-linejoin="round"/>
+</svg><div><h4>Modern Delivery Channels</h4>
+          <p>Available via CLI (<code class="inline">pipx</code>), SHA-pinned GitHub Actions, and Claude Code <code class="inline">/security</code> skills with SARIF output support.</p></div></div>
+      </div>
+    </div>
+    <div class="proof">
+      <h2 class="section-title">&nbsp;</h2>
+      <div class="perf-grid">
+        <div class="hood-item"><svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <rect x="12" y="8" width="36" height="44" rx="3" fill="#e7e4d9" stroke="#26261f" stroke-width="2"/>
+  <rect x="22" y="4" width="16" height="9" rx="2.5" fill="#8c9a79" stroke="#26261f" stroke-width="1.6"/>
+  <g stroke="var(--orange)" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 20 l3 3 5-6"/><path d="M17 31 l3 3 5-6"/><path d="M17 42 l3 3 5-6"/>
+  </g>
+  <path d="M30 21 h12 M30 32 h12 M30 43 h12" stroke="var(--sage-dark)" stroke-width="2.6" stroke-linecap="round"/>
+</svg><div><h4>493 Guards &amp; 573-Item Checklist</h4>
+          <p>Comprehensive coverage across OWASP Top 10, OWASP LLM Top 10 (2025), CIS, and CWE.</p></div></div>
+        <div class="hood-item"><svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <circle cx="32" cy="34" r="17" fill="none" stroke="#26261f" stroke-width="3.2"/>
+  <path d="M32 34 v-11" stroke="var(--orange)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 34 l7 5" stroke="#26261f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M26 8 h12" stroke="#26261f" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M32 12 v4" stroke="#26261f" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M46 18 l4 -4" stroke="#26261f" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M4 28 h12 M2 36 h9 M6 44 h10" stroke="var(--orange)" stroke-width="2.6" stroke-linecap="round"/>
+  <rect x="16" y="54" width="34" height="5" rx="2.5" fill="#c9c6ba"/>
+  <rect x="16" y="54" width="24" height="5" rx="2.5" fill="var(--sage)"/>
+</svg><div><h4>Under 60 Seconds</h4>
+          <p>Runs a full structural audit on any machine in less than one minute with zero runtime dependencies.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">agentsec &middot; AI Application Security Auditor</div>
+</div></body></html>

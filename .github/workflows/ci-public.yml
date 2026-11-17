@@ -1,0 +1,45 @@
+name: CI
+
+# The test suite, on pushes to main and on pull requests to it. A courtesy to contributors, not the
+# release gate: this repo receives one snapshot commit per release, and the maintainers port an accepted
+# pull request into their development repo, where the full gate runs.
+#
+# `pull_request`, never `pull_request_target`: a fork's code must run without this repo's token or
+# secrets. GitHub-hosted runners only; a self-hosted runner on a public repo runs any fork's code.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: lint · tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@caf0cab7a618c569241d31dcd442f54681755d39  # v3
+
+      - name: Install
+        run: |
+          uv venv --python 3.12
+          uv pip install -e ".[dev]"
+
+      - name: Lint
+        run: .venv/bin/ruff check .
+
+      - name: Tests
+        run: .venv/bin/python -m pytest -q -n 3
