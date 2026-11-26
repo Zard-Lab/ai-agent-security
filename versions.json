@@ -1,9 +1,9 @@
 {
-  "latest": "0.22.2",
-  "released": "2026-11-17",
-  "guard_count": 493,
-  "item_count": 573,
-  "changelog": "https://github.com/Zard-Lab/ai-agent-security/releases/tag/v0.22.2",
+  "latest": "0.22.3",
+  "released": "2026-11-26",
+  "guard_count": 496,
+  "item_count": 576,
+  "changelog": "https://github.com/Zard-Lab/ai-agent-security/releases/tag/v0.22.3",
   "min_supported": "0.15.0",
   "pack": {
     "url": null,

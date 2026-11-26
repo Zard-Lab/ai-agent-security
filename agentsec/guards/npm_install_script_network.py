@@ -25,6 +25,10 @@ Two checks:
      preceding command separator (`;`/`&`/`|`/`(`/line-start) and none of the words count when
      followed by a `-`, `:`, `.` or another word character, so `npm run fetch-assets`, a
      `fetch:data` script name, and `node scripts/curl.js` are not flagged.
+  1b. **`install-script-shell-obfuscation`** (HIGH): the same four lifecycle values pipe into a
+     shell (`| sh`/`bash`/`zsh`/`pwsh`), decode base64 (`base64 -d`, `openssl base64 -d`), or run
+     `eval`/`source` at a command position. `node-gyp rebuild`, `husky install` and
+     `prebuild-install` stay silent.
   2. **`mcp-package-typosquat`** (HIGH): a `dependencies`/`devDependencies` entry's package name
      is a near-miss (length within 2, a substring relationship, or all-but-one shared characters)
      of a well-known, trusted MCP package name, without matching it exactly — the same typosquat
@@ -70,6 +74,16 @@ _NETWORK_IN_SCRIPTS = re.compile(
     r"|https?://",
     re.IGNORECASE,
 )
+
+# Shell-level obfuscation in a lifecycle value (mined from wormguard's shell classifier): a pipe
+# into a shell, base64 decoding, or eval/source at a COMMAND position. Network words are not
+# required: `echo <b64> | base64 -d | sh` reaches no network yet runs an opaque payload.
+_SHELL_PIPE = re.compile(r"\|\s*(?:sudo\s+)?(?:sh|bash|zsh|dash|ksh|powershell|pwsh)(?![\w.:-])", re.IGNORECASE)
+_SHELL_B64 = re.compile(
+    r"\bbase64\s+(?:-d|-D|--decode)(?![\w-])|\bopenssl\s+(?:base64|enc)\b[^|;&]*\s-d(?![\w-])",
+    re.IGNORECASE,
+)
+_SHELL_EVAL = re.compile(r"(?:^|[;&|(`]|\$\()\s*(?:eval|source)\s")
 
 _TRUSTED_MCP_PACKAGE_NAMES = frozenset({
     "@modelcontextprotocol/sdk",
@@ -138,6 +152,7 @@ class NpmInstallScriptNetworkGuard(Guard):
         expects=frozenset({
             "npm-install-script-network/install-script-network-call",
             "npm-install-script-network/mcp-package-typosquat",
+            "npm-install-script-network/install-script-shell-obfuscation",
         }),
     )
 
@@ -180,6 +195,28 @@ class NpmInstallScriptNetworkGuard(Guard):
                     "If a post-install setup step is genuinely required, have it run "
                     "explicitly (a documented `npm run setup` command), never automatically "
                     "on install.",
+                ))
+        for key in _INSTALL_LIFECYCLE_KEYS:
+            value = scripts.get(key)
+            if not isinstance(value, str):
+                continue
+            kinds = [
+                label for label, rx in (
+                    ("pipes into a shell", _SHELL_PIPE),
+                    ("decodes base64", _SHELL_B64),
+                    ("runs eval/source", _SHELL_EVAL),
+                ) if rx.search(value)
+            ]
+            if kinds:
+                out.append(self._finding(
+                    r, "install-script-shell-obfuscation", _STD_NETWORK,
+                    f"The `{key}` script runs automatically on install and {' and '.join(kinds)}: "
+                    f"{value!r}. Piping into a shell, decoding an opaque blob, or eval-ing a "
+                    "string hides what actually executes from anyone reviewing the package, "
+                    "the signature of an install-time malware dropper.",
+                    "Replace the inline shell trickery with a plain, reviewable command or a "
+                    "checked-in script. If a payload is genuinely needed, ship it as a file in "
+                    "the package rather than an encoded string.",
                 ))
         return out
 

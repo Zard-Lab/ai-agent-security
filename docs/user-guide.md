@@ -298,7 +298,7 @@ agentsec trifecta .
 
 ## 8. `coverage` — checklist score card
 
-The machine-readable security checklist (573 items, versioned + sha-stamped into every report) rendered as
+The machine-readable security checklist (576 items, versioned + sha-stamped into every report) rendered as
 a per-section score card for your detected stack, plus your remaining manual to-do list.
 
 ```bash

@@ -6,8 +6,8 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/Zard-Lab/ai-agent-security/blob/main/LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
-[![guards](https://img.shields.io/badge/guards-493-brightgreen.svg)](#what-it-checks)
-[![checklist](https://img.shields.io/badge/checklist-v0.22.2%20(573%20items)-brightgreen.svg)](https://github.com/Zard-Lab/ai-agent-security/blob/main/agentsec/checklist/checklist.json)
+[![guards](https://img.shields.io/badge/guards-496-brightgreen.svg)](#what-it-checks)
+[![checklist](https://img.shields.io/badge/checklist-v0.22.3%20(576%20items)-brightgreen.svg)](https://github.com/Zard-Lab/ai-agent-security/blob/main/agentsec/checklist/checklist.json)
 ![zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)
 
 </div>
@@ -88,7 +88,7 @@ Inputs, outputs, permissions and the private-repo setup:
 
 ## What it checks
 
-**493 guards** across the FastAPI + React + Postgres + LLM/RAG stack, plus **11 optional scanners**
+**496 guards** across the FastAPI + React + Postgres + LLM/RAG stack, plus **11 optional scanners**
 (`bandit`, `semgrep`, `pip-audit`, `node-audit`, `eslint`, `react-doctor`, `gitleaks`, `trivy`, `hadolint`,
 `scorecard`, `go-osv-hygiene`), mapped to OWASP Top 10 · OWASP LLM Top 10 (2025) · CIS · CWE.
 

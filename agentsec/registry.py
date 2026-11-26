@@ -152,6 +152,7 @@ from agentsec.guards.debug_route_exposed import DebugRouteExposedGuard
 from agentsec.guards.default_service_credential import DefaultServiceCredentialGuard
 from agentsec.guards.definer_dynamic_sql import DefinerDynamicSqlGuard
 from agentsec.guards.definer_function_grants import DefinerFunctionGrantsGuard
+from agentsec.guards.dependency_typosquat_popular import DependencyTyposquatPopularGuard
 from agentsec.guards.dependency_version_floor import DependencyVersionFloorGuard
 from agentsec.guards.destructive_filesystem_command import DestructiveFilesystemCommandGuard
 from agentsec.guards.dns_egress_allowlist import DnsEgressAllowlistGuard
@@ -360,10 +361,12 @@ from agentsec.guards.next_public_client_secret import NextPublicClientSecretGuar
 from agentsec.guards.next_server_action_no_auth import NextServerActionNoAuthGuard
 from agentsec.guards.no_cache_on_sensitive import NoCacheOnSensitiveGuard
 from agentsec.guards.no_pan_stored import NoPanStoredGuard
+from agentsec.guards.node_db_driver_hardcoded_password import NodeDbDriverHardcodedPasswordGuard
 from agentsec.guards.nosql_injection_js import NoSqlInjectionJsGuard
 from agentsec.guards.nosql_metadata_injection import NoSqlMetadataInjectionGuard
 from agentsec.guards.npm_ignore_scripts import NpmIgnoreScriptsGuard
 from agentsec.guards.npm_install_script_network import NpmInstallScriptNetworkGuard
+from agentsec.guards.npm_lifecycle_script_source_sinks import NpmLifecycleScriptSourceSinksGuard
 from agentsec.guards.obfuscated_payload_execution import ObfuscatedPayloadExecutionGuard
 from agentsec.guards.open_redirect import OpenRedirectGuard
 from agentsec.guards.opensearch_domain_encryption_disabled import (
@@ -595,6 +598,7 @@ ALL_GUARDS: list[Guard] = [
     PathPrefixAuthzBypassGuard(),
     UnrestrictedFileUploadGuard(),
     ContentTypeMagicBytesGuard(),
+    DependencyTyposquatPopularGuard(),
     DependencyVersionFloorGuard(),
     InsecureCookiesGuard(),
     WeakCryptoGuard(),
@@ -715,6 +719,7 @@ ALL_GUARDS: list[Guard] = [
     AgenticSkillsAstGuard(),
     TrustBoundaryGuard(),
     NpmInstallScriptNetworkGuard(),
+    NpmLifecycleScriptSourceSinksGuard(),
     AgentMemorySecurityGuard(),
     AgentMemoryUserScopeGuard(),
     AgentMemoryRetentionGuard(),
@@ -1061,6 +1066,7 @@ ALL_GUARDS: list[Guard] = [
     SagemakerNotebookNotEncryptedGuard(),
     AwsWeakTlsPolicyGuard(),
     RdsBackupRetentionTooShortGuard(),
+    NodeDbDriverHardcodedPasswordGuard(),
 ]
 
 ALL_RUNNERS: list[Runner] = [

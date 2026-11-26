@@ -199,3 +199,63 @@ def test_deeply_nested_sibling_package_json_does_not_hide_a_real_finding(tmp_pat
     (sub / "package.json").write_text("[" * 200_000 + "]" * 200_000, encoding="utf-8")
     findings = NpmInstallScriptNetworkGuard().run(tmp_path, _prof(tmp_path))
     assert any(f.rule == "npm-install-script-network/mcp-package-typosquat" for f in findings)
+
+
+# ── install-script-shell-obfuscation ─────────────────────────────────────────
+
+_OBF = "npm-install-script-network/install-script-shell-obfuscation"
+
+
+@pytest.mark.parametrize(
+    ("key", "script"),
+    [
+        ("preinstall", "echo aGVsbG8= | base64 -d | sh"),
+        ("postinstall", "cat payload.txt | bash"),
+        ("install", "echo aGk= | openssl base64 -d | sudo bash"),
+        ("prepare", "eval \"$(cat setup.txt)\""),
+        ("postinstall", "npm run build && source ./env.sh"),
+        ("postinstall", "node-gyp rebuild; echo aGk= | base64 --decode > x"),
+        ("postinstall", "cat x | pwsh"),
+    ],
+)
+def test_shell_obfuscation_in_lifecycle_fires(tmp_path: Path, key: str, script: str) -> None:
+    (tmp_path / "package.json").write_text(json.dumps({"scripts": {key: script}}), encoding="utf-8")
+    findings = NpmInstallScriptNetworkGuard().run(tmp_path, _prof(tmp_path))
+    hit = next(f for f in findings if f.rule == _OBF)
+    assert hit.severity == "high"
+
+
+@pytest.mark.parametrize(
+    "script",
+    [
+        "node-gyp rebuild",
+        "husky install",
+        "prebuild-install || node-gyp rebuild",
+        "npm run build | tee build.log",
+        "echo done | shasum",
+        "cat notes | shuf",
+        "node scripts/evaluate.js",
+        "npm run resource-eval",
+        "node-pre-gyp install --fallback-to-build",
+    ],
+)
+def test_ordinary_lifecycle_scripts_have_no_obfuscation_finding(tmp_path: Path, script: str) -> None:
+    """FP-bait: common native-build and hook-install scripts."""
+    (tmp_path / "package.json").write_text(json.dumps({"scripts": {"postinstall": script}}), encoding="utf-8")
+    findings = NpmInstallScriptNetworkGuard().run(tmp_path, _prof(tmp_path))
+    assert not any(f.rule == _OBF for f in findings)
+
+
+def test_shell_obfuscation_outside_lifecycle_is_safe(tmp_path: Path) -> None:
+    (tmp_path / "package.json").write_text(
+        json.dumps({"scripts": {"release": "echo aGk= | base64 -d | sh"}}), encoding="utf-8",
+    )
+    assert NpmInstallScriptNetworkGuard().run(tmp_path, _prof(tmp_path)) == []
+
+
+def test_shell_obfuscation_pragma_suppresses(tmp_path: Path) -> None:
+    (tmp_path / "package.json").write_text(
+        json.dumps({"//": "security: allow-npm-install-script-network", "scripts": {"install": "cat x | sh"}}),
+        encoding="utf-8",
+    )
+    assert NpmInstallScriptNetworkGuard().run(tmp_path, _prof(tmp_path)) == []

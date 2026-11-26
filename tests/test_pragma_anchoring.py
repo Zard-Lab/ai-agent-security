@@ -136,7 +136,7 @@ _FILE_SCOPED_PRAGMA: frozenset[str] = frozenset({
     "mcp-tools-list-unbounded", "mcp-transport-dns-rebinding", "mcp-transport-no-auth",
     "mcp-unsafe-auth-url-launch",
     "multi-agent-prompt-origin", "next-api-route-auth-missing", "next-public-client-secret",
-    "next-server-action-no-auth", "no-cache-on-sensitive", "nosql-injection-js", "path-prefix-authz-bypass",
+    "next-server-action-no-auth", "no-cache-on-sensitive", "node-db-driver-hardcoded-password", "nosql-injection-js", "npm-lifecycle-script-source-sinks", "path-prefix-authz-bypass",
     "payments-user-scope", "pg-anon-grant", "pg-default-privileges-public", "pg-extension-in-public",
     "pg-foreign-table-exposed", "pg-function-immutable-reads-session", "pg-function-leakproof",
     "pg-function-search-path", "pg-graphql-table-exposed", "pg-rls-no-policy", "pg-rls-not-forced",

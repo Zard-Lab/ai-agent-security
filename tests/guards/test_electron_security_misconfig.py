@@ -183,3 +183,159 @@ def test_electron_pragma_still_suppresses_a_code_anchored_flag(tmp_path: Path) -
     src = "warn('nodeIntegration: true'); const win = " + _UNSAFE_WINDOW + ";\n"
     assert len(_run_electron(tmp_path, src)) == 1
     assert _run_electron(tmp_path, src + "// security: allow-electron-security-misconfig\n") == []
+
+
+# --- main-process rules mined from Electronegativity ------------------------------------------------
+
+
+def _run_files(tmp_path: Path, files: dict[str, str]) -> dict[str, str]:
+    for name, body in files.items():
+        (tmp_path / name).write_text(body, encoding="utf-8")
+    profile = mkprofile(tmp_path, features={"electron"})
+    return {f.rule: f.severity for f in ElectronSecurityMisconfigGuard().run(tmp_path, profile)}
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "app.commandLine.appendSwitch('ignore-certificate-errors');\n",
+        'app.commandLine.appendSwitch("--disable-web-security");\n',
+        "const cl = app.commandLine; cl.appendSwitch('remote-debugging-port', '9222');\n",
+        "app.commandLine.appendArgument('no-sandbox');\n",
+    ],
+)
+def test_electron_dangerous_switch_fires(tmp_path: Path, src: str) -> None:
+    rules = _run_files(tmp_path, {"main.js": src})
+    assert rules == {"electron-security-misconfig/dangerous-command-line-switch": "high"}
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "app.commandLine.appendSwitch('lang', 'en');\n",
+        "// app.commandLine.appendSwitch('no-sandbox');\n",
+        "console.warn(\"never call appendSwitch('no-sandbox')\");\n",
+        "app.commandLine.appendSwitch('no-sandboxed-thing');\n",
+    ],
+)
+def test_electron_dangerous_switch_silent(tmp_path: Path, src: str) -> None:
+    assert _run_files(tmp_path, {"main.js": src}) == {}
+
+
+def test_electron_disable_security_warnings_low(tmp_path: Path) -> None:
+    for i, src in enumerate(
+        [
+            "process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';\n",
+            "process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = true;\n",
+        ]
+    ):
+        d = tmp_path / str(i)
+        d.mkdir()
+        rules = _run_files(d, {"main.js": src})
+        assert rules == {"electron-security-misconfig/security-warnings-disabled": "low"}
+    off = tmp_path / "off"
+    off.mkdir()
+    assert _run_files(off, {"main.js": "process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'false';\n"}) == {}
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "app.on('certificate-error', (e, w, u, er, c, cb) => { e.preventDefault(); cb(true); });\n",
+        "app.on('certificate-error', function (event, wc, url, error, cert, callback) {\n"
+        "  event.preventDefault();\n  callback(true);\n});\n",
+        "session.defaultSession.setCertificateVerifyProc((req, cb) => cb(0));\n",
+    ],
+)
+def test_electron_certificate_error_accept_fires(tmp_path: Path, src: str) -> None:
+    rules = _run_files(tmp_path, {"main.js": src})
+    assert rules == {"electron-security-misconfig/certificate-error-accept": "high"}
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "app.on('certificate-error', (e, w, url, er, c, cb) => {\n"
+        "  if (url.startsWith('https://localhost')) { e.preventDefault(); cb(true); } else cb(false);\n});\n",
+        "app.on('certificate-error', (e, w, u, er, c, cb) => cb(false));\n",
+        "ses.setCertificateVerifyProc((req, cb) => cb(req.hostname === 'dev.local' ? 0 : -3));\n",
+        "// app.on('certificate-error', (e, w, u, er, c, cb) => cb(true));\n",
+    ],
+)
+def test_electron_certificate_error_silent(tmp_path: Path, src: str) -> None:
+    assert _run_files(tmp_path, {"main.js": src}) == {}
+
+
+def test_electron_subframe_and_worker_node_integration(tmp_path: Path) -> None:
+    rules = _run_files(
+        tmp_path,
+        {
+            "main.js": "new BrowserWindow({ webPreferences: { nodeIntegrationInSubFrames: true } });\n",
+        },
+    )
+    assert rules == {"electron-security-misconfig/node-integration-in-subframes": "high"}
+    off = tmp_path / "off"
+    off.mkdir()
+    safe = "new BrowserWindow({ webPreferences: { nodeIntegrationInWorker: false } });\n"
+    assert _run_files(off, {"main.js": safe}) == {}
+
+
+@pytest.mark.parametrize(
+    ("name", "src"),
+    [
+        ("index.html", '<webview src="https://x.test" nodeintegration></webview>\n'),
+        ("index.html", '<WEBVIEW src="x" nodeintegrationinsubframes="true"></WEBVIEW>\n'),
+        ("App.jsx", "const A = () => <webview src=\"x\" nodeintegration={true} />;\n"),
+    ],
+)
+def test_electron_webview_node_integration_fires(tmp_path: Path, name: str, src: str) -> None:
+    rules = _run_files(tmp_path, {name: src})
+    assert rules == {"electron-security-misconfig/webview-node-integration": "high"}
+
+
+@pytest.mark.parametrize(
+    ("name", "src"),
+    [
+        ("index.html", '<webview src="x" nodeintegration="false"></webview>\n'),
+        ("index.html", '<webview src="x" preload="p.js"></webview>\n'),
+        ("index.html", '<!-- <webview nodeintegration> -->\n<p>use the webview tag</p>\n'),
+        ("App.tsx", "// <webview nodeintegration />\nconst A = () => <div />;\n"),
+        ("index.html", '<div nodeintegration>not a webview</div>\n'),
+    ],
+)
+def test_electron_webview_node_integration_silent(tmp_path: Path, name: str, src: str) -> None:
+    assert _run_files(tmp_path, {name: src}) == {}
+
+
+def test_electron_webview_pragma_silences(tmp_path: Path) -> None:
+    src = '<!-- security: allow-electron-security-misconfig -->\n<webview nodeintegration></webview>\n'
+    assert _run_files(tmp_path, {"index.html": src}) == {}
+
+
+def test_electron_permission_handler_grant_all(tmp_path: Path) -> None:
+    rules = _run_files(
+        tmp_path, {"main.js": "ses.setPermissionRequestHandler((wc, perm, cb) => cb(true));\n"}
+    )
+    assert rules == {"electron-security-misconfig/permission-handler-grant-all": "medium"}
+    d = tmp_path / "b"
+    d.mkdir()
+    rules = _run_files(
+        d, {"main.js": "ses.setPermissionRequestHandler((wc, p, callback) => { callback(true); });\n"}
+    )
+    assert rules == {"electron-security-misconfig/permission-handler-grant-all": "medium"}
+
+
+def test_electron_permission_handler_selective_silent(tmp_path: Path) -> None:
+    src = (
+        "ses.setPermissionRequestHandler((wc, permission, cb) => {\n"
+        "  if (permission === 'notifications') return cb(true);\n  cb(false);\n});\n"
+    )
+    assert _run_files(tmp_path, {"main.js": src}) == {}
+
+
+def test_electron_main_process_rules_pragma_silences(tmp_path: Path) -> None:
+    src = (
+        "// security: allow-electron-security-misconfig\n"
+        "app.commandLine.appendSwitch('no-sandbox');\n"
+    )
+    assert _run_files(tmp_path, {"main.js": src}) == {}

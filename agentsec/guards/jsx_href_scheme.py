@@ -72,6 +72,7 @@ from agentsec.findings import Finding
 from .base import (
     CanaryPlant,
     Guard,
+    is_nonproduct_path,
     iter_files,
     js_code_matches,
     pragma_present,
@@ -349,6 +350,41 @@ def _is_author_constant(
     return _is_const_ref(val, safe_const_names, shadowed)
 
 
+# --- static `javascript:` literals (mined from eslint-plugin-react-security's no-javascript-urls) ---
+#
+# React 16.9 to 18 only logs a warning for a literal `javascript:` URL and still renders it, and
+# React 19 blocks it; either way a literal in an anchor or form is a planted-backdoor / self-XSS
+# smell, and the `<a href="javascript:void(0)">` placeholder is legacy debt. The value is read whole
+# and normalized the way a browser does (ASCII whitespace and control characters dropped, case
+# folded) so `" JavaScript:alert(1)"` and `java<TAB>script:` are caught.
+_STATIC_URL_ATTR = re.compile(
+    r"\b(href|action)\s*=\s*(?:(\{\s*)([\"'`])|([\"']))((?:\\.|(?!\3|\4)[^\\])*)(?:\3|\4)",
+    re.DOTALL,
+)
+_URL_CTRL = re.compile(r"[\x00-\x20]+")
+_PLACEHOLDER_PAYLOAD = re.compile(r"^(?:void\(?0\)?;?|;?|undefined;?)$")
+_TAG_OPEN = re.compile(r"<([A-Za-z][\w.]*)")
+_URL_SINK_TAGS = {"href": frozenset({"a", "area"}), "action": frozenset({"form"})}
+
+
+def _static_javascript_urls(text: str, mask: str) -> list[tuple[int, str]]:
+    """(1-based line, severity) for each live `href`/`action` on an anchor, area or form whose
+    string literal value is a `javascript:` URL. `void(0)`, an empty body and `;` are the legacy
+    placeholder (low); anything else runs code (medium)."""
+    found: list[tuple[int, str]] = []
+    for m in js_code_matches(_STATIC_URL_ATTR, text, mask, anchor=lambda m: m.start()):
+        value = _URL_CTRL.sub("", m.group(5)).lower()
+        if not value.startswith("javascript:"):
+            continue
+        tags = _TAG_OPEN.findall(text, 0, m.start())
+        if not tags or tags[-1].lower() not in _URL_SINK_TAGS[m.group(1).lower()]:
+            continue
+        payload = value[len("javascript:"):]
+        severity = "low" if _PLACEHOLDER_PAYLOAD.match(payload) else "medium"
+        found.append((text.count("\n", 0, m.start()) + 1, severity))
+    return found
+
+
 _JSX_SUFFIXES = (".jsx", ".tsx")
 
 
@@ -367,8 +403,16 @@ class JsxHrefSchemeGuard(Guard):
                 "    return <a href={userUrl}>{label}</a>;\n"
                 "}\n"
             ),
+            "components/StaticJsLink.jsx": (
+                "function StaticJsLink() {\n"
+                "    return <a href=\"javascript:alert(document.cookie)\">run</a>;\n"
+                "}\n"
+            ),
         },
-        expects=frozenset({"jsx-href-scheme/href-dynamic-no-scheme-check"}),
+        expects=frozenset({
+            "jsx-href-scheme/href-dynamic-no-scheme-check",
+            "jsx-href-scheme/static-javascript-url-literal",
+        }),
     )
 
     def applies(self, profile: StackProfile) -> bool:
@@ -377,6 +421,7 @@ class JsxHrefSchemeGuard(Guard):
     def run(self, root: Path, profile: StackProfile) -> list[Finding]:
         out: list[Finding] = []
         for f in iter_files(root, _JSX_SUFFIXES):
+            dynamic_lines: set[int] = set()
             text = read(f)
             if pragma_present(_PRAGMA, text, dialect="js"):
                 continue
@@ -413,6 +458,7 @@ class JsxHrefSchemeGuard(Guard):
                     js_code_matches(_SAFE_GUARD, window, window_mask, anchor=lambda m: m.start())
                 ):
                     continue  # a scheme check / sanitizer is present in the surrounding lines
+                dynamic_lines.add(lineno)
                 out.append(
                     Finding(
                         check_id=self.id,
@@ -442,4 +488,31 @@ class JsxHrefSchemeGuard(Guard):
                         standards=list(_STANDARDS),
                     )
                 )
+            if not is_nonproduct_path(rel(root, f), profile.archive_segments):
+                full = "\n".join(lines)
+                full_mask = "\n".join(mask_lines)
+                for lineno, severity in _static_javascript_urls(full, full_mask):
+                    if lineno in dynamic_lines:
+                        continue  # the dynamic-value rule already reported this attribute (HIGH)
+                    out.append(
+                        Finding(
+                            check_id=self.id,
+                            severity="low" if severity == "low" else "medium",
+                            title="JSX anchor or form uses a literal javascript: URL",
+                            location=f"{rel(root, f)}:{lineno}",
+                            message=(
+                                "A literal `javascript:` URL in an anchor `href` or form `action`. "
+                                "React 16.9 to 18 only warns and still runs it, React 19 blocks it; "
+                                "either way it is a script-injection sink left in the markup"
+                                + (" (a `void(0)` placeholder)." if severity == "low" else ".")
+                            ),
+                            remediation=(
+                                "Use a real URL, or a `<button type=\"button\" onClick={...}>` for an "
+                                "action that is not navigation. Suppress with "
+                                "`// security: allow-jsx-href-scheme` after review."
+                            ),
+                            rule="jsx-href-scheme/static-javascript-url-literal",
+                            standards=list(_STANDARDS),
+                        )
+                    )
         return out

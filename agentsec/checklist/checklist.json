@@ -1,6 +1,6 @@
 {
-  "version": "0.22.2",
-  "released": "2026-11-17",
+  "version": "0.22.3",
+  "released": "2026-11-26",
   "owasp_edition": "2021",
   "items": [
     {
@@ -8031,6 +8031,23 @@
       "verified_by": "tests/guards/test_untrusted_package_install_source.py::test_fires_on_pip_git_install"
     },
     {
+      "id": "5-dependency-typosquat-popular",
+      "section": "5",
+      "section_title": "Dependency & Supply Chain",
+      "title": "No declared dependency name is one typing slip away from a popular PyPI or npm package",
+      "severity": "medium",
+      "standards": [
+        "CWE-829",
+        "OWASP-ASI:ASI04"
+      ],
+      "applies_when": [],
+      "status": "covered",
+      "check_ids": [
+        "dependency-typosquat-popular"
+      ],
+      "verified_by": "tests/guards/test_dependency_typosquat_popular.py::test_requirements_typo_fires"
+    },
+    {
       "id": "3a-svg-embedded-script",
       "section": "3a",
       "section_title": "General Input Safety",
@@ -10652,6 +10669,24 @@
       "verified_by": "tests/guards/test_npm_install_script_network.py::test_postinstall_curl_pipe_bash_fires"
     },
     {
+      "id": "8-npm-lifecycle-script-source-sinks",
+      "section": "8",
+      "section_title": "CI/CD & Supply Chain",
+      "title": "A JavaScript file run by an npm install-lifecycle script does not steal credentials, eval, or self-publish",
+      "severity": "high",
+      "standards": [
+        "CWE-506",
+        "CWE-829",
+        "OWASP-ASI:ASI04"
+      ],
+      "applies_when": [],
+      "status": "covered",
+      "check_ids": [
+        "npm-lifecycle-script-source-sinks"
+      ],
+      "verified_by": "tests/guards/test_npm_lifecycle_script_source_sinks.py::test_exfil_env_token_over_https_fires"
+    },
+    {
       "id": "8-setup-network-call",
       "section": "8",
       "section_title": "CI/CD & Supply Chain",
@@ -10751,6 +10786,27 @@
         "cron-systemd-persistence-write"
       ],
       "verified_by": "tests/guards/test_cron_systemd_persistence_write.py::test_fires_on_etc_cron_d_reference_with_nearby_write"
+    },
+    {
+      "id": "8-js-db-driver-hardcoded-password",
+      "section": "8",
+      "section_title": "Application Code",
+      "title": "Node database driver configs (pg, mysql, mysql2, mssql) and connection URLs do not hardcode a password literal",
+      "severity": "high",
+      "standards": [
+        "OWASP:A02",
+        "CWE-798"
+      ],
+      "cwe": "CWE-798",
+      "applies_when": [
+        "javascript",
+        "typescript"
+      ],
+      "status": "covered",
+      "check_ids": [
+        "node-db-driver-hardcoded-password"
+      ],
+      "verified_by": "tests/guards/test_node_db_driver_hardcoded_password.py::test_literal_password_in_driver_config_fires"
     },
     {
       "id": "4-mcp-session-id-security",

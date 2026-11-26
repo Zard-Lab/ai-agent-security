@@ -51,6 +51,7 @@ mistyped once and never re-checked.
    `fetch` needs a preceding separator, and every word needs no `-`/`:`/`.`/word-character
    directly after it, so `npm run fetch-assets`, `fetch:data` and `node scripts/curl.js` are
    script/file NAMES, not commands, and stay silent.
+4b. **install-script-shell-obfuscation** (HIGH): the same four lifecycle values pipe into a shell (`| sh`/`bash`/`zsh`/`pwsh`), decode base64 (`base64 -d`, `openssl base64 -d`), or run `eval`/`source` at a command position. No network word is required: `echo <b64> | base64 -d | sh` reaches no network yet runs an opaque payload. `node-gyp rebuild`, `husky install` and `prebuild-install` stay silent.
 4. **mcp-package-typosquat** (HIGH): a `dependencies`/`devDependencies`/`optionalDependencies`
    entry's package name is a near-miss (length within 2, a substring relationship, or all-but-one
    shared characters) of a well-known, trusted MCP package name (`@modelcontextprotocol/sdk` and
@@ -79,6 +80,7 @@ mistyped once and never re-checked.
 | `test_exact_trusted_mcp_package_is_safe` | FP-bait: the exact trusted name doesn't fire on itself |
 | `test_unrelated_package_name_is_safe` | FP-bait: ordinary, unrelated package names |
 | `test_pragma_suppresses_all_findings` | The JSON-literal pragma silences every rule |
+| `test_shell_obfuscation_in_lifecycle_fires` / `test_ordinary_lifecycle_scripts_have_no_obfuscation_finding` | Pipe-to-shell, base64 decode and eval/source fire; native-build and hook-install scripts stay silent |
 | `test_applies_universally` | `applies()` is unconditionally `True` |
 
 ## Known bypasses

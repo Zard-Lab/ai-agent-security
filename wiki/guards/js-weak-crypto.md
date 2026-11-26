@@ -84,6 +84,18 @@ const enc = crypto.createCipheriv('des-ede3', key, iv);                 // broke
    - `js-weak-crypto/weak-hash-algorithm`
    - `js-weak-crypto/deprecated-cipher-function`
    - `js-weak-crypto/weak-cipher-algorithm`
+   - `js-weak-crypto/ecb-cipher-mode`
+
+   The ECB and legacy-name shapes were mined from eslint-plugin-security-rules' banned-algorithm
+   list:
+   - `createCipheriv`/`createDecipheriv` with a name that ends in `-ecb` (`aes-256-ecb`,
+     `camellia-128-ecb`, `bf-ecb`, any case) fires `ecb-cipher-mode`, HIGH, and so does
+     `CryptoJS.mode.ECB`.
+   - A name whose leading family is DES, 3DES (`des-ede`, `des-ede3`, `des3`, `desx`), RC2, RC4,
+     Blowfish (`bf`) or CAST5 (`bf-cbc`, `des-cbc`, `rc4-hmac-md5`, `rc2-40-cbc`, `cast5-cbc`) fires
+     `weak-cipher-algorithm` as MEDIUM. The four exact names `des`, `des-ede3`, `rc4`, `rc2` keep
+     their original HIGH.
+   - `aes-*-cbc`, `aes-*-gcm`, `chacha20-poly1305` and `CryptoJS.mode.CBC` stay silent.
 
 ## When NOT to flag
 
@@ -124,6 +136,11 @@ const enc = crypto.createCipheriv('des-ede3', key, iv);                 // broke
 | `test_nonproduct_path_skipped` | an `examples/` path is skipped |
 | `test_silent_on_create_hmac_sha1` | `createHmac('sha1', ...)` never fires — deliberate scope decision |
 | `test_known_bypass_algorithm_via_variable_not_flagged` | algorithm passed via a variable (`crypto.createHash(algo)`) is not caught — documented known bypass |
+| `test_ecb_mode_is_high` | `-ecb` names (any case, destructured or aliased `createCipheriv`) and `CryptoJS.mode.ECB` fire HIGH `ecb-cipher-mode` |
+| `test_legacy_cipher_family_is_medium` | `bf-cbc`, `des-cbc`, `des-ede3-cbc`, `rc4-hmac-md5`, `rc2-40-cbc`, `cast5-cbc`, `desx-cbc` fire MEDIUM |
+| `test_exact_legacy_names_stay_high` | `des-ede3` keeps its original HIGH |
+| `test_strong_or_commented_ciphers_silent` | gcm, cbc, chacha20, a look-alike `bfx-custom`, a comment and `CryptoJS.mode.CBC` stay silent |
+| `test_ecb_pragma_suppresses` | the inline pragma silences an ECB line |
 
 ## Known bypasses
 
@@ -137,9 +154,10 @@ const enc = crypto.createCipheriv('des-ede3', key, iv);                 // broke
 - **Aliased/destructured imports beyond the bare-name form.** `const { createHash: h } =
   require('crypto'); h('md5')` (a renamed destructure) is not matched — only the literal
   `createHash`/`crypto.createHash` spelling is.
-- **Other weak-cipher-adjacent surfaces.** `crypto.createCipheriv` is checked only against the
-  four named weak algorithm strings; a non-standard or custom cipher name outside that list is
-  not evaluated for strength.
+- **Other weak-cipher-adjacent surfaces.** `crypto.createCipheriv` is checked against the
+  `-ecb` suffix and the DES/RC2/RC4/Blowfish/CAST5 families; a non-standard or custom cipher name
+  outside those is not evaluated for strength, and `CryptoJS.AES.encrypt(m, k, { mode })` with the
+  mode held in a variable is not followed.
 - **No dataflow proof.** Deliberate, not a gap to close later (see "What this guard does NOT
   prove").
 

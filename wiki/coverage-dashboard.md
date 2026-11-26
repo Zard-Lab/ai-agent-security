@@ -26,7 +26,7 @@ no code scanner can confirm. We are honest about that rather than pretending to 
 
 ---
 
-_Snapshot: registry v0.22.2, 573 items, 493 guards. Stack-agnostic full-registry view. A live, stack-specific version
+_Snapshot: registry v0.22.3, 576 items, 496 guards. Stack-agnostic full-registry view. A live, stack-specific version
 regenerates itself via `agentsec coverage --format dashboard` (the curated full-registry narrative below is
 kept by hand for its "manual by nature" annotations)._
 
@@ -42,13 +42,13 @@ Section                                       auto  rev  man  tot   coverage
 §3c Prompt Injection — Layer 2 (LLM-as-Judge)     0    1    0    1   [..........]   0%
 §3d Data Export Injection                         2    0    0    2   [##########] 100%
 §4 Agentic AI / RAG Security                     69   22    5   96   [#######...]  72%
-§5 Dependency & Supply Chain                     15    5    2   22   [#######...]  68%
+§5 Dependency & Supply Chain                     16    5    2   23   [#######...]  70%
 §6a HTTP Security                                22   21    1   44   [#####.....]  50%
 §6b TLS Configuration (deploy-time)               0    0    3    3   [..........]   0%
 §6c Container & Network                          57   12    2   71   [########..]  80%
 §6d VPS Hardening (deploy-time only)              4    3    2    9   [####......]  44%
 §7 Database Security                             49   41    3   93   [#####.....]  53%
-§8 Application Code                              40    5    0   45   [#########.]  89%
+§8 Application Code                              42    5    0   47   [#########.]  89%
 §9 Payments (Stripe)                              6    4    0   10   [######....]  60%
 §10 Logging & Monitoring                          5    1    7   13   [####......]  38%
 §11 Testing & Verification                        1    1    7    9   [#.........]  11%
@@ -57,13 +57,13 @@ Section                                       auto  rev  man  tot   coverage
 §14 Governance & Lifecycle (NIST AI RMF / CISA)   0    1    5    6   [..........]   0%  (manual by nature)
 ```
 
-**Total automatic coverage: 346 of 573 checks (60%)** — plus 148 partial (review-assist) and 79 manual.
+**Total automatic coverage: 349 of 576 checks (61%)** — plus 148 partial (review-assist) and 79 manual.
 The strongest automatic areas remain CI/CD (93%), general input safety (79%), and application code (89%);
 the pre-deploy checklist, recurring-schedule, and governance sections stay manual by nature (operations/
 process, not code a scanner can see).
 
 _History: v0.9.0 baseline (54/197, 27%) → Phase 1 gap-fill sprint (100 guards: 74/67/113 of 248 items) → <!-- stale-ok -->
-this snapshot (493 guards: 346/148/79 of 573 items, 60%). Run `agentsec coverage` for the current
+this snapshot (496 guards: 349/148/79 of 576 items, 61%). Run `agentsec coverage` for the current
 per-section breakdown at any time — this file is a periodic hand-refresh, not a live view._
 
 _Engineering note: `agentsec coverage --format dashboard` renders a live, stack-specific dashboard

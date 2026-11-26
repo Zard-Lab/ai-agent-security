@@ -117,6 +117,161 @@ def _first_arg(line: str, open_paren: int) -> str:
         i += 1
     return rest
 
+# --- variable-bound queries (mined from js-x-ray's sql-injection probe): the interpolation sits in a
+# `const q = ...` binding and the call receives the bare identifier. ---------------------------------
+
+_SQL_SIMPLE_VERB = re.compile(r"insert\s+into\s|delete\s+from\s", re.IGNORECASE)
+_SELECT = re.compile(r"select\s", re.IGNORECASE)
+_FROM = re.compile(r"\sfrom\s", re.IGNORECASE)
+_UPDATE = re.compile(r"update\s", re.IGNORECASE)
+_SET = re.compile(r"\sset\s", re.IGNORECASE)
+
+
+def _has_sql_verb(s: str) -> bool:
+    """Whether `s` reads as SQL: `insert into`, `delete from`, `select ... from` or `update ... set`.
+
+    Linear: only the EARLIEST `select `/`update ` can start the longest tail, so each verb is one
+    search for its opener and one for its closer after it. A single lazy `select ... from` regex
+    retries its scan from every opener and is quadratic on a literal with many openers and no closer."""
+    if _SQL_SIMPLE_VERB.search(s):
+        return True
+    for opener, closer in ((_SELECT, _FROM), (_UPDATE, _SET)):
+        m = opener.search(s)
+        if m is not None and closer.search(s, m.end()) is not None:
+            return True
+    return False
+
+
+# Parameter lists that rebind a name in their own scope: `function f(q)`, `(q) =>`, `q =>`, a method
+# shorthand `name(q) {`, `catch (q)`.
+# The optional `: Type` annotation (here and in `_BINDING`) must start and end on a non-space type
+# character, and the whitespace before its `:` lives inside the optional group, so every
+# whitespace run has exactly one owner: overlapping `\s*` backtracked cubically after a `:` and
+# quadratically with no annotation at all (#1202 review r2 H2, r3 M1).
+_PARAM_LISTS = (
+    re.compile(r"\bfunction\b[^(){}]*\(([^()]*)\)"),
+    re.compile(r"\(([^()]*)\)" r"(?:\s*:\s*[\w.<>\[\]|](?:[\w.<>\[\]| ]*[\w.<>\[\]|])?)?\s*" "=>"),
+    re.compile(
+        r"(?<![\w.$])(?!(?:if|for|while|switch|with)\b)\w+\s*\(([^()]*)\)"
+        r"(?:\s*:\s*[\w.<>\[\]|](?:[\w.<>\[\]| ]*[\w.<>\[\]|])?)?\s*" r"\{"
+    ),
+)
+_BARE_ARROW_PARAM = re.compile(r"(?<![\w.$])(\w+)\s*=>")
+_WORD = re.compile(r"\w+")
+_BINDING = re.compile(
+    r"\b(?:const|let|var)\s+(\w+)"
+    r"(?:\s*:\s*[\w.<>\[\]|](?:[\w.<>\[\]| ]*[\w.<>\[\]|])?)?\s*" r"=\s*(?=[`'\"])"
+)
+_ASSIGN = re.compile(r"(?<![\w.$])(\w+)\s*(?:\+|\|\||\?\?|&&)?=(?![=>])")
+_TEMPLATE = re.compile(r"`(?:[^`\\]|\\.)*`", re.DOTALL)
+_STRING = re.compile(r"\"(?:[^\"\\\n]|\\.)*\"|'(?:[^'\\\n]|\\.)*'")
+_SUBSTITUTION = re.compile(r"\$\{((?:[^{}]|\{[^{}]*\})*)\}")
+_BARE_ARG = re.compile(r"\s*(\w+)\s*")
+# An operand that cannot carry attacker text into the query: a SCREAMING_CASE constant, a number, or
+# a call to an escaper / numeric coercion.
+_SAFE_OPERAND = re.compile(
+    r"^\s*(?:[A-Z][A-Z0-9_]*(?:\.[A-Z][A-Z0-9_]*)*|\d+(?:\.\d+)?"
+    r"|(?:Number|parseInt|parseFloat|Math\.\w+|\w+\.(?:escape|escapeId|escapeLiteral|escapeIdentifier)"
+    r"|escape|escapeId|escapeLiteral|escapeIdentifier|sqlstring\.\w+|SqlString\.\w+|format)\s*\(.*\))\s*$",
+    re.DOTALL,
+)
+
+
+def _segment_end(s: str, i: int) -> int:
+    """Index of the first `;` or newline at or after `i` (len(s) if none)."""
+    n = len(s)
+    while i < n and s[i] not in ";\n":
+        i += 1
+    return i
+
+
+def _concat_tail(s: str) -> str:
+    """The `+`-continued tail of a string concatenation: lines that end in `+`, then one more segment,
+    then lines that start with `+`. A single left-to-right scan, so it is linear (an equivalent nested
+    `(?:...)*` regex is what the ReDoS lint rejects)."""
+    n = len(s)
+    i = 0
+    while True:
+        j = _segment_end(s, i)
+        if j < n and s[j] == "\n" and s[i:j].rstrip(" \t").endswith("+"):
+            i = j + 1
+            continue
+        break
+    i = _segment_end(s, i)
+    while i < n and s[i] == "\n":
+        k = i + 1
+        while k < n and s[k] in " \t":
+            k += 1
+        if k < n and s[k] == "+":
+            i = _segment_end(s, k + 1)
+        else:
+            break
+    return s[:i]
+
+
+def _bound_value(text: str, start: int) -> tuple[str, bool] | None:
+    """The initializer starting at `start` (a quote or backtick) and whether it carries a
+    non-constant fragment into SQL text. None when it is not a SQL-looking interpolation."""
+    if text[start] == "`":
+        m = _TEMPLATE.match(text, start)
+        if m is None:
+            return None
+        literal = m.group()
+        statics = _SUBSTITUTION.sub(" ", literal)
+        if not _has_sql_verb(statics):
+            return None
+        exprs = _SUBSTITUTION.findall(literal)
+        return literal, any(not _SAFE_OPERAND.match(e) for e in exprs)
+    first = _STRING.match(text, start)
+    if first is None:
+        return None
+    rest = _concat_tail(text[first.end():])
+    if not rest.lstrip().startswith("+") or not _has_sql_verb(first.group()):
+        return None
+    operands = [o for o in _STRING.sub('""', rest).split("+") if o.strip()]
+    return first.group(), any(not _SAFE_OPERAND.match(o) and o.strip() != '""' for o in operands)
+
+
+def _variable_bound_lines(stripped: str, masked: str) -> list[int]:
+    """1-based lines of `.query(NAME)`/`.execute(NAME)` calls whose bare identifier was last bound
+    to interpolated SQL and not reassigned in between."""
+    events: dict[str, list[tuple[int, bool]]] = {}
+    for m in _BINDING.finditer(stripped):
+        if not js_anchor_is_code(stripped, masked, m.start()):
+            continue
+        val = _bound_value(stripped, m.end())
+        events.setdefault(m.group(1), []).append((m.start(), val is not None and val[1]))
+    if not events:
+        return []
+    for m in _ASSIGN.finditer(stripped):
+        name = m.group(1)
+        if name not in events or re.search(r"\b(?:const|let|var)\s+$", stripped[: m.start()]):
+            continue  # not tracked, or this is the declaration itself
+        if js_anchor_is_code(stripped, masked, m.start()):
+            events[name].append((m.start(), False))  # a reassignment ends the unsafe binding
+    for plist in _PARAM_LISTS:  # a parameter named like a tracked variable is a fresh, unrelated binding
+        for m in plist.finditer(stripped):
+            for piece in m.group(1).split(","):
+                piece = piece.split("=", 1)[0].strip().lstrip(".").strip()
+                names = _WORD.findall(piece) if piece[:1] in "{[" else _WORD.findall(piece)[:1]
+                for name in names:
+                    if name in events and js_anchor_is_code(stripped, masked, m.start()):
+                        events[name].append((m.start(1), False))
+    for m in _BARE_ARROW_PARAM.finditer(stripped):
+        if m.group(1) in events and js_anchor_is_code(stripped, masked, m.start()):
+            events[m.group(1)].append((m.start(), False))
+    lines: list[int] = []
+    for call in _CALL.finditer(stripped):
+        if not js_anchor_is_code(stripped, masked, call.end() - 1):
+            continue
+        arg = _BARE_ARG.fullmatch(_first_arg(stripped, call.end() - 1))
+        if arg is None or arg.group(1) not in events:
+            continue
+        prior = [e for e in sorted(events[arg.group(1)]) if e[0] < call.start()]
+        if prior and prior[-1][1]:
+            lines.append(stripped.count("\n", 0, call.start()) + 1)
+    return lines
+
 
 class JsSqlInjectionGuard(Guard):
     id = "js-sql-injection"
@@ -134,8 +289,19 @@ class JsSqlInjectionGuard(Guard):
                 "  pool.query(`SELECT * FROM users WHERE id = ${req.query.userId}`);\n"
                 "});\n"
             ),
+            "js_sql_bound_query.js": (
+                "const { Pool } = require('pg');\n"
+                "const pool = new Pool();\n"
+                "app.get('/user', async (req, res) => {\n"
+                "  const q = `SELECT * FROM users WHERE name = '${req.query.name}'`;\n"
+                "  res.json(await pool.query(q));\n"
+                "});\n"
+            ),
         },
-        expects=frozenset({"js-sql-injection/interpolated-query-string"}),
+        expects=frozenset({
+            "js-sql-injection/interpolated-query-string",
+            "js-sql-injection/variable-bound-query",
+        }),
     )
 
     def applies(self, profile: StackProfile) -> bool:
@@ -195,6 +361,29 @@ class JsSqlInjectionGuard(Guard):
                             "suppress with `// security: allow-js-sql-injection`."
                         ),
                         rule="js-sql-injection/interpolated-query-string",
+                        standards=["OWASP:A03", "CWE-89"],
+                    )
+                )
+            for i in _variable_bound_lines(stripped, masked):
+                out.append(
+                    Finding(
+                        check_id=self.id,
+                        severity="high",
+                        title=self.title,
+                        location=f"{rel(root, f)}:{i}",
+                        message=(
+                            "This `.query()`/`.execute()` call receives a variable that was bound to "
+                            "an SQL string built by template-literal interpolation or string "
+                            "concatenation. The interpolated value is baked into the query text "
+                            "before the driver sees it, so it cannot be bound: SQL-injectable."
+                        ),
+                        remediation=(
+                            "Build the query as a static string with placeholders (`?` for "
+                            "mysql/mysql2, `$1` for pg) and pass the values as a separate array "
+                            "argument. If the interpolated fragment is a reviewed constant, suppress "
+                            "with `// security: allow-js-sql-injection`."
+                        ),
+                        rule="js-sql-injection/variable-bound-query",
                         standards=["OWASP:A03", "CWE-89"],
                     )
                 )

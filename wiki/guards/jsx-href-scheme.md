@@ -71,6 +71,25 @@ Safe-guard signals checked in the ±3-line window (any one of these silences the
 
 One finding per line; pragma silences the whole file.
 
+## Static `javascript:` URL literals
+
+Mined from eslint-plugin-react-security's `no-javascript-urls`. The dynamic rule above needs a
+brace expression; a literal `javascript:` string in markup was invisible to it. React 16.9 to 18 only
+logs a warning for such a literal and still renders it (React 19 blocks it), and in older apps it is
+a planted-backdoor or self-XSS shape. Rule `jsx-href-scheme/static-javascript-url-literal`:
+
+- Fires on `<a href>` / `<area href>` and `<form action>` whose string value (`"..."`, `'...'`,
+  `{"..."}`, `` {`...`} ``) is a `javascript:` URL after browser-style normalization (ASCII
+  whitespace and control characters dropped, case folded, so `" JavaScript:x"` and `java<TAB>script:`
+  count).
+- LOW for the legacy placeholders `javascript:void(0)`, `javascript:void 0`, `javascript:;` and bare
+  `javascript:`; MEDIUM for any other payload.
+- Silent in comments, in a string that merely contains the markup (an `expect(...)` matcher, an HTML
+  string), on non-anchor tags, in `href`/`action` pairs that do not belong together (`<a action>`),
+  and in test, fixture and example paths (`is_nonproduct_path`). The file pragma applies.
+- A braced literal that the dynamic rule already reports (`href={'javascript:x'}`, HIGH) is reported
+  once, by the dynamic rule.
+
 ## Severity rationale
 
 **HIGH.** Successful exploitation is a one-click XSS in the user's browser session with
@@ -151,6 +170,14 @@ a pragma, if that pattern appears in your codebase.
 | `test_jsx_href_scheme_real_sink_nested_or_after_another_attribute_still_fires` | #1055: a real attribute fires inside a `${...}`, after a quoted copy, and after a constant first attribute |
 | `test_jsx_href_scheme_two_constant_attributes_on_one_line_stay_silent` | #1055 FP bait: each attribute is judged on its own value |
 | `test_jsx_href_scheme_pragma_still_suppresses_a_code_anchored_sink` | #1055: the pragma still silences a code-anchored sink |
+| `test_static_javascript_url_medium` | quoted and braced-template, case/whitespace/tab-obfuscated, form `action`, `area`, and anchors with other attributes fire MEDIUM |
+| `test_static_javascript_url_placeholder_is_low` | `void(0)`, `;` and empty bodies are LOW |
+| `test_static_javascript_url_silent` | `#`, relative and https hrefs, comments, string-embedded markup, `expect` matchers, non-anchor tags and mismatched attributes stay silent |
+| `test_static_javascript_url_silent_in_test_and_fixture_paths` | `__tests__`, `fixtures` and `examples` paths are skipped |
+| `test_static_javascript_url_pragma_suppresses` | the file pragma silences the rule |
+| `test_static_javascript_url_reports_its_line` | the finding carries the attribute line |
+| `test_static_javascript_url_braced_literal_reported_once` | a braced literal is reported by the dynamic rule only |
+| `test_static_javascript_url_braced_literal_with_nearby_guard_still_reported` | a braced literal next to a sanitizer mention is still caught by the static rule |
 
 # Citations
 

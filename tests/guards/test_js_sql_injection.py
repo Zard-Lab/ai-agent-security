@@ -205,3 +205,191 @@ def test_quoted_query_does_not_hide_a_real_one_on_the_same_line(tmp_path: Path) 
     profile = mkprofile(tmp_path, features={"javascript"})
     findings = JsSqlInjectionGuard().run(tmp_path, profile)
     assert [f.location for f in findings] == ["users.js:3"]
+
+
+# --- variable-bound queries (mined from js-x-ray's sql-injection probe) ---------------------------
+
+
+def _bound_rules(tmp_path: Path, body: str, imp: str = _PG_IMPORT) -> list[tuple[str, int]]:
+    (tmp_path / "users.js").write_text(imp + body, encoding="utf-8")
+    profile = mkprofile(tmp_path, features={"javascript"})
+    out = []
+    for f in JsSqlInjectionGuard().run(tmp_path, profile):
+        out.append((f.rule, int(f.location.rsplit(":", 1)[1])))
+    return out
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "const q = `SELECT * FROM t WHERE n = '${req.query.n}'`;\nawait db.query(q);\n",
+        "const q = \"SELECT * FROM t WHERE n = '\" + req.query.n + \"'\";\ndb.execute(q);\n",
+        "let sql: string = `DELETE FROM t WHERE id = ${id}`;\nconst r = await pool.query(sql);\n",
+        "const q = `UPDATE t SET a = 1\n WHERE id = ${id}`;\ndb.query(q, []);\n",
+        "const q = 'SELECT * FROM t WHERE n = ' +\n  name;\ndb.query(q);\n",
+    ],
+)
+def test_variable_bound_query_fires(tmp_path: Path, body: str) -> None:
+    rules = _bound_rules(tmp_path, body)
+    assert [r for r, _ in rules] == ["js-sql-injection/variable-bound-query"]
+
+
+def test_variable_bound_query_reports_the_call_line(tmp_path: Path) -> None:
+    body = "const q = `SELECT * FROM t WHERE n = ${n}`;\n\ndb.query(q);\n"
+    ((_, line),) = _bound_rules(tmp_path, body)
+    assert line == len((_PG_IMPORT + body).splitlines())
+
+
+def test_variable_bound_mysql2_import_fires(tmp_path: Path) -> None:
+    body = "const q = `SELECT * FROM t WHERE n = ${n}`;\ndb.query(q);\n"
+    assert _bound_rules(tmp_path, body, _MYSQL2_IMPORT)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        'const q = "SELECT * FROM t WHERE id = $1";\ndb.query(q, [id]);\n',
+        "const q = `SELECT * FROM ${TABLE_NAME} WHERE id = $1`;\ndb.query(q, [id]);\n",
+        "const q = `SELECT * FROM t LIMIT ${Number(limit)}`;\ndb.query(q);\n",
+        "const q = `SELECT * FROM t WHERE n = ${pool.escape(n)}`;\ndb.query(q);\n",
+        "let q = `SELECT * FROM t WHERE n = ${n}`;\nq = 'SELECT 1';\ndb.query(q);\n",
+        "const q = `SELECT * FROM t WHERE n = ${n}`;\ndb.query(other);\n",
+        "// const q = `SELECT * FROM t WHERE n = ${n}`;\nconst q = 'SELECT 1';\ndb.query(q);\n",
+        "const q = `hello ${name}`;\ndb.query(q);\n",
+    ],
+)
+def test_variable_bound_query_silent(tmp_path: Path, body: str) -> None:
+    assert _bound_rules(tmp_path, body) == []
+
+
+def test_variable_bound_query_needs_driver_import(tmp_path: Path) -> None:
+    body = "const q = `SELECT * FROM t WHERE n = ${n}`;\nelastic.query(q);\n"
+    assert _bound_rules(tmp_path, body, imp="const elastic = require('elastic');\n") == []
+
+
+def test_variable_bound_query_pragma_suppresses(tmp_path: Path) -> None:
+    body = (
+        "// security: allow-js-sql-injection\n"
+        "const q = `SELECT * FROM t WHERE n = ${n}`;\ndb.query(q);\n"
+    )
+    assert _bound_rules(tmp_path, body) == []
+
+
+def test_variable_bound_query_rebound_per_function(tmp_path: Path) -> None:
+    body = (
+        "function a(n) { const q = `SELECT * FROM t WHERE n = ${n}`; return db.query(q); }\n"
+        "function b() { const q = 'SELECT 1'; return db.query(q); }\n"
+    )
+    rules = _bound_rules(tmp_path, body)
+    assert len(rules) == 1
+
+
+def test_variable_bound_query_function_parameter_is_a_fresh_binding(tmp_path: Path) -> None:
+    body = (
+        "function listA(req) { const q = `SELECT * FROM t WHERE n = '${req.query.n}'`; return db.query(q, []); }\n"
+        "function run(q) { return db.query(q); }\n"
+    )
+    rules = _bound_rules(tmp_path, body)
+    assert [line for _, line in rules] == [len(_PG_IMPORT.splitlines()) + 1]  # only the real binding's call
+
+
+@pytest.mark.parametrize(
+    "param_form",
+    [
+        "function run(q) { return db.query(q); }",
+        "const run = (q) => db.query(q);",
+        "const run = q => db.query(q);",
+        "const run = async (a, q = 1) => { return db.query(q); };",
+        "const o = { run(q) { return db.query(q); } };",
+        "function run(a, { q }) { return db.query(q); }",
+    ],
+)
+def test_variable_bound_query_parameter_forms_silent(tmp_path: Path, param_form: str) -> None:
+    body = "const q = `SELECT * FROM t WHERE n = ${n}`;\n" + param_form + "\n"
+    assert _bound_rules(tmp_path, body) == []
+
+
+def test_variable_bound_query_real_binding_still_fires_beside_a_parameter(tmp_path: Path) -> None:
+    body = "function other(q) { return q; }\nconst q = `SELECT * FROM t WHERE n = ${n}`;\ndb.query(q);\n"
+    assert [r for r, _ in _bound_rules(tmp_path, body)] == ["js-sql-injection/variable-bound-query"]
+
+
+
+@pytest.mark.parametrize(
+    "control_flow",
+    [
+        "if (q) { db.query(q); }",
+        "while (q) { db.query(q); }",
+        "switch (q) { default: db.query(q); }",
+        "for (q; ;) { db.query(q); }",
+    ],
+)
+def test_variable_bound_query_control_flow_condition_is_not_a_parameter(
+    tmp_path: Path, control_flow: str
+) -> None:
+    # A tracked name in an `if (...)` / `while (...)` condition is a USE, not a fresh parameter
+    # binding: the keyword exclusion must hold, or the real binding above goes silent (#1202 r2 H1).
+    body = "const q = `SELECT * FROM t WHERE n = '${req.query.n}'`;\n" + control_flow + "\n"
+    assert [r for r, _ in _bound_rules(tmp_path, body)] == ["js-sql-injection/variable-bound-query"]
+
+
+def test_guard_source_has_no_control_characters() -> None:
+    # A `\b` decoded to a literal backspace byte by an editing tool silently broke two patterns
+    # (#1202 r2 H1); a raw string can never need a C0 control byte here.
+    import re
+
+    import agentsec.guards.js_sql_injection as mod
+
+    src = Path(mod.__file__).read_text(encoding="utf-8")
+    controls = re.finditer(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", src)
+    bad = [(src.count("\n", 0, m.start()) + 1, hex(ord(m.group()))) for m in controls]
+    assert not bad, f"control characters in js_sql_injection.py (line, byte): {bad}"
+
+
+@pytest.mark.parametrize(
+    "prefix",
+    # with a `:` the run belongs to the annotation (r2 H2, cubic); without one it sits between the
+    # name or `)` and the `=`/`=>`/`{` that never comes (r3 M1, quadratic)
+    [
+        "const q: ", "const run = (x): ", "const o = { run(x): ",
+        "const q", "const run = (x)", "const o = { run(x)",
+    ],
+)
+def test_variable_bound_annotation_scan_is_linear_on_a_run_of_spaces(prefix: str) -> None:
+    # Overlapping `\s*` around the optional annotation backtracked on a long run of spaces
+    # (#1202 r2 H2: 3 KB took about 21 s; r3 M1: 64 KB with no annotation took about 14 s).
+    from agentsec.guards.js_sql_injection import _variable_bound_lines
+    from tests._timing import assert_growth
+
+    head = "const q = `SELECT * FROM t WHERE n = ${n}`;\ndb.query(q);\n"
+    sizes = [2000, 4000, 8000, 16000]
+    texts = {n: head + prefix + " " * n + "z\n" for n in sizes}
+
+    def scan(n: int) -> None:
+        _variable_bound_lines(texts[n], texts[n])
+
+    assert_growth(scan, sizes, expected="linear")
+
+def test_sql_verb_detection_is_linear_in_the_number_of_openers() -> None:
+    # Many `select ` / `update ` openers and no `from` / `set` closer: a lazy `select ... from` regex
+    # rescans to the end of the literal from every opener (quadratic).
+    from agentsec.guards.js_sql_injection import _bound_value
+    from tests._timing import assert_growth
+
+    sizes = [4000, 8000, 16000, 32000]
+    texts = {n: "`" + "select update " * n + "${x}`" for n in sizes}
+
+    def scan(n: int) -> None:
+        assert _bound_value(texts[n], 0) is None
+
+    assert_growth(scan, sizes, expected="linear")
+
+
+def test_sql_verb_detection_keeps_its_matches() -> None:
+    from agentsec.guards.js_sql_injection import _has_sql_verb
+
+    for yes in ("SELECT a FROM t", "select\n*\nfrom t", "update t set a = 1", "insert into t", "delete from t",
+                "select update x from y"):
+        assert _has_sql_verb(yes), yes
+    for no in ("select from", "select a", "update t", "hello world", "selectfrom", "update set x"):
+        assert not _has_sql_verb(no), no

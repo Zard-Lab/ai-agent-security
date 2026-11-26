@@ -515,3 +515,94 @@ def test_jsx_href_scheme_pragma_still_suppresses_a_code_anchored_sink(tmp_path: 
     # Both directions (PR #1131 round-1 L1): the shape fires without the pragma.
     assert len(_run_nav(tmp_path, _SINK)) == 1
     assert _run_nav(tmp_path, "  // security: allow-jsx-href-scheme\n" + _SINK) == []
+
+
+# --- static javascript: URL literals (mined from eslint-plugin-react-security's no-javascript-urls) ---
+
+
+def _static_js_url(tmp_path: Path, body: str, name: str = "Nav.jsx") -> list[tuple[str, str]]:
+    (tmp_path / name).write_text(body, encoding="utf-8")
+    findings = JsxHrefSchemeGuard().run(tmp_path, mkprofile(tmp_path, features={"frontend"}))
+    return [(f.rule, f.severity) for f in findings]
+
+
+_STATIC = "jsx-href-scheme/static-javascript-url-literal"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        'const A = () => <a href="javascript:alert(document.cookie)">x</a>;\n',
+        'const A = () => <a href="  JavaScript:alert(1)">x</a>;\n',
+        'const A = () => <a href="java\tscript:alert(1)">x</a>;\n',
+        'const A = () => <form action="javascript:submitIt()"></form>;\n',
+        'const A = () => <a className="b" onClick={() => go()} href="javascript:alert(1)">x</a>;\n',
+        'const A = () => <area href="javascript:alert(1)" />;\n',
+    ],
+)
+def test_static_javascript_url_medium(tmp_path: Path, body: str) -> None:
+    assert _static_js_url(tmp_path, body) == [(_STATIC, "medium")]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        'const A = () => <a href="javascript:void(0)" onClick={go}>x</a>;\n',
+        'const A = () => <a href="javascript:;">x</a>;\n',
+        'const A = () => <a href="javascript:">x</a>;\n',
+    ],
+)
+def test_static_javascript_url_placeholder_is_low(tmp_path: Path, body: str) -> None:
+    assert _static_js_url(tmp_path, body) == [(_STATIC, "low")]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        'const A = () => <a href="#" onClick={go}>x</a>;\n',
+        'const A = () => <a href="/javascript:notes">x</a>;\n',
+        'const A = () => <a href="https://x.test/?u=javascript:1">x</a>;\n',
+        '// <a href="javascript:alert(1)">x</a>\nconst A = () => <a href="#">x</a>;\n',
+        'const html = \'<a href="javascript:alert(1)">x</a>\';\nconst A = () => <div />;\n',
+        'expect(out).toContain(\'<a href="javascript:alert(1)">\');\n',
+        'const A = () => <div href="javascript:alert(1)" />;\n',
+        'const A = () => <a action="javascript:alert(1)">x</a>;\n',
+        'const A = () => <form action="/save"></form>;\n',
+    ],
+)
+def test_static_javascript_url_silent(tmp_path: Path, body: str) -> None:
+    assert _static_js_url(tmp_path, body) == []
+
+
+def test_static_javascript_url_silent_in_test_and_fixture_paths(tmp_path: Path) -> None:
+    for d in ("__tests__", "fixtures", "examples"):
+        (tmp_path / d).mkdir()
+        (tmp_path / d / "Nav.jsx").write_text(
+            'const A = () => <a href="javascript:alert(1)">x</a>;\n', encoding="utf-8"
+        )
+    findings = JsxHrefSchemeGuard().run(tmp_path, mkprofile(tmp_path, features={"frontend"}))
+    assert [f for f in findings if f.rule == _STATIC] == []
+
+
+def test_static_javascript_url_pragma_suppresses(tmp_path: Path) -> None:
+    body = '// security: allow-jsx-href-scheme\nconst A = () => <a href="javascript:alert(1)">x</a>;\n'
+    assert _static_js_url(tmp_path, body) == []
+
+
+def test_static_javascript_url_reports_its_line(tmp_path: Path) -> None:
+    (tmp_path / "Nav.tsx").write_text(
+        'const A = () => (\n  <div>\n    <a href="javascript:alert(1)">x</a>\n  </div>\n);\n',
+        encoding="utf-8",
+    )
+    findings = JsxHrefSchemeGuard().run(tmp_path, mkprofile(tmp_path, features={"frontend"}))
+    assert [f.location for f in findings] == ["Nav.tsx:3"]
+
+
+def test_static_javascript_url_braced_literal_reported_once(tmp_path: Path) -> None:
+    body = "const A = () => <a href={'javascript:doIt()'}>x</a>;\n"
+    assert _static_js_url(tmp_path, body) == [("jsx-href-scheme/href-dynamic-no-scheme-check", "high")]
+
+
+def test_static_javascript_url_braced_literal_with_nearby_guard_still_reported(tmp_path: Path) -> None:
+    body = "const u = sanitizeUrl(x);\nconst A = () => <a href={`javascript:go()`}>x</a>;\n"
+    assert _static_js_url(tmp_path, body) == [(_STATIC, "medium")]

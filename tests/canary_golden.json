@@ -410,6 +410,9 @@
     "definer-function-grants": [
       "definer-function-grants/executable-by-public"
     ],
+    "dependency-typosquat-popular": [
+      "dependency-typosquat-popular/popular-name-near-miss"
+    ],
     "dependency-version-floor": [
       "dependency-version-floor/below-patched-version"
     ],
@@ -496,12 +499,18 @@
     "electron-security-misconfig": [
       "electron-security-misconfig/allow-insecure-content",
       "electron-security-misconfig/blink-features-enabled",
+      "electron-security-misconfig/certificate-error-accept",
       "electron-security-misconfig/contextisolation-disabled",
+      "electron-security-misconfig/dangerous-command-line-switch",
       "electron-security-misconfig/experimental-features-enabled",
+      "electron-security-misconfig/node-integration-in-subframes",
       "electron-security-misconfig/nodeintegration-enabled",
+      "electron-security-misconfig/permission-handler-grant-all",
       "electron-security-misconfig/remote-module-enabled",
       "electron-security-misconfig/sandbox-disabled",
-      "electron-security-misconfig/websecurity-disabled"
+      "electron-security-misconfig/security-warnings-disabled",
+      "electron-security-misconfig/websecurity-disabled",
+      "electron-security-misconfig/webview-node-integration"
     ],
     "empty-password-in-config": [
       "empty-password-in-config/empty-password"
@@ -755,7 +764,8 @@
       "js-server-side-open-redirect/request-derived-redirect-target"
     ],
     "js-sql-injection": [
-      "js-sql-injection/interpolated-query-string"
+      "js-sql-injection/interpolated-query-string",
+      "js-sql-injection/variable-bound-query"
     ],
     "js-ssrf": [
       "js-ssrf/request-derived-url"
@@ -769,13 +779,16 @@
       "js-system-prompt-injection/tainted-system-role-content"
     ],
     "js-weak-crypto": [
+      "js-weak-crypto/ecb-cipher-mode",
+      "js-weak-crypto/weak-cipher-algorithm",
       "js-weak-crypto/weak-hash-algorithm"
     ],
     "js-xxe-unsafe-parsing": [
       "js-xxe-unsafe-parsing/libxmljs-noent-true"
     ],
     "jsx-href-scheme": [
-      "jsx-href-scheme/href-dynamic-no-scheme-check"
+      "jsx-href-scheme/href-dynamic-no-scheme-check",
+      "jsx-href-scheme/static-javascript-url-literal"
     ],
     "jwt-alg": [
       "jwt-alg/js-verify-disabled",
@@ -1099,6 +1112,10 @@
     "no-pan-stored": [
       "no-pan-stored/raw-card-data"
     ],
+    "node-db-driver-hardcoded-password": [
+      "node-db-driver-hardcoded-password/connection-url-embedded-password",
+      "node-db-driver-hardcoded-password/driver-config-literal-password"
+    ],
     "nosql-injection-js": [
       "nosql-injection-js/unvalidated-filter-value"
     ],
@@ -1110,7 +1127,12 @@
     ],
     "npm-install-script-network": [
       "npm-install-script-network/install-script-network-call",
+      "npm-install-script-network/install-script-shell-obfuscation",
       "npm-install-script-network/mcp-package-typosquat"
+    ],
+    "npm-lifecycle-script-source-sinks": [
+      "npm-lifecycle-script-source-sinks/lifecycle-script-dynamic-eval",
+      "npm-lifecycle-script-source-sinks/lifecycle-script-exfil"
     ],
     "obfuscated-payload-execution": [
       "obfuscated-payload-execution/decode-exec-chain",
@@ -1794,6 +1816,7 @@
     "cloudwatch_logs_kms.tf": "f3393b1aecca6a3fae930d694e6f6ed411a91111790561fda05b93056c1108c4",
     "components/ExternalLink.jsx": "e0f9955a05d8b1ac67807e90610212907ba4d6dd00ddcf2416b92f158ba720c3",
     "components/NavLink.jsx": "94889458df2ca95f419a7a317a9a97b32a2e0bab7600554f81ed79222b1345d2",
+    "components/StaticJsLink.jsx": "05a608f013cdcf2f35ef2e0a6593d13484f2f623b2690df2108843dc1b769967",
     "components/UserContent.jsx": "0872aabec5a3ec01f5998fdcd1679bf4f72ad6ac120737ba31af60090ae69ae9",
     "components/api_client.js": "596a73a3e6e5cbd7a5371a1f976b16d961d12a87b7995dbf041747db48f5c9a9",
     "components/auth.js": "f10d8623a2dd4452ea72a101ac3a248f57241ba6ed8a0dede3b430c78f580c6a",
@@ -1818,6 +1841,7 @@
     "db.py": "3cf3e9d255b858b1cc9b22feb02c0688c92d550d28f02a7fdf411ae4a8cdb061",
     "db_helper.py": "e77532307baca2fe33225571b618066127abb8b63b99c7d7b05e33eb10151545",
     "debug_endpoints.py": "67ceb102491386d92ea857caea020d82a68c99e9556e055d69a753b823ff789a",
+    "dependency-typosquat-popular-canary/requirements.txt": "416b278243699fdccd858b0cb69b691d9ba3864855e393f7c783019b7c9bdae7",
     "deploy.py": "45e20db5fff6a0caaef3f2f2977285efbe18d08cf9f6bc95c6a9cce56e7d30ff",
     "deploy.rb": "9620518c52a15392667185cd4bd931b9c62719f0f0519230b40354c629d52ce4",
     "dispatch.rb": "de92b8675ea9007bbaad8a766ab3104094690a41a718b6d11f38101240c5b51f",
@@ -1854,6 +1878,8 @@
     "efs_encryption.tf": "2dc3e00e2aa12f2a64be4e9c6a762d2223f510f5db7e7c93acd50db710d9b328",
     "elasticache_transit_encryption.tf": "b486e7b5e87770866dbdf521f43dd673e261fa055449df798e0b4b38ee22eaac",
     "electron_main.js": "9012793604037c39b7b21de587de72a8487d9db17475d3a923980cd80bb48937",
+    "electron_main_process.js": "ed1c6e9e60a3479db01d2510b923bfc2a19389769451b71d0c00ff1fc65a9e53",
+    "electron_webview.html": "311cfbb9010388aa140f4c9467ff142802c68dbd1c3072c7ee6f1617cf13944d",
     "empty_password_config.json": "75bc026a5380b372de80f33a3bbade1b2f1008a131ff54bd829568b7db0eb0d2",
     "env_dump.py": "e3ec3770873b7826c9fb8439458c9c4e738295b2c56576a02ec7dad8b902fd9f",
     "env_setup.py": "a40bda653c9fee2d9e2b3c6fedf488580ff68aee3aac384b1d5a6ea9b1217ec1",
@@ -1889,6 +1915,7 @@
     "express_tls.js": "e23a219d7feb94e6ac0de73f20d38311f215320686a47ca87dab0e2429ac9590",
     "express_url_scheme.js": "a12d8b36b3422bda3a008ea3b8fbf17d91f83cc047bf146e08875a993e9f7299",
     "express_url_substring.js": "86b2e6ee31579ca70e9d826cafcb98f7d11be83cf187d1a4c0494154d0c73209",
+    "express_weak_cipher_ecb.js": "d93925c4df3b5b7d70772b2a4ff9d18fa03e583f2de754436fb7eb2a57d99975",
     "express_weak_crypto.js": "92ce2449a5a1fcf6094723ac6096d9133c668355d0e2b33b29ced55ce2a6e60b",
     "express_xxe.js": "be2d48afadbceda96b04b11d39fd42eef4d0b05903f8a660a80def29c8aef496",
     "express_zip.js": "7aa8f554870f9b4aa53b57d2e27488f9aa81a22b89c57e15cc03ae9f7426a176",
@@ -1941,6 +1968,7 @@
     "ip_limiter.py": "90968233198956874a2ce971beccb2dba0d4a1b27063b3ce9b4be02b01bb7a9e",
     "js_command_exec.js": "c06bcd2682bbe9145a7660b8660de64559acbd9eac8a6f89c24a7aabf63863e0",
     "js_fs_read.js": "ed4c25181c8c523719484556cff0fa0dfe60faeee7a4d53eb4f14af698a84698",
+    "js_sql_bound_query.js": "ef41048b2585bf50377b0ca92cf052b0dc22b87e6bd0c3e38d3441dc8d0bb6e0",
     "js_sql_query.js": "7f29b8a1e21f283a559f8048aced06616754dddac030ccc4d971253dafb10054",
     "js_ssrf_fetch.js": "ec7304cb4cb37b611ad07c97c394bf30093dcde695e57a7abe383a7275768ff1",
     "jwt_handler.py": "147aa3eac88ebb13dffeef07bc6f592c9138b24d2d186baf6c101b158e3b6ece",
@@ -2027,10 +2055,13 @@
     "multi_agent_relay.py": "d0fc58994a030e493983dbd7d32bb08fc6d7ec21b70c4b1fc326478aaa3235ae",
     "next.config.js": "8222b8169ee86f25cdccd84d340340060ae3f0cff55e2ea9d344d7c332733b71",
     "nginx.conf": "63b080364931b9afefcabcf86ab6e7e61aa69fadf6930c3fe3e0ee651e094d22",
+    "node_db_hardcoded_password.js": "d367368cea7999e5ff0fd68e33c63af9bb872f46cb7ff23bca3f0f258c952219",
     "nosql_query.js": "0a0b2885d4607d6995ccf95f247ed27c5a5cfb0b7375abadb12ea5189a1d05db",
     "notes.md": "2a54a35353354af6a7a36fff325678303c294d7af7c347e1ddd5b00ed229fe88",
     "notes_zwj.md": "07519696ac4e3dd49209d18c32bedfab2587cfc6bfb5b3862229a5017d5a90e3",
     "npm-install-script-network-canary/package.json": "cb2dd28cfe1dffe767f0b6a42ea293beccf09623ac4e92d18f8313191d78bfc5",
+    "npm-lifecycle-script-source-sinks-canary/package.json": "6f2f5619ae6461be22a0e905aa3d46de22146a2bf49cb2a30d869115ddb72bb0",
+    "npm-lifecycle-script-source-sinks-canary/scripts/setup.js": "c6fbc6950e3b19e40a904bef459c4a218dddedc77f206b513ca7b71552de932e",
     "oauth_client.py": "9e429bfbd1c595b4816d58c4135859cd1f7acdff5a7818523195ca4900f61024",
     "oauth_config.py": "13b1d58b5e2a31cc6eae51789bdfc096346d009feb81c41ead940de885c36803",
     "observability_hygiene.tf": "462ee19520e4a51debaff8e87b644e704883c4539036d17f7dc11433a0c5b699",

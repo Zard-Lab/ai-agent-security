@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from agentsec.guards.js_weak_crypto import JsWeakCryptoGuard
 from tests.guards._common import *  # noqa: F401,F403
 
@@ -239,3 +241,59 @@ def test_pragma_quoted_in_a_string_on_the_line_does_not_suppress(tmp_path: Path)
     )
     profile = mkprofile(tmp_path, features={"javascript"})
     assert len(JsWeakCryptoGuard().run(tmp_path, profile)) == 1
+
+
+# --- ECB and legacy cipher names (mined from eslint-plugin-security-rules' banned-algorithm list) ---
+
+
+def _cipher_findings(tmp_path: Path, body: str) -> list[tuple[str, str]]:
+    (tmp_path / "enc.js").write_text("const crypto = require('crypto');\n" + body, encoding="utf-8")
+    profile = mkprofile(tmp_path, features={"javascript"})
+    return [(f.rule, f.severity) for f in JsWeakCryptoGuard().run(tmp_path, profile)]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "crypto.createCipheriv('aes-256-ecb', key, null);\n",
+        'crypto.createDecipheriv("AES-128-ECB", key, null);\n',
+        "const { createCipheriv } = require('crypto');\ncreateCipheriv('camellia-128-ecb', k, null);\n",
+        "const c = require('crypto');\nc.createCipheriv('bf-ecb', k, null);\n",
+        "const enc = CryptoJS.AES.encrypt(m, k, { mode: CryptoJS.mode.ECB });\n",
+    ],
+)
+def test_ecb_mode_is_high(tmp_path: Path, body: str) -> None:
+    assert _cipher_findings(tmp_path, body) == [("js-weak-crypto/ecb-cipher-mode", "high")]
+
+
+@pytest.mark.parametrize(
+    "name", ["bf-cbc", "des-ede3-cbc", "des-cbc", "des-ede-cbc", "rc4-hmac-md5", "rc2-40-cbc", "cast5-cbc", "desx-cbc"]
+)
+def test_legacy_cipher_family_is_medium(tmp_path: Path, name: str) -> None:
+    body = f"crypto.createCipheriv('{name}', key, iv);\n"
+    assert _cipher_findings(tmp_path, body) == [("js-weak-crypto/weak-cipher-algorithm", "medium")]
+
+
+def test_exact_legacy_names_stay_high(tmp_path: Path) -> None:
+    body = "crypto.createCipheriv('des-ede3', key, iv);\n"
+    assert _cipher_findings(tmp_path, body) == [("js-weak-crypto/weak-cipher-algorithm", "high")]
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "crypto.createCipheriv('aes-256-gcm', key, iv);\n",
+        "crypto.createCipheriv('aes-256-cbc', key, iv);\n",
+        "crypto.createCipheriv('chacha20-poly1305', key, iv);\n",
+        "crypto.createCipheriv('bfx-custom', key, iv);\n",
+        "// crypto.createCipheriv('aes-256-ecb', key, null);\n",
+        "const enc = CryptoJS.AES.encrypt(m, k, { mode: CryptoJS.mode.CBC });\n",
+    ],
+)
+def test_strong_or_commented_ciphers_silent(tmp_path: Path, body: str) -> None:
+    assert _cipher_findings(tmp_path, body) == []
+
+
+def test_ecb_pragma_suppresses(tmp_path: Path) -> None:
+    body = "crypto.createCipheriv('aes-256-ecb', key, null); // security: allow-js-weak-crypto\n"
+    assert _cipher_findings(tmp_path, body) == []

@@ -29,6 +29,13 @@ Three distinct rules, one guard (same "several rules under one class" shape as `
     argument — `'des'`, `'des-ede3'`, `'rc4'`, `'rc2'` — or `CryptoJS.DES.encrypt(...)` /
     `CryptoJS.RC4.encrypt(...)`/`.decrypt(...)`.
 
+Extended with the legacy-name and ECB shapes mined from eslint-plugin-security-rules' banned
+cipher list: a `createCipheriv`/`createDecipheriv` name that ends in `-ecb` (any block cipher in
+ECB mode leaks plaintext structure) is HIGH `ecb-cipher-mode`, as is `CryptoJS.mode.ECB`; a name
+whose leading cipher family is DES / 3DES / RC2 / RC4 / Blowfish / CAST5 (`bf-cbc`,
+`des-ede3-cbc`, `rc4-hmac-md5`, `desx-cbc`) is MEDIUM `weak-cipher-algorithm` beyond the four
+exact names that were already HIGH.
+
 Fires HIGH (matches `weak_crypto.py`'s severity for the equivalent Python findings). A static,
 audited case is suppressed with:
 
@@ -48,7 +55,7 @@ import re
 from pathlib import Path
 
 from agentsec.detect import StackProfile
-from agentsec.findings import Finding
+from agentsec.findings import Finding, Severity
 
 from .base import (
     CanaryPlant,
@@ -84,6 +91,14 @@ _CREATE_CIPHER_DEPRECATED = re.compile(r"\b(?:crypto\.)?create(?:Cipher|Decipher
 # flagged only when the algorithm string (the first argument) is on the weak list.
 _CREATE_CIPHERIV = re.compile(r"\b(?:crypto\.)?create(?:Cipheriv|Decipheriv)\s*\(\s*['\"]([\w-]+)['\"]")
 
+# A legacy cipher family at the start of an OpenSSL cipher name (`bf-cbc`, `des-ede3-cbc`,
+# `rc4-hmac-md5`, `rc2-40-cbc`, `cast5-cbc`, `desx-cbc`, `des3`). The `(?:-|$)` keeps `bfx`/`design`
+# style names out.
+_LEGACY_CIPHER_FAMILY = re.compile(r"^(?:des(?:-ede3?|x|3)?|rc2|rc4|bf|cast5?)(?:-|$)")
+
+# CryptoJS.mode.ECB — the ECB block mode selected through crypto-js options.
+_CRYPTOJS_ECB = re.compile(r"\bCryptoJS\.mode\.ECB\b")
+
 # CryptoJS.MD5(...) / CryptoJS.SHA1(...) — the crypto-js library's own weak hash entry points.
 _CRYPTOJS_HASH = re.compile(r"\bCryptoJS\.(MD5|SHA1)\s*\(")
 
@@ -105,8 +120,17 @@ class JsWeakCryptoGuard(Guard):
                 "const crypto = require('crypto');\n"
                 "const digest = crypto.createHash('md5').update(data).digest('hex');\n"
             ),
+            "express_weak_cipher_ecb.js": (
+                "const crypto = require('crypto');\n"
+                "const a = crypto.createCipheriv('aes-256-ecb', key, null);\n"
+                "const b = crypto.createCipheriv('bf-cbc', key, iv);\n"
+            ),
         },
-        expects=frozenset({"js-weak-crypto/weak-hash-algorithm"}),
+        expects=frozenset({
+            "js-weak-crypto/weak-hash-algorithm",
+            "js-weak-crypto/ecb-cipher-mode",
+            "js-weak-crypto/weak-cipher-algorithm",
+        }),
     )
 
     def applies(self, profile: StackProfile) -> bool:
@@ -167,14 +191,49 @@ class JsWeakCryptoGuard(Guard):
                 continue
 
             cm = _CREATE_CIPHERIV.search(line)
-            if cm and cm.group(1).lower() in _WEAK_CIPHER_ALGOS:
+            if cm:
+                algo = cm.group(1).lower()
+                if algo.endswith("-ecb"):
+                    out.append(self._finding(
+                        root, f, i, "ecb-cipher-mode",
+                        f"ECB mode ({cm.group(1)}) used via crypto.createCipheriv",
+                        "ECB encrypts identical plaintext blocks to identical ciphertext blocks, "
+                        "leaking structure and allowing block reordering; it is unsuitable for "
+                        "any data over one block.",
+                        "Use an authenticated mode: aes-256-gcm (or chacha20-poly1305) with a "
+                        "fresh random IV per message.",
+                    ))
+                    continue
+                if algo in _WEAK_CIPHER_ALGOS:
+                    out.append(self._finding(
+                        root, f, i, "weak-cipher-algorithm",
+                        f"Weak cipher algorithm ({cm.group(1)}) used via crypto.createCipheriv",
+                        "DES/3DES/RC4/RC2 are broken or dangerously weak ciphers — small block/key "
+                        "sizes and known practical attacks make them unsuitable for confidentiality.",
+                        "Use a modern authenticated cipher: AES-256-GCM (aes-256-gcm) or "
+                        "ChaCha20-Poly1305.",
+                    ))
+                    continue
+                if _LEGACY_CIPHER_FAMILY.match(algo):
+                    out.append(self._finding(
+                        root, f, i, "weak-cipher-algorithm",
+                        f"Legacy cipher ({cm.group(1)}) used via crypto.createCipheriv",
+                        "DES/3DES/RC2/RC4/Blowfish/CAST5 are legacy ciphers with small blocks or "
+                        "keys and known attacks; modern AEAD ciphers replace all of them.",
+                        "Use a modern authenticated cipher: AES-256-GCM (aes-256-gcm) or "
+                        "ChaCha20-Poly1305.",
+                        severity="medium",
+                    ))
+                    continue
+
+            if _CRYPTOJS_ECB.search(line):
                 out.append(self._finding(
-                    root, f, i, "weak-cipher-algorithm",
-                    f"Weak cipher algorithm ({cm.group(1)}) used via crypto.createCipheriv",
-                    "DES/3DES/RC4/RC2 are broken or dangerously weak ciphers — small block/key "
-                    "sizes and known practical attacks make them unsuitable for confidentiality.",
-                    "Use a modern authenticated cipher: AES-256-GCM (aes-256-gcm) or "
-                    "ChaCha20-Poly1305.",
+                    root, f, i, "ecb-cipher-mode",
+                    "ECB mode selected via CryptoJS.mode.ECB",
+                    "ECB encrypts identical plaintext blocks to identical ciphertext blocks, "
+                    "leaking structure and allowing block reordering.",
+                    "Use CryptoJS.mode.CBC with a random IV plus a MAC, or move to Node's "
+                    "aes-256-gcm.",
                 ))
                 continue
 
@@ -190,11 +249,19 @@ class JsWeakCryptoGuard(Guard):
         return out
 
     def _finding(
-        self, root: Path, f: Path, line: int, rule: str, title: str, message: str, remediation: str
+        self,
+        root: Path,
+        f: Path,
+        line: int,
+        rule: str,
+        title: str,
+        message: str,
+        remediation: str,
+        severity: Severity = "high",
     ) -> Finding:
         return Finding(
             check_id=self.id,
-            severity="high",
+            severity=severity,
             title=title,
             location=f"{rel(root, f)}:{line}",
             message=message,

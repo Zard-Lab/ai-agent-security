@@ -123,6 +123,7 @@
 * [default-service-credential](default-service-credential.md) - Deployed service left on a well-known factory-default credential.
 * [definer-dynamic-sql](definer-dynamic-sql.md) - SECURITY DEFINER function executes arbitrary/dynamic SQL.
 * [definer-function-grants](definer-function-grants.md) - SECURITY DEFINER function executable by anon/authenticated.
+* [dependency-typosquat-popular](dependency-typosquat-popular.md) - A declared dependency name is one typing slip away from a popular PyPI or npm package.
 * [dependency-version-floor](dependency-version-floor.md) - Dependencies meet the patched-version floor for known CVEs.
 * [destructive-filesystem-command](destructive-filesystem-command.md) - No hardcoded destructive filesystem-wipe command targeting a root/home/device path.
 * [dns-egress-allowlist](dns-egress-allowlist.md) - DNS resolver not configured as a default-deny egress allowlist.
@@ -323,10 +324,12 @@
 * [next-server-action-no-auth](next-server-action-no-auth.md) - Next.js Server Action performing a mutation with no auth check.
 * [no-cache-on-sensitive](no-cache-on-sensitive.md) - Sensitive route response missing Cache-Control: no-store (ASVS 14.3.2).
 * [no-pan-stored](no-pan-stored.md) - Raw card number / CVV captured, stored, or logged — PCI violation.
+* [node-db-driver-hardcoded-password](node-db-driver-hardcoded-password.md) - Node DB driver configured with a hardcoded password.
 * [nosql-injection-js](nosql-injection-js.md) - NoSQL query filter built from unvalidated request input (Node/Mongoose).
 * [nosql-metadata-injection](nosql-metadata-injection.md) - No NoSQL operator injection (Mongo $-operators from user input).
 * [npm-ignore-scripts](npm-ignore-scripts.md) - npm install scripts not blocked (missing ignore-scripts=true).
 * [npm-install-script-network](npm-install-script-network.md) - An npm install-lifecycle script reaches the network, or a dependency name typosquats a trusted MCP package.
+* [npm-lifecycle-script-source-sinks](npm-lifecycle-script-source-sinks.md) - A JavaScript file run by an npm install-lifecycle script steals credentials, evals a string, or self-publishes.
 * [obfuscated-payload-execution](obfuscated-payload-execution.md) - No obfuscated payload (base64/hex/binary-decoded) fed to an execution sink.
 * [open-redirect](open-redirect.md) - No open redirect from user input.
 * [opensearch-domain-encryption-disabled](opensearch-domain-encryption-disabled.md) - OpenSearch/Elasticsearch domain has an encryption control disabled.

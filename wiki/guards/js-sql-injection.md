@@ -114,6 +114,25 @@ app.get('/users/:id', async (req, res) => {
 - A reviewed case where the interpolated fragment is a trusted, server-controlled constant (never
   user input) — suppress the line/file with `// security: allow-js-sql-injection`.
 
+## Variable-bound queries
+
+Mined from js-x-ray's `sql-injection` probe, which resolves an identifier argument back to a template
+literal that holds SQL. In a file that imports a driver, the guard collects
+`const|let|var NAME = <template or "..." + expr>` bindings whose static text looks like SQL
+(`select ... from`, `insert into`, `delete from`, `update ... set`) and carries a non-constant
+fragment, then flags `.query(NAME)` / `.execute(NAME)` when the first argument is that bare
+identifier. Rule `js-sql-injection/variable-bound-query`, HIGH, reported on the call line.
+
+The binding that counts is the nearest one before the call, so the same name reused in two functions
+is judged per call. It is silent when:
+
+- the query is a static string with `$1`/`?` placeholders (nothing is interpolated);
+- every interpolated fragment is a SCREAMING_CASE constant, a number, or an escaper / numeric
+  coercion call (`escape`, `escapeId`, `escapeLiteral`, `escapeIdentifier`, `Number`, `parseInt`,
+  `parseFloat`, `format`);
+- the name is reassigned between the binding and the call;
+- the binding sits in a comment, or the file does not import `pg`, `mysql`, `mysql2` or `pg-promise`.
+
 ## Tests
 
 | Test | What it checks |
@@ -136,6 +155,13 @@ app.get('/users/:id', async (req, res) => {
 | `test_flags_query_nested_in_a_template_substitution` | a real query inside a `${...}` substitution still fires (the traded direction, #749) |
 | `test_query_between_two_desyncing_substitutions_fires` | the former accepted #749 false negative, fixed by #543: a query between a `{`-regex substitution and a later `}`-regex one fires, as do one such construct alone and a query after the pair |
 | `test_quoted_query_does_not_hide_a_real_one_on_the_same_line` | a quoted query and a real one on one line leave exactly the real one |
+| `test_variable_bound_query_fires` | template, concatenation (also split over lines), TS-annotated `let`, multi-line template and `.execute()` bound to a variable fire |
+| `test_variable_bound_query_reports_the_call_line` | the finding is on the call line, not the binding |
+| `test_variable_bound_mysql2_import_fires` | the mysql2 import also gates the rule on |
+| `test_variable_bound_query_silent` | placeholders, constants, escaped/numeric operands, reassignment, a different variable, a commented binding and a non-SQL template stay silent |
+| `test_variable_bound_query_needs_driver_import` | no driver import, no finding |
+| `test_variable_bound_query_pragma_suppresses` | the file pragma silences the rule |
+| `test_variable_bound_query_rebound_per_function` | the same name safe in one function and unsafe in another yields exactly one finding |
 
 Adversarial self-test (throwaway script, run against a standalone fixture file, not part of the
 committed test suite): a file with all four of the task's canonical lines — template-literal
@@ -151,9 +177,7 @@ interpolation, string concatenation, a parameterized call, and a fully static ca
   guard stays silent there — a false negative. This is the direct cost of the precision choice (see
   "Detection design" §2); the alternative (no import gate) trades this FN for false-positiving on
   every unrelated `.query()`-named method in the codebase, which was judged worse for signal quality.
-- **Pre-built query variable.** `const q = \`SELECT ... ${x}\`; db.query(q);` on a later line is not
-  traced — the interpolation and the call must be on the same physical line (same limitation as
-  `sqlalchemy-text-parameterized`).
+- **Pre-built query variable: covered for a same-file binding.** See "Variable-bound queries". A query built in another module, a function parameter, or a binding that is reassigned before the call is not traced.
 - **Multi-line call.** `db.query(\n  \`SELECT ... ${x}\`\n)` — the sink and the interpolated string
   split across lines — is not matched; detection is single-line only.
 - **Non-driver-literal SQL clients.** ORMs/query-builders (Knex, Sequelize, Prisma, TypeORM) that

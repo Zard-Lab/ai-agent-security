@@ -209,6 +209,7 @@ marker of the current registry state, not a feature drop.
 One line per patch release (`v0.MINOR.Z`, Z > 0): non-breaking fixes, hygiene, and new detections.
 Newest first; the full notes for each live in its GitHub Release.
 
+- **v0.22.3** (2026-11-26): 3 new and 5 extended JS and supply-chain guards from research batch 4 (js-x-ray, eslint, electronegativity, wormguard, typomania)
 - **v0.22.2** (2026-11-17): 3 new Dockerfile guards from the cr0hn/dockerfile-security research cycle: RUN --security=insecure and dangerous chmod/SUID, docker-login/HEALTHCHECK credential exposure, WORKDIR pointing to a system directory. First PyPI release: `pipx install ai-agent-security`, and the action, issues and releases move to the public `Zard-Lab/ai-agent-security`
 - **v0.22.1** (2026-11-11): Widen hardcoded-llm-provider-key/client-side-secret-literal to 5 new LLM/RAG provider-key formats (Pinecone, Replicate, Groq, LangSmith, Supabase PAT).
 - **v0.21.71** (2026-10-29): Terraform AWS checks from the sonar-iac catalog: S3 MFA-delete, insecure-transport policy and canned ACL; MSK, OpenSearch, ElastiCache, EFS, ECS-EFS and Kinesis encryption; ALB plaintext listeners; weak TLS policies; RDS/Aurora backup retention; Aurora-cluster storage encryption and Redshift public access

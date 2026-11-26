@@ -90,6 +90,30 @@ _RULES: tuple[tuple[re.Pattern[str], str, Severity, str], ...] = (
 Each finding's `rule` is `electron-security-misconfig/<slug>`, so triage and
 suppression can target one specific flag rather than the whole guard.
 
+## Main-process and markup sub-rules
+
+Mined from Electronegativity's `CustomArgumentsJSCheck`, `SecurityWarningsDisabledJSCheck`,
+`CertificateErrorEventJSCheck`, `CertificateVerifyProcJSCheck`, `NodeIntegrationJSCheck`,
+`NodeIntegrationHTMLCheck` and `PermissionRequestHandlerJSCheck`. The source flags many of these for
+manual review on every use; here each is narrowed to a shape that is wrong on its face. They do not
+need a `BrowserWindow` in the file (a switch or handler lives in the main process), and the `<webview>`
+rule also reads `.html`, `.htm`, `.vue`, `.jsx` and `.tsx`. Matches must be live code (comments and
+string-only mentions stay silent), and the same file-level pragma silences them.
+
+| Rule slug | Fires on | Severity |
+|-----------|----------|----------|
+| `dangerous-command-line-switch` | `appendSwitch`/`appendArgument` of `ignore-certificate-errors`, `disable-web-security`, `no-sandbox`, `allow-running-insecure-content`, `remote-debugging-port`, `unsafely-treat-insecure-origin-as-secure`, `allow-file-access-from-files`| high |
+| `security-warnings-disabled` | `ELECTRON_DISABLE_SECURITY_WARNINGS = true` (an environment variable, not a switch) | low |
+| `certificate-error-accept` | a `certificate-error` listener whose handler only calls `cb(true)`, or `setCertificateVerifyProc` whose callback only calls `cb(0)` | high |
+| `node-integration-in-subframes` | `nodeIntegrationInSubFrames: true` / `nodeIntegrationInWorker: true` in a window with a context | high |
+| `webview-node-integration` | `<webview nodeintegration>` or `nodeintegrationinsubframes` in markup | high |
+| `permission-handler-grant-all` | `setPermissionRequestHandler((wc, perm, cb) => cb(true))`, the handler body being only the accept call | medium |
+
+A handler that branches, compares, tests a host or answers `false`/`-3` anywhere is not an
+unconditional accept and stays silent. `nodeintegration="false"` on a `<webview>` stays silent.
+Known gaps: a switch name held in a variable, a handler defined elsewhere and passed by name, and
+a permission handler that is `cb(true)` only after an unrelated early return.
+
 ## Severity rationale
 
 - **CRITICAL** — `websecurity-disabled`, `nodeintegration-enabled`,
@@ -157,6 +181,13 @@ to their dangerous literal value in a file that also constructs a
 | `test_electron_flag_or_context_spelled_in_a_string_stays_silent` | #1055 FP direction: a flag in a warning string or template text next to a safe window, or a context named only in a string, does not fire. |
 | `test_electron_real_flag_still_fires` | #1055: the real flag fires, including a window nested in `${...}` and a flag after a quoted copy on the same line. |
 | `test_electron_pragma_still_suppresses_a_code_anchored_flag` | The pragma still silences a finding the anchor rule kept. |
+| `test_electron_dangerous_switch_fires` / `_silent` | Switch rule: the dangerous names fire (aliased `cl.appendSwitch`, `--` prefix); `lang`, comments, string mentions and a longer name stay silent. |
+| `test_electron_disable_security_warnings_low` | `ELECTRON_DISABLE_SECURITY_WARNINGS` set true is low, `'false'` is silent. |
+| `test_electron_certificate_error_accept_fires` / `_silent` | Unconditional `cb(true)`/`cb(0)` fires; a host check, `cb(false)` or a commented handler is silent. |
+| `test_electron_subframe_and_worker_node_integration` | `nodeIntegrationInSubFrames: true` fires, `nodeIntegrationInWorker: false` is silent. |
+| `test_electron_webview_node_integration_fires` / `_silent` / `_pragma_silences` | `<webview nodeintegration>` in html/jsx fires; `="false"`, comments and non-webview tags are silent; the pragma silences. |
+| `test_electron_permission_handler_grant_all` / `_selective_silent` | Grant-all handler fires (arrow and block body); a selective handler is silent. |
+| `test_electron_main_process_rules_pragma_silences` | The pragma silences the main-process rules. |
 | `test_electron_security_misconfig_not_applies_without_feature` | Feature gate: guard returns `[]` when `"electron"` is not in `profile.features`. |
 
 # Citations
